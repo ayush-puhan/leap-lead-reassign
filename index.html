@@ -79,6 +79,15 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .stagegrid small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
 .stagegrid b{font-size:18px}
 .stagegrid .tot{background:var(--blue-soft);border-color:#c9d6ff}
+.grpwrap{display:flex;flex-direction:column;gap:8px}
+.grprow-wrap{display:flex;flex-direction:column;gap:0}
+.grprow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:#fff;width:100%;text-align:left}
+.grprow b{font-size:13px;flex:1}
+.grprow .n{font-size:16px;font-variant-numeric:tabular-nums;font-weight:700}
+.grprow .chev{transition:transform .15s}
+.grprow .chev.open{transform:rotate(180deg)}
+.grpbody{padding:10px 4px 2px 14px;display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--line-soft);margin:2px 0 2px 14px}
+.grpsub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
 label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a}
 input[type=date],select.in,textarea{border:1px solid #c8d1de;border-radius:6px;padding:8px 10px;font:inherit;color:var(--ink);background:#fff;max-width:100%}
 textarea{min-height:80px;resize:vertical;width:100%}
@@ -229,6 +238,25 @@ var SERVICING_TYPES = ["FREE_SERVICE","PAID_SERVICE"];
 var PROGRAM_TYPES = ["MASTERS","UNDER_GRADUATION"];
 function prettyEnum(code){ return String(code).replace(/^LS_/,"").split("_").map(function(w){return w[0]+w.slice(1).toLowerCase();}).join(" "); }
 var STAGE_LABEL = {}; STAGES.forEach(function(s){ STAGE_LABEL[s]=prettyEnum(s); });
+
+/* Stage groups: the funnel view the business thinks in, layered on top of the raw Bofu Status codes.
+   Every stage belongs to exactly one group. "Dropped off" is further split into Pre ISL / Post ISL —
+   ISL = Institute Shortlisted (the LS_COLLEGE_SHORTLISTED milestone) — based on whether the lead had
+   already been shortlisted before it went dead/dropped off (see DROPOFF_SPLIT below). */
+var GROUP_LABEL = {open_app:"Open App (Prior to STI Stage)", sti_done:"STI Done", deposit_done:"Deposit Done", visa:"Visa", dropped_off:"Dropped Off", ungrouped:"Other"};
+var GROUP_ORDER = ["open_app","sti_done","deposit_done","visa","dropped_off","ungrouped"];
+var STAGE_GROUP = {};
+[
+  ["open_app",["LS_LEAD_CAPTURED","LS_WEBINAR_SCHEDULED","LS_WEBINAR_ATTENDED","LS_WEBINAR_CANCELLED","LS_COUNSELING_CALL_DONE","LS_AGENT_CHANGE_CALL_SCHEDULED","LS_COLLEGE_SHORTLISTED","LS_COLLEGE_FINALIZED","LS_APPLICATION_PROCESS_STARTED","LS_APPLICATION_IN_PROCESS","LS_APPLICATION_PROCESS_ON_HOLD","LS_APPLICATION_SUBMITTED_TO_AGGREGATOR","LS_APPLICATION_ON_HOLD_BY_AGGREGATOR","LS_PAYMENT_DONE"]],
+  ["sti_done",["LS_APPLICATION_SUBMITTED_TO_INSTITUTE","LS_APPLICATION_ON_HOLD_BY_INSTITUTE","LS_APPLICATION_REJECTED_BY_AGGREGATOR","LS_CONDITIONAL_ADMIT_RECEIVED","LS_UNCONDITIONAL_ADMIT_RECEIVED","LS_ADMIT_RECEIVED","LS_ADMIT_ACCEPTED","LS_ADMIT_DECLINED","LS_ADMIT_REJECTED_BY_INSTITUTE","LS_OFFER_REVOKED_BY_UNIVERSITY"]],
+  ["deposit_done",["LS_DEPOSIT_PAID","LS_TUITION_FEE_PAID"]],
+  ["visa",["LS_VISA_FILING_STARTED","LS_VISA_APPLIED","LS_VISA_WIP","LS_VISA_PROCESS_ON_HOLD","LS_VISA_GRANTED","LS_VISA_REJECTED","LS_VISA_DROPPED"]],
+  ["dropped_off",["LS_DEAD_LEAD","LS_LEAD_DROP_OFF","LS_LEAD_CLOSED_AFTER_SALES_CALL"]],
+  ["ungrouped",["LS_USER_ACQUIRED"]]
+].forEach(function(pair){ pair[1].forEach(function(code){ STAGE_GROUP[code]=pair[0]; }); });
+/* Demo-only: fixed pre/post ISL split for the two dropped-off codes present in this leaver's book,
+   so the mockup's numbers are deterministic and match the PRD exactly. */
+var DROPOFF_SPLIT = { LS_DEAD_LEAD:{pre:15,post:10}, LS_LEAD_DROP_OFF:{pre:10,post:5}, LS_LEAD_CLOSED_AFTER_SALES_CALL:{pre:0,post:0} };
 var FN = ["Aarav","Ananya","Rohan","Ishita","Kabir","Diya","Vivaan","Meher","Aditya","Saanvi","Reyansh","Kavya","Arnav","Tara","Dhruv","Riya","Yash","Nisha","Kunal","Pooja","Siddharth","Aditi","Varun","Sneha","Harsh","Tanvi","Manav","Ira","Nikhil","Zoya"];
 var LN = ["Shah","Patel","Reddy","Das","Menon","Kapoor","Bose","Pillai","Chopra","Agarwal","Bhat","Sinha","Rao","Malhotra","Jain","Saxena","Ghosh","Naidu","Kohli","Mishra"];
 var seed = 7; function rnd(){ seed = (seed*16807)%2147483647; return (seed-1)/2147483646; }
@@ -242,16 +270,23 @@ function parseIso(s){ var p=s.split("-"); return new Date(+p[0],+p[1]-1,+p[2]); 
 
 function makeLeads(){
   var out=[], id=40210;
+  function addLead(st,islPhase){
+    var f=pick(FN), l=pick(LN);
+    var terminal = TERMINAL_STAGES.indexOf(st)!==-1;
+    var last = addDays(TODAY,-Math.floor(rnd()*(terminal?120:20))-1);
+    var next = terminal ? null : addDays(TODAY,Math.floor(rnd()*14)+1);
+    out.push({id:"LD-"+(id++),first:f,name:f+" "+l,stage:st,islPhase:islPhase||null,servicing:pick(SERVICING_TYPES),program:pick(PROGRAM_TYPES),last:last,next:next,
+      email: rnd()<0.012 ? "" : (f+"."+l).toLowerCase()+"@gmail.com",
+      phone: rnd()<0.01 ? "" : "+91 9"+Math.floor(100000000+rnd()*899999999),
+      flaky: rnd()<0.008});
+  }
   Object.keys(STAGE_N).forEach(function(st){
-    for(var i=0;i<STAGE_N[st];i++){
-      var f=pick(FN), l=pick(LN);
-      var terminal = TERMINAL_STAGES.indexOf(st)!==-1;
-      var last = addDays(TODAY,-Math.floor(rnd()*(terminal?120:20))-1);
-      var next = terminal ? null : addDays(TODAY,Math.floor(rnd()*14)+1);
-      out.push({id:"LD-"+(id++),first:f,name:f+" "+l,stage:st,servicing:pick(SERVICING_TYPES),program:pick(PROGRAM_TYPES),last:last,next:next,
-        email: rnd()<0.012 ? "" : (f+"."+l).toLowerCase()+"@gmail.com",
-        phone: rnd()<0.01 ? "" : "+91 9"+Math.floor(100000000+rnd()*899999999),
-        flaky: rnd()<0.008});
+    if(DROPOFF_SPLIT[st]){
+      var sp=DROPOFF_SPLIT[st];
+      for(var i=0;i<sp.pre;i++) addLead(st,"pre");
+      for(var j=0;j<sp.post;j++) addLead(st,"post");
+    } else {
+      for(var k=0;k<STAGE_N[st];k++) addLead(st,null);
     }
   });
   return out;
@@ -263,8 +298,8 @@ function reset(){
   seed=7;
   S={view:"priya",route:"home",resOpen:true,leads:makeLeads(),assign:{},req:null,notes:{},
      clock:"25 Sep 2026, 11:10 AM",phase:"before",
-     tl:{stage:"All",servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
-     draftDate:"",formErr:"",lgcDone:{},smFilter:"All"};
+     tl:{stage:"All",servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{},groupBy:true,grpOpen:{}},
+     draftDate:"",formErr:"",lgcDone:{},smFilter:"All",stageGroupOpen:{}};
   ["priya","vikram","ankit","meera","rahul","sneha","karan","arjun","neha"].forEach(function(k){S.notes[k]=[];});
 }
 reset();
@@ -336,6 +371,48 @@ function stageGrid(){
   var h=present.map(function(s){ return '<div><small>'+esc(STAGE_LABEL[s])+'</small><b class="num">'+c[s]+'</b></div>'; }).join("");
   return '<div class="stagegrid">'+h+'<div class="tot"><small>Total</small><b class="num">'+tot+'</b></div></div>';
 }
+function groupCounts(leads){
+  var g={}; GROUP_ORDER.forEach(function(k){ g[k]={total:0,stages:{}}; });
+  g.dropped_off.sub={pre:{label:"Pre ISL",total:0,stages:{}},post:{label:"Post ISL",total:0,stages:{}}};
+  leads.forEach(function(l){
+    var grp=STAGE_GROUP[l.stage]||"ungrouped";
+    g[grp].total++;
+    g[grp].stages[l.stage]=(g[grp].stages[l.stage]||0)+1;
+    if(grp==="dropped_off"){
+      var ph=l.islPhase==="post"?"post":"pre";
+      g.dropped_off.sub[ph].total++;
+      g.dropped_off.sub[ph].stages[l.stage]=(g.dropped_off.sub[ph].stages[l.stage]||0)+1;
+    }
+  });
+  return g;
+}
+function stageLeafGrid(stageCounts){
+  var codes=Object.keys(stageCounts).sort(function(a,b){return stageCounts[b]-stageCounts[a];});
+  return '<div class="stagegrid">'+codes.map(function(c){return '<div><small>'+esc(STAGE_LABEL[c])+'</small><b class="num">'+stageCounts[c]+'</b></div>';}).join("")+'</div>';
+}
+/* Grouped, click-to-expand stage summary used on Screen 1 and Screen 5. openMap is the S.* object
+   tracking which group keys are currently expanded (shared so state persists across re-renders). */
+function groupedStageSummary(leads,openMap){
+  var g=groupCounts(leads), tot=leads.length, html="";
+  GROUP_ORDER.forEach(function(k){
+    if(g[k].total<=0) return;
+    var open=!!openMap[k], body="";
+    if(k==="dropped_off"){
+      ["pre","post"].forEach(function(ph){
+        var s=g.dropped_off.sub[ph]; if(s.total<=0) return;
+        body+='<div class="grpsub">'+esc(s.label)+' · <span class="num">'+s.total+'</span></div>'+stageLeafGrid(s.stages);
+      });
+    } else {
+      body=stageLeafGrid(g[k].stages);
+    }
+    html+='<div class="grprow-wrap"><button class="grprow" data-grptoggle="'+k+'" aria-expanded="'+open+'"><b>'+esc(GROUP_LABEL[k])+'</b><span class="n">'+g[k].total+'</span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="grpbody">'+body+'</div>':'')+'</div>';
+  });
+  html+='<div class="grprow-wrap"><div class="grprow" style="background:var(--blue-soft);border-color:#c9d6ff"><b>Total</b><span class="n">'+tot+'</span></div></div>';
+  return '<div class="grpwrap">'+html+'</div>';
+}
+function bindGroupToggles(root,openMap){
+  root.querySelectorAll("[data-grptoggle]").forEach(function(b){ b.onclick=function(){ var k=b.dataset.grptoggle; openMap[k]=!openMap[k]; render(); }; });
+}
 function tracker(r){
   var st=r.status;
   var steps=[["Submitted",r.tSub],["SM approved",r.tApp],["TL assigning",r.tApp],["Leads transferred",r.tTr]];
@@ -355,7 +432,7 @@ function resignationCard(){
     var min=iso(addDays(TODAY,1));
     body = (r&&r.status==="cancelled"?'<div class="note"><span class="badge b-grey">Cancelled by '+esc(PEOPLE.vikram.name)+'</span> on '+esc(r.tCan)+'. You can submit a new request below.</div>':'')+
       '<div class="note">Your leads will move to new counselors automatically at 8 PM on your last working day. Students will be informed by email and WhatsApp.</div>'+
-      '<div><div style="font-size:12px;font-weight:600;color:#39445a;margin-bottom:6px">Your leads</div>'+stageGrid()+'</div>'+
+      '<div><div style="font-size:12px;font-weight:600;color:#39445a;margin-bottom:6px">Your leads</div>'+groupedStageSummary(S.leads,S.stageGroupOpen)+'</div>'+
       '<label class="f">Last working day<input type="date" id="lwd" min="'+min+'" value="'+esc(S.draftDate)+'"></label>'+
       (S.formErr?'<div class="err">'+esc(S.formErr)+'</div>':'')+
       '<div class="row"><button class="btn p" id="submitRes"'+(S.draftDate?"":" disabled")+'>Submit</button></div>';
@@ -378,9 +455,9 @@ function bindResignation(){
   var s=document.getElementById("submitRes"); if(s) s.onclick=function(){
     var dt=parseIso(S.draftDate);
     if(dt<=TODAY){ S.formErr="Pick a date from tomorrow onwards."; render(); return; }
-    var c=counts(), tot=S.leads.length;
-    var present=STAGES.filter(function(s){return c[s]>0;}).sort(function(a,b){return c[b]-c[a];});
-    var breakdown=present.map(function(s){return c[s]+" "+STAGE_LABEL[s];}).join(", ");
+    var tot=S.leads.length;
+    var g=groupCounts(S.leads);
+    var breakdown=GROUP_ORDER.filter(function(k){return g[k].total>0;}).map(function(k){return g[k].total+" "+GROUP_LABEL[k];}).join(", ");
     showModal('<h3>Confirm your resignation</h3><p>Last working day: <b>'+fmt(dt)+'</b>.</p><p><b class="num">'+tot+'</b> leads will be handed over ('+breakdown+').</p><p>You can\'t withdraw this after submitting. Only your SM can cancel it.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Go back</button><button class="btn p" id="confirmRes">Confirm</button></div>');
     document.getElementById("confirmRes").onclick=function(){
       S.req={status:"pending",lwd:dt,tSub:now(),history:[],reason:"",changedFrom:null,msgs:null};
@@ -461,7 +538,7 @@ function detailPage(){
   var kp = r.msgs ? '<div class="kpis"><span class="badge b-green">Email sent '+msgCounts("email").Sent+'</span><span class="badge b-red">Email failed '+msgCounts("email").Failed+'</span><span class="badge b-amber">Email retrying '+msgCounts("email").Pending+'</span><span class="badge b-green">WhatsApp sent '+msgCounts("wa").Sent+'</span><span class="badge b-red">WhatsApp failed '+msgCounts("wa").Failed+'</span><span class="badge b-amber">WhatsApp retrying '+msgCounts("wa").Pending+'</span></div>' : "";
   return '<div class="page"><button class="back" data-home>&larr; Back to Learning &amp; Development</button>'+
    '<div class="ph"><div><h1>'+esc(LEAVER.name)+'\'s resignation</h1><p>Counselor · TL '+esc(PEOPLE.ankit.name)+' · SM '+esc(PEOPLE.vikram.name)+'</p></div>'+statusBadge(r.status)+'</div>'+
-   '<div class="card"><div class="cbody" style="border:0"><div class="meta"><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>Last working day</small><b>'+fmt(r.lwd)+'</b></div><div><small>Transfer</small><b>8 PM, '+fmtShort(r.lwd)+'</b></div><div><small>Assigned</small><b class="num">'+assignedCount()+' / '+S.leads.length+'</b></div></div>'+stageGrid()+
+   '<div class="card"><div class="cbody" style="border:0"><div class="meta"><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>Last working day</small><b>'+fmt(r.lwd)+'</b></div><div><small>Transfer</small><b>8 PM, '+fmtShort(r.lwd)+'</b></div><div><small>Assigned</small><b class="num">'+assignedCount()+' / '+S.leads.length+'</b></div></div>'+groupedStageSummary(S.leads,S.stageGroupOpen)+
    (r.status==="rejected"?'<div class="note" style="background:var(--red-soft)"><b>Rejection reason:</b> '+esc(r.reason)+(r.reopened?'<br>Reopened for the counselor.':'')+'</div>':'')+
    (acts?'<div class="row">'+acts+'</div>':(isSM?'':'<div style="font-size:12px;color:var(--muted)">Approval actions are for the SM only.</div>'))+'</div></div>'+
    '<div class="card"><div class="cbody" style="border:0"><b>Student messages</b>'+kp+failBlock+'</div></div>'+
@@ -516,6 +593,43 @@ function filtered(){
   });
   return rows;
 }
+function assignRowHtml(l,locked){
+  var a=S.assign[l.id];
+  return '<tr class="'+(S.tl.sel[l.id]?"sel":"")+'"><td><input type="checkbox" data-sel="'+l.id+'"'+(S.tl.sel[l.id]?" checked":"")+(locked?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.servicing))+'</td><td>'+esc(prettyEnum(l.program))+'</td><td class="num">'+fmtShort(l.last)+'</td><td class="num">'+fmtShort(l.next)+'</td><td>'+(a?esc(PEOPLE[a].name):'<span class="un">Unassigned</span>')+'</td></tr>';
+}
+function assignMiniTable(list,locked){
+  if(!list.length) return "";
+  return '<div class="tw"><table><thead><tr><th></th><th>Student</th><th>Lead ID</th><th>Stage</th><th>Servicing type</th><th>Program</th><th>Last contacted</th><th>Next follow-up</th><th>Assigned to</th></tr></thead><tbody>'+list.map(function(l){return assignRowHtml(l,locked);}).join("")+'</tbody></table></div>';
+}
+/* Screen 6's grouped view: same rows as the flat table, bucketed under the same 5 stage groups used
+   on Screen 1/5, with Dropped Off further split into Pre ISL / Post ISL. Selection, assignment and
+   the Stage/Servicing type/Program filters all work exactly the same underneath — this only changes
+   how the matching rows are organised on screen. No per-group pagination: group sizes in practice
+   are small enough (one leaver's book) to render in full. */
+function groupedAssignTable(rows,locked){
+  var buckets={}; GROUP_ORDER.forEach(function(k){ buckets[k]=[]; });
+  var dropoffSub={pre:[],post:[]};
+  rows.forEach(function(l){
+    var grp=STAGE_GROUP[l.stage]||"ungrouped";
+    buckets[grp].push(l);
+    if(grp==="dropped_off") dropoffSub[l.islPhase==="post"?"post":"pre"].push(l);
+  });
+  var html="";
+  GROUP_ORDER.forEach(function(k){
+    var list=buckets[k]; if(!list.length) return;
+    var open=!!S.tl.grpOpen[k], body="";
+    if(k==="dropped_off"){
+      [["pre","Pre ISL"],["post","Post ISL"]].forEach(function(pair){
+        var sl=dropoffSub[pair[0]]; if(!sl.length) return;
+        body+='<div class="grpsub">'+esc(pair[1])+' · <span class="num">'+sl.length+'</span></div>'+assignMiniTable(sl,locked);
+      });
+    } else {
+      body=assignMiniTable(list,locked);
+    }
+    html+='<div class="grprow-wrap"><button class="grprow" data-grptoggle="'+k+'" aria-expanded="'+open+'"><b>'+esc(GROUP_LABEL[k])+'</b><span class="n">'+list.length+'</span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="grpbody">'+body+'</div>':'')+'</div>';
+  });
+  return '<div class="grpwrap">'+html+'</div>';
+}
 function assignPage(){
   var r=S.req, t=S.tl;
   if(!r) return '<button class="back" data-home>&larr; Back</button><div class="note">No handover to assign.</div>';
@@ -528,15 +642,17 @@ function assignPage(){
   function th(key,label){ var ar = t.sort===key ? (t.dir===1?" &#9650;":" &#9660;") : ""; return '<th class="s" data-sort="'+key+'">'+label+ar+'</th>'; }
   var banner = locked ? '<div class="note" style="background:'+(r.status==="transferred"?"var(--green-soft)":"var(--grey-soft)")+'"><b>'+(r.status==="transferred"?"Transfer complete.":r.status==="cancelled"?"Resignation cancelled.":"Waiting for SM approval.")+'</b> This list is read only.</div>' :
     '<div class="note">Anything left unassigned at 8 PM on '+fmt(r.lwd)+' will be split evenly across '+esc(PEOPLE.ankit.name)+'\'s team.</div>';
-  var table = slice.length ? '<div class="tw"><table><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all shown"'+(allShownSel?" checked":"")+(locked?" disabled":"")+'></th>'+th("name","Student")+th("id","Lead ID")+th("stage","Stage")+th("servicing","Servicing type")+th("program","Program")+th("last","Last contacted")+th("next","Next follow-up")+th("to","Assigned to")+'</tr></thead><tbody>'+
-    slice.map(function(l){ var a=S.assign[l.id]; return '<tr class="'+(t.sel[l.id]?"sel":"")+'"><td><input type="checkbox" data-sel="'+l.id+'"'+(t.sel[l.id]?" checked":"")+(locked?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.servicing))+'</td><td>'+esc(prettyEnum(l.program))+'</td><td class="num">'+fmtShort(l.last)+'</td><td class="num">'+fmtShort(l.next)+'</td><td>'+(a?esc(PEOPLE[a].name):'<span class="un">Unassigned</span>')+'</td></tr>'; }).join("")+
+  var flatTable = slice.length ? '<div class="tw"><table><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all shown"'+(allShownSel?" checked":"")+(locked?" disabled":"")+'></th>'+th("name","Student")+th("id","Lead ID")+th("stage","Stage")+th("servicing","Servicing type")+th("program","Program")+th("last","Last contacted")+th("next","Next follow-up")+th("to","Assigned to")+'</tr></thead><tbody>'+
+    slice.map(function(l){ return assignRowHtml(l,locked); }).join("")+
     '</tbody></table></div><div class="pag"><span class="num">'+(t.page*per+1)+'–'+(t.page*per+slice.length)+' of '+rows.length+'</span><button class="btn sm" id="pPrev"'+(t.page?"":" disabled")+'>Previous</button><button class="btn sm" id="pNext"'+(t.page<pages-1?"":" disabled")+'>Next</button></div>'
     : '<div class="note">No leads match these filters.</div>';
+  var table = !rows.length ? '<div class="note">No leads match these filters.</div>' : (t.groupBy ? groupedAssignTable(rows,locked) : flatTable);
   return '<div class="page"><button class="back" data-home>&larr; Back to Learning &amp; Development</button>'+
     '<div class="ph"><div><h1>Assign '+esc(LEAVER.name)+'\'s leads</h1><p>Transfer at 8 PM on '+fmt(r.lwd)+'</p></div><div class="prog"><span class="num"><b>'+asg+'</b> of '+tot+' assigned</span><div class="bar"><span style="width:'+(asg/tot*100)+'%"></span></div></div></div>'+
     banner+
     '<div class="fbar"><label class="f">Stage<select class="in" id="fStage">'+optPretty(STAGES,t.stage)+'</select></label><label class="f">Servicing type<select class="in" id="fServicing">'+optPretty(SERVICING_TYPES,t.servicing)+'</select></label><label class="f">Program<select class="in" id="fProg">'+optPretty(PROGRAM_TYPES,t.program)+'</select></label>'+
     '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Show<div class="seg">'+["All","Unassigned","Assigned"].map(function(s){return '<button data-show="'+s+'" class="'+(t.show===s?"on":"")+'">'+s+'</button>';}).join("")+'</div></div>'+
+    '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Group by<div class="seg"><button data-groupby="1" class="'+(t.groupBy?"on":"")+'">Stage groups</button><button data-groupby="0" class="'+(!t.groupBy?"on":"")+'">Flat list</button></div></div>'+
     (!locked&&rows.length?'<button class="btn sm" id="selShown" style="margin-left:auto">'+(allShownSel?"Clear selection":"Select all "+rows.length+" shown")+'</button>':'')+'</div>'+
     table+'</div>';
 }
@@ -562,6 +678,7 @@ function bindAssign(){
   on("fServicing","onchange",function(e){ t.servicing=e.target.value; t.page=0; render(); });
   on("fProg","onchange",function(e){ t.program=e.target.value; t.page=0; render(); });
   document.querySelectorAll("[data-show]").forEach(function(b){ b.onclick=function(){ t.show=b.dataset.show; t.page=0; render(); }; });
+  document.querySelectorAll("[data-groupby]").forEach(function(b){ b.onclick=function(){ t.groupBy=b.dataset.groupby==="1"; render(); }; });
   document.querySelectorAll("[data-sort]").forEach(function(h){ h.onclick=function(){ var k=h.dataset.sort; if(t.sort===k) t.dir=-t.dir; else { t.sort=k; t.dir=1; } render(); }; });
   document.querySelectorAll("[data-sel]").forEach(function(c){ c.onchange=function(){ if(c.checked) t.sel[c.dataset.sel]=1; else delete t.sel[c.dataset.sel]; render(); }; });
   function toggleAll(){ var rows=filtered(); var all=rows.every(function(l){return t.sel[l.id];}); if(all) t.sel={}; else rows.forEach(function(l){t.sel[l.id]=1;}); render(); }
@@ -654,6 +771,7 @@ function render(){
   m.querySelectorAll("[data-home]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.tl.sel={}; render(); }; });
   m.querySelectorAll("[data-assign]").forEach(function(b){ b.onclick=function(){ S.route="assign"; render(); window.scrollTo(0,0); }; });
   m.querySelectorAll("[data-detail]").forEach(function(b){ b.onclick=function(){ S.route="detail"; render(); window.scrollTo(0,0); }; });
+  bindGroupToggles(m, S.route==="assign" ? S.tl.grpOpen : S.stageGroupOpen);
   if(v==="priya") bindResignation();
   if(v==="vikram"&&S.route==="home") bindSmHome();
   if(S.route==="detail") bindDetail();
