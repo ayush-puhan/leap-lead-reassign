@@ -196,6 +196,16 @@ tr.sel td{background:#f2f6ff}
 .mbox{background:#fff;border-radius:10px;max-width:460px;width:100%;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
 .mbox h3{margin:0;font-size:17px}
 .mbox p{margin:0;color:#39445a}
+.drawerbg{position:fixed;inset:0;background:rgba(11,18,32,.35);z-index:45}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:#fff;z-index:46;box-shadow:-12px 0 30px rgba(15,23,42,.2);display:flex;flex-direction:column}
+.drawer .dhead{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line-soft);flex:none}
+.drawer .dhead button{background:none;border:0;font-size:18px;color:var(--muted);cursor:pointer;padding:2px 6px;line-height:1}
+.drawer .dhead button:hover{color:var(--ink)}
+.drawer .dhead b{font-size:16px;flex:1}
+.drawer .dbody{flex:1;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.dsearch{border:1px solid #c8d1de;border-radius:8px;padding:8px 10px;font:inherit;width:100%}
+.dcount{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#4b566b}
+.dcount .n{background:var(--grey-soft);border-radius:999px;padding:1px 9px;font-weight:700}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#111827;color:#fff;padding:9px 16px;border-radius:6px;font-size:13px;z-index:50}
 .dead{max-width:420px;margin:60px auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -219,6 +229,7 @@ tr.sel td{background:#f2f6ff}
 <main id="main"></main>
 <div id="bottom"></div>
 <div id="modal"></div>
+<div id="taskDrawer"></div>
 <div id="toast"></div>
 
 <script>
@@ -341,7 +352,7 @@ function reset(){
   S={view:"priya",route:"home",resOpen:true,leads:makeLeads(),assign:{},req:null,notes:{},
      clock:"25 Sep 2026, 11:10 AM",phase:"before",
      tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
-     draftDate:"",formErr:"",lgcDone:{},smFilter:"All",activeTab:"ld",boostOpen:{},remOpen:false};
+     draftDate:"",formErr:"",lgcDone:{},smFilter:"All",activeTab:"ld",boostOpen:{},remOpen:false,drawerOpen:null};
   ["priya","vikram","ankit","meera","rahul","sneha","karan","arjun","neha"].forEach(function(k){S.notes[k]=[];});
 }
 reset();
@@ -740,29 +751,64 @@ function tlHome(){
 /* Per-task cards styled after the counselor CRM's own "Boost STI" pipeline drawer (student header,
    a task-type badge, a "How to close" explainer, View student/View Task actions) rather than the
    plain table this used to be. */
-function connectTasksCard(forId, oversight){
-  var TASK_GROUPS = ["sti","deposit_done"];
-  var open='<div class="card open" id="connectTasksCard"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Connect with Reassigned Leads<span class="new">NEW</span></b><small>Reach out to students you\'ve just taken over in Boost STI or Boost Deposit</small></span></div><div class="cbody">';
-  var close='</div></div>';
-  if(!S.req || S.req.status!=="transferred") return open+'<div class="note">No open tasks right now.</div>'+close;
-  var rows = S.leads.filter(function(l){
+/* Leads behind the "Connect with Reassigned Leads" task, for the person currently viewing (Rahul
+   sees his own; Ankit sees his whole team's, for oversight). scope narrows to one bucket ("sti" or
+   "deposit") when opened from that Boost card specifically, or "all" for the summary card. */
+function drawerLeads(scope){
+  if(!S.req || S.req.status!=="transferred") return [];
+  var v=S.view, forId = v==="rahul" ? "rahul" : null, oversight = v==="ankit";
+  var TASK_GROUPS = scope==="sti" ? ["sti"] : scope==="deposit" ? ["deposit_done"] : ["sti","deposit_done"];
+  return S.leads.filter(function(l){
     var owner=S.assign[l.id];
     if(!owner || TASK_GROUPS.indexOf(leadGroup(l))===-1) return false;
     return oversight ? PEOPLE[owner].tl===LEAVER.tl : owner===forId;
   });
-  if(!rows.length) return open+'<div class="note">No open tasks right now.</div>'+close;
-  var note='<div class="note">Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student. (Mocked here — this CRM has no call/meeting-event tracking to hook into yet, so nothing actually closes these.)</div>';
-  var cards = rows.map(function(l){
-    var grp=leadGroup(l), badgeLbl = grp==="sti"?"Boost STI":"Boost Deposit";
-    var owner=PEOPLE[S.assign[l.id]];
-    var sub = l.id+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(oversight?' · Assigned to '+esc(owner.name):'');
-    return '<div class="taskcard"><div class="tchead"><b>'+esc(l.name)+'</b><small>'+sub+'</small></div>'+
-      '<span class="tcbadge">'+badgeLbl+'</span>'+
-      '<div class="htc"><span class="htclabel">How to close</span><span class="htcchip">Connect with Reassigned Lead</span><p>Book and join a meeting with '+esc(l.first)+', or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.</p></div>'+
-      '<div class="tcbtns"><button class="btn sm" data-viewstudent="'+l.id+'">View student</button><button class="btn sm" data-viewtask="'+l.id+'">View Task</button></div>'+
-    '</div>';
-  }).join("");
-  return open+note+cards+close;
+}
+function taskCardHtml(l){
+  var grp=leadGroup(l), badgeLbl = grp==="sti"?"Boost STI":"Boost Deposit";
+  var owner=PEOPLE[S.assign[l.id]], oversight=S.view==="ankit";
+  var sub = l.id+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(oversight?' · Assigned to '+esc(owner.name):'');
+  return '<div class="taskcard"><div class="tchead"><b>'+esc(l.name)+'</b><small>'+sub+'</small></div>'+
+    '<span class="tcbadge">'+badgeLbl+'</span>'+
+    '<div class="htc"><span class="htclabel">How to close</span><span class="htcchip">Connect with Reassigned Lead</span><p>Book and join a meeting with '+esc(l.first)+', or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.</p></div>'+
+    '<div class="tcbtns"><button class="btn sm" data-viewstudent="'+l.id+'">View student</button><button class="btn sm" data-viewtask="'+l.id+'">View Task</button></div>'+
+  '</div>';
+}
+/* Summary card that sits on the Tasks & Performance page below Add a Reminder for Yourself — the
+   full task list itself now lives in the slide-out drawer (see renderTaskDrawer), matching how the
+   real CRM's Boost cards open a side panel rather than expanding inline. */
+function connectTasksCard(){
+  var n = drawerLeads("all").length;
+  var body = n
+    ? '<div class="row" style="justify-content:space-between;align-items:center"><span style="font-size:15px;font-weight:700" class="num">'+n+' open task'+(n===1?"":"s")+'</span><button class="btn p" id="openTasksBtn">View tasks</button></div><div class="note">Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student.</div>'
+    : '<div class="note">No open tasks right now.</div>';
+  return '<div class="card open"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Connect with Reassigned Leads<span class="new">NEW</span></b><small>Reach out to students you\'ve just taken over in Boost STI or Boost Deposit</small></span></div><div class="cbody">'+body+'</div></div>';
+}
+function openTaskDrawer(scope){ S.drawerOpen={scope:scope,search:""}; render(); }
+function drawerTitle(scope){ return scope==="sti"?"Boost STI":scope==="deposit"?"Boost Deposit":"Connect with Reassigned Leads"; }
+function renderTaskDrawer(){
+  var d=S.drawerOpen; if(!d) return "";
+  var rows=drawerLeads(d.scope);
+  var q=(d.search||"").trim().toLowerCase();
+  if(q) rows=rows.filter(function(l){return l.name.toLowerCase().indexOf(q)!==-1 || l.id.toLowerCase().indexOf(q)!==-1;});
+  var list = rows.length ? rows.map(taskCardHtml).join("") : '<div class="note">No students match.</div>';
+  return '<div class="drawerbg" id="drawerBg"></div>'+
+    '<div class="drawer" role="dialog" aria-modal="true"><div class="dhead"><button id="drawerBack" aria-label="Back">&larr;</button><b>'+esc(drawerTitle(d.scope))+'</b><button id="drawerRefresh" aria-label="Refresh">&#8635;</button><button id="drawerClose" aria-label="Close">&times;</button></div>'+
+    '<div class="dbody"><input class="dsearch" id="drawerSearch" placeholder="Search by name or ID…" value="'+esc(d.search||"")+'">'+
+    '<div class="note">Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student. (Mocked here — this CRM has no call/meeting-event tracking to hook into yet, so nothing actually closes these.)</div>'+
+    '<div class="dcount">Connect with Reassigned Leads <span class="n">'+rows.length+' total</span></div>'+
+    list+'</div></div>';
+}
+function bindTaskDrawer(){
+  var d=S.drawerOpen; if(!d) return;
+  function close(){ S.drawerOpen=null; render(); }
+  var bg=document.getElementById("drawerBg"); if(bg) bg.onclick=close;
+  var back=document.getElementById("drawerBack"); if(back) back.onclick=close;
+  var x=document.getElementById("drawerClose"); if(x) x.onclick=close;
+  var rf=document.getElementById("drawerRefresh"); if(rf) rf.onclick=function(){ toast("Refreshed"); };
+  var s=document.getElementById("drawerSearch");
+  if(s){ s.oninput=function(){ d.search=s.value; render(); var ns=document.getElementById("drawerSearch"); if(ns){ ns.focus(); ns.setSelectionRange(ns.value.length,ns.value.length); } }; }
+  document.querySelectorAll("[data-viewstudent],[data-viewtask]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
 }
 /* Static "boost" metric card — icon/title/number/subtitle/due-today, matching the CRM's Boost
    Output & Boost Input rows. Only "sti" and "deposit" are wired (they jump down to the real
@@ -817,19 +863,19 @@ function tasksPerfPage(){
     staticCollapsible("&#10024;","Top Performers")+
     staticCollapsible("&#128202;","Performance Summary","Scorecard · Targets vs Actuals")+
     reminderCard()+
-    connectTasksCard(v==="rahul"?"rahul":null, v==="ankit");
+    connectTasksCard();
   return '<div class="page">'+head+body+'</div>';
 }
 function bindTasksPerf(){
   document.querySelectorAll("[data-boost]").forEach(function(b){ b.onclick=function(){
     var k=b.dataset.boost;
-    if(k==="sti"||k==="deposit"){ var el=document.getElementById("connectTasksCard"); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); }
+    if(k==="sti"||k==="deposit") openTaskDrawer(k);
     else toast("Not modeled in this mockup");
   }; });
   document.querySelectorAll("[data-sctoggle]").forEach(function(b){ b.onclick=function(){ var k=b.dataset.sctoggle; S.boostOpen[k]=!S.boostOpen[k]; render(); }; });
   var rh=document.getElementById("remHead"); if(rh) rh.onclick=function(){ S.remOpen=!S.remOpen; render(); };
   var sr=document.getElementById("saveReminderMock"); if(sr) sr.onclick=function(){ toast("Reminder saved (not modeled in this mockup)"); };
-  document.querySelectorAll("[data-viewstudent],[data-viewtask]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
+  var ot=document.getElementById("openTasksBtn"); if(ot) ot.onclick=function(){ openTaskDrawer("all"); };
 }
 
 /* ---------- new counselor ---------- */
@@ -891,7 +937,7 @@ function finishRetries(){
 /* ---------- modal ---------- */
 function showModal(html){ var m=document.getElementById("modal"); m.innerHTML='<div class="modal" role="dialog" aria-modal="true"><div class="mbox">'+html+'</div></div>'; m.querySelectorAll('[data-m="close"]').forEach(function(b){b.onclick=closeModal;}); var f=m.querySelector("input,textarea,button.p"); if(f) f.focus(); }
 function closeModal(){ document.getElementById("modal").innerHTML=""; }
-document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ closeModal(); closeBell(); } });
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ closeModal(); closeBell(); if(S.drawerOpen){ S.drawerOpen=null; render(); } } });
 
 /* ---------- render ---------- */
 function render(){
@@ -912,6 +958,8 @@ function render(){
   if(S.route==="assign") bindAssign();
   if(v==="rahul"&&S.activeTab!=="tasks") bindRahul();
   bottomBar();
+  document.getElementById("taskDrawer").innerHTML=renderTaskDrawer();
+  bindTaskDrawer();
 }
 render();
 })();

@@ -258,20 +258,20 @@ All users log in to the existing CRM with their own account. No new login is nee
 **Purpose:** Prompt the new counselor to proactively reach out to reassigned students in the two most time-sensitive stage buckets, and let their TL see that it's happening.
 
 **What the user sees:**
-- This card lives on the existing **Tasks & Performance** tab (not Learning & Development), directly below the existing **Add a Reminder for Yourself** section — same tab that already has the Boost Output row (Boost Referrals, Boost STI, Boost Deposit, Boost Revenue) and Boost Input row above it.
-- Title: "Connect with Reassigned Leads". Subtitle: "Reach out to students you've just taken over in Boost STI or Boost Deposit".
-- Clicking **View Pipeline →** on the existing **Boost STI** or **Boost Deposit** card scrolls straight down to this section — those two cards are this task's real entry point, not a separate drawer.
-- A note under the header: "Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student."
-- One card per qualifying reassigned lead, styled like the counselor CRM's existing pipeline task cards (e.g. the "Clear Application Hold" cards inside the Boost STI pipeline view):
+- A summary card on the existing **Tasks & Performance** tab (not Learning & Development), directly below the existing **Add a Reminder for Yourself** section — same tab that already has the Boost Output row (Boost Referrals, Boost STI, Boost Deposit, Boost Revenue) and Boost Input row above it.
+- Card title: "Connect with Reassigned Leads". Subtitle: "Reach out to students you've just taken over in Boost STI or Boost Deposit". Body: "[N] open tasks" and a **View tasks** button.
+- Clicking **View tasks**, or **View Pipeline →** on the existing **Boost STI** or **Boost Deposit** card, opens the actual task list in a **slide-out side panel** from the right — the same panel pattern the CRM already uses for its Boost pipeline drawers (e.g. the existing Boost STI drawer), not something new. Opening from the summary card shows both buckets together, titled "Connect with Reassigned Leads"; opening from a specific Boost card shows only that bucket, titled "Boost STI" or "Boost Deposit".
+- The side panel has: a back arrow and a close (×) — either dismisses it — a title, a refresh icon, a search box (filters the list live by student name or Lead ID), a note ("Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student."), a running count ("[N] total"), then one card per qualifying lead.
+- Each lead's card is styled like the counselor CRM's existing pipeline task cards (e.g. the "Clear Application Hold" cards inside its own Boost STI drawer):
   - Student name, with Lead ID · Program · Servicing type underneath.
   - A stage-bucket badge: **Boost STI** or **Boost Deposit**.
   - A **How to close** box: a "Connect with Reassigned Lead" chip, plus the same explanatory copy style as the CRM's other pipeline tasks ("Book and join a meeting with [student], or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.").
   - **View student** and **View Task** buttons.
 - The TL's version adds "· Assigned to [counselor name]" to every card's subtitle line, rolling up the same tasks across everyone on their team, not just one counselor.
 
-**What the user can do:** Open a lead's student record or task detail from its card (**View student** / **View Task**) — see the Open Question on closure detection below for what closes a card. Nothing else acts on this list in v0.
+**What the user can do:** Open the side panel from either entry point, search within it, close it (back arrow, ×, clicking the backdrop, or Esc), and open a lead's student record or task detail from its card (**View student** / **View Task**) — see the Open Question on closure detection below for what closes a card. Nothing else acts on this list in v0.
 
-**Empty state:** "No open tasks right now" — shown when the counselor (or, for the TL, their whole team) has no reassigned leads currently sitting in Boost STI or Boost Deposit.
+**Empty state:** Summary card shows "No open tasks right now" when the counselor (or, for the TL, their whole team) has no reassigned leads currently sitting in Boost STI or Boost Deposit. Inside the panel, an empty search result shows "No students match."
 **Error state:** Not applicable in v0 — this list is read from existing lead/assignment data, not a separate save action.
 
 ---
