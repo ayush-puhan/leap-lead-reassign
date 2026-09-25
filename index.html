@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Counselor Handover Mockup</title>
+<style>
+:root{
+  --nav:#0b1220; --nav-line:#2a3446; --bg:#eef2f7; --card:#ffffff; --line:#dbe3ee; --line-soft:#e9eef5;
+  --ink:#141b2b; --muted:#5b6679; --faint:#8a94a6; --blue:#2f5bea; --blue-soft:#eaf0ff;
+  --green:#16a34a; --green-soft:#e8f7ee; --red:#dc2626; --red-soft:#fdecec; --amber:#b45309; --amber-soft:#fff4e0;
+  --grey-soft:#f1f3f7; --orange:#e5471d; --demo:#fff7d6; --demo-line:#f0d98a;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+button{font:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+/* demo bar */
+.demo{background:var(--demo);border-bottom:1px solid var(--demo-line);padding:8px 16px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:13px}
+.demo b{font-weight:600}
+.demo select,.demo button{border:1px solid #d9c476;background:#fff;border-radius:6px;padding:5px 10px;font-size:13px}
+.demo button:hover{background:#fffbea}
+.demo .sp{flex:1}
+.demo .clock{color:#6b5a14}
+
+/* crm chrome */
+.top{background:var(--nav);color:#fff;display:flex;align-items:center;gap:14px;padding:8px 16px;min-height:50px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px;letter-spacing:.5px}
+.logo i{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#4f7cff,#9b5cff);display:inline-block}
+.search{flex:1;min-width:160px;max-width:320px;border:1px solid var(--nav-line);border-radius:4px;padding:7px 10px;color:#9aa6ba;font-size:13px}
+.vbtn{border:1px solid #cfd6e2;border-radius:3px;padding:6px 14px;font-size:12px;font-weight:600}
+.top .sp{flex:1}
+.bell{position:relative;background:none;border:0;color:#fff;padding:4px 6px;font-size:18px}
+.bell .dot{position:absolute;top:-2px;right:-2px;background:var(--red);color:#fff;font-size:10px;border-radius:9px;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 4px}
+.who{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.av{width:28px;height:28px;border-radius:50%;background:#3b4a6b;display:grid;place-items:center;font-size:11px}
+.bellpanel{position:absolute;right:16px;top:96px;width:min(360px,calc(100vw - 32px));background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 30px rgba(15,23,42,.18);z-index:30}
+.bellpanel h4{margin:0;padding:10px 14px;border-bottom:1px solid var(--line-soft);font-size:13px}
+.bellpanel .n{padding:10px 14px;border-bottom:1px solid var(--line-soft);font-size:13px}
+.bellpanel .n:last-child{border-bottom:0}
+.bellpanel .n small{display:block;color:var(--faint);font-size:11px;margin-top:2px}
+.bellpanel .n button{margin-top:6px}
+.bellpanel .empty{padding:18px 14px;color:var(--muted);font-size:13px}
+.tabs{background:#fff;display:flex;gap:4px;padding:0 8px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs span{padding:10px 8px;font-size:13px;color:#3a4458;white-space:nowrap}
+.tabs .on{color:var(--blue);font-weight:600;border-bottom:2px solid var(--blue)}
+.banner{background:linear-gradient(90deg,#3453e0,#8a3be3 55%,#4a4fe0);color:#fff;font-weight:700;font-size:13px;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.banner span.j{background:#fff;color:#3453e0;border-radius:3px;padding:2px 8px;font-weight:600;font-size:12px}
+.filters{background:#fff;padding:8px 16px;display:flex;gap:6px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.filters span{border:1px solid var(--line);border-radius:4px;padding:5px 12px;font-size:12px}
+
+main{padding:20px 16px 110px;max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.rtk{align-self:flex-end;background:var(--orange);color:#fff;border:0;border-radius:4px;padding:8px 14px;font-weight:700;font-size:12px}
+h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
+.tix{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tix div{background:#fff;border:1px solid var(--line);border-radius:8px;text-align:center;padding:14px 8px}
+.tix small{font-size:11px;font-weight:600;letter-spacing:.5px;color:#3a4458}
+.tix b{display:block;font-size:34px;line-height:1.2}
+@media (max-width:560px){.tix{grid-template-columns:1fr}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px}
+.chead{display:flex;align-items:center;gap:12px;padding:14px 16px;width:100%;background:none;border:0;text-align:left;color:inherit}
+.ic{width:30px;height:30px;border-radius:7px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-size:15px;flex:none}
+.chead .t{flex:1;min-width:0}
+.chead .t b{display:block;font-size:14px}
+.chead .t small{color:var(--muted);font-size:12px}
+.chev{color:var(--muted);transition:transform .15s}
+.open .chev{transform:rotate(180deg)}
+.cbody{border-top:1px solid var(--line-soft);padding:16px;display:flex;flex-direction:column;gap:14px}
+.new{background:var(--orange);color:#fff;font-size:10px;font-weight:700;border-radius:3px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+
+.note{background:var(--grey-soft);border-radius:6px;padding:10px 12px;font-size:13px;color:#39445a}
+.stagegrid{display:flex;flex-wrap:wrap;gap:8px}
+.stagegrid div{border:1px solid var(--line);border-radius:6px;padding:8px 12px;min-width:92px}
+.stagegrid small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.stagegrid b{font-size:18px}
+.stagegrid .tot{background:var(--blue-soft);border-color:#c9d6ff}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a}
+input[type=date],select.in,textarea{border:1px solid #c8d1de;border-radius:6px;padding:8px 10px;font:inherit;color:var(--ink);background:#fff;max-width:100%}
+textarea{min-height:80px;resize:vertical;width:100%}
+.err{color:var(--red);font-size:12px;font-weight:500}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid #c8d1de;background:#fff;border-radius:6px;padding:8px 14px;font-weight:600;font-size:13px;color:var(--ink)}
+.btn:hover{background:#f6f8fb}
+.btn.p{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.p:hover{background:#2449d4}
+.btn.d{background:#fff;border-color:#f1b5b5;color:var(--red)}
+.btn.d:hover{background:var(--red-soft)}
+.btn.g{background:var(--green);border-color:var(--green);color:#fff}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:5px 10px;font-size:12px}
+
+.badge{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;white-space:nowrap}
+.b-amber{background:var(--amber-soft);color:var(--amber)}
+.b-blue{background:var(--blue-soft);color:var(--blue)}
+.b-green{background:var(--green-soft);color:var(--green)}
+.b-red{background:var(--red-soft);color:var(--red)}
+.b-grey{background:var(--grey-soft);color:#5b6679}
+
+.tracker{display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:s}
+.step{position:relative;padding-top:30px;text-align:center;font-size:12px;color:var(--faint)}
+.step:before{content:"";position:absolute;top:10px;left:0;right:0;height:2px;background:var(--line)}
+.step:first-child:before{left:50%}.step:last-child:before{right:50%}
+.step i{position:absolute;top:0;left:50%;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid var(--line);font-style:normal;font-size:11px;line-height:18px;font-weight:700;color:var(--faint)}
+.step b{display:block;color:inherit;font-size:12px}
+.step.done{color:var(--ink)}.step.done i{background:var(--green);border-color:var(--green);color:#fff}
+.step.done:before{background:var(--green)}
+.step.cur{color:var(--blue)}.step.cur i{border-color:var(--blue);color:var(--blue)}
+@media (max-width:520px){.tracker{grid-template-columns:1fr 1fr;row-gap:14px}.step:before{display:none}}
+
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{background:#f6f8fb;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#4b566b;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th.s{cursor:pointer}
+td{padding:9px 10px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr.cl{cursor:pointer}tr.cl:hover td{background:#f8faff}
+tr.sel td{background:#f2f6ff}
+.un{color:var(--amber);font-weight:600}
+.pag{display:flex;gap:8px;align-items:center;justify-content:flex-end;font-size:12px;color:var(--muted);padding:8px 0}
+
+.page{display:flex;flex-direction:column;gap:14px}
+.back{background:none;border:0;color:var(--blue);font-weight:600;padding:0;align-self:flex-start}
+.ph{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;justify-content:space-between}
+.ph h1{margin:0;font-size:20px;text-wrap:balance}
+.ph p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.prog{min-width:220px}
+.bar{height:8px;background:var(--line-soft);border-radius:5px;overflow:hidden;margin-top:5px}
+.bar span{display:block;height:100%;background:var(--blue)}
+.fbar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.seg{display:inline-flex;border:1px solid #c8d1de;border-radius:6px;overflow:hidden}
+.seg button{border:0;background:#fff;padding:7px 12px;font-size:12px;font-weight:600;color:#39445a}
+.seg button.on{background:var(--blue);color:#fff}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--nav);color:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;z-index:20;box-shadow:0 -6px 20px rgba(0,0,0,.2)}
+.bottom select{min-width:240px}
+
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.meta div small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.meta div b{font-size:14px}
+.hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.hist li{padding:8px 0 8px 16px;border-left:2px solid var(--line);position:relative;font-size:13px}
+.hist li:before{content:"";position:absolute;left:-5px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--blue)}
+.hist li small{color:var(--faint);display:block;font-size:11px}
+.msg{border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:13px;white-space:pre-wrap;background:#fbfcfe}
+.msg.wa{background:#e9f8ee;border-color:#c5e9d1}
+.mh{font-size:12px;color:var(--muted);margin-bottom:6px;white-space:normal}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:720px){.two{grid-template-columns:1fr}}
+.kpis{display:flex;gap:6px;flex-wrap:wrap}
+
+.modal{position:fixed;inset:0;background:rgba(11,18,32,.5);display:grid;place-items:center;padding:16px;z-index:40}
+.mbox{background:#fff;border-radius:10px;max-width:460px;width:100%;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.mbox h3{margin:0;font-size:17px}
+.mbox p{margin:0;color:#39445a}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#111827;color:#fff;padding:9px 16px;border-radius:6px;font-size:13px;z-index:50}
+.dead{max-width:420px;margin:60px auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="demo" id="demo"></div>
+<div class="top">
+  <div class="logo"><i></i>CRM</div>
+  <div class="search">Search by ID, Phone, email..</div>
+  <div class="vbtn">View assigned leads</div>
+  <div class="sp"></div>
+  <button class="bell" id="bellBtn" aria-label="Notifications">&#128276;<span class="dot" id="bellDot" hidden></span></button>
+  <div class="who"><div class="av" id="av"></div><span id="whoName"></span></div>
+</div>
+<div id="bellPanel" class="bellpanel" hidden></div>
+<nav class="tabs"><span>Tasks &amp; Performance</span><span>Incentives &amp; Earnings</span><span class="on">Learning &amp; Development</span></nav>
+<div class="banner"><span>&#128640; Join 10X on 100ms Platform to Start Getting Leads!</span><span class="j">Join 10x &rarr;</span></div>
+<div class="filters"><span>PL: All</span><span>TL: All</span><span>CL: All</span></div>
+<main id="main"></main>
+<div id="bottom"></div>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- sample data (all fictional) ---------- */
+var PEOPLE = {
+  priya:{id:"priya",name:"Priya Rao",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 11234",email:"priya.rao@leapfinance.com",open:0},
+  ankit:{id:"ankit",name:"Ankit Sharma",role:"TL",sm:"vikram",phone:"+91 98200 22110",email:"ankit.sharma@leapfinance.com"},
+  meera:{id:"meera",name:"Meera Iyer",role:"TL",sm:"vikram",phone:"+91 98200 22440",email:"meera.iyer@leapfinance.com"},
+  vikram:{id:"vikram",name:"Vikram Mehta",role:"SM",phone:"+91 98200 30001",email:"vikram.mehta@leapfinance.com"},
+  rahul:{id:"rahul",name:"Rahul Verma",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41001",email:"rahul.verma@leapfinance.com",open:140},
+  sneha:{id:"sneha",name:"Sneha Kulkarni",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41002",email:"sneha.kulkarni@leapfinance.com",open:95},
+  karan:{id:"karan",name:"Karan Gill",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41003",email:"karan.gill@leapfinance.com",open:120},
+  arjun:{id:"arjun",name:"Arjun Nair",role:"Counselor",tl:"meera",sm:"vikram",phone:"+91 98200 42001",email:"arjun.nair@leapfinance.com",open:110},
+  neha:{id:"neha",name:"Neha Joshi",role:"Counselor",tl:"meera",sm:"vikram",phone:"+91 98200 42002",email:"neha.joshi@leapfinance.com",open:130}
+};
+var LEAVER = PEOPLE.priya;
+var VIEWS = [
+  {id:"priya",label:"Priya Rao (Counselor, resigning)"},
+  {id:"vikram",label:"Vikram Mehta (SM)"},
+  {id:"ankit",label:"Ankit Sharma (TL)"},
+  {id:"rahul",label:"Rahul Verma (new counselor)"}
+];
+/* Full lead-stage enum = the CRM's "Bofu Status" field values (see docs/query_result CSV export). */
+var STAGES = ["LS_LEAD_CAPTURED","LS_WEBINAR_SCHEDULED","LS_WEBINAR_ATTENDED","LS_WEBINAR_CANCELLED",
+  "LS_COUNSELING_CALL_DONE","LS_AGENT_CHANGE_CALL_SCHEDULED","LS_COLLEGE_SHORTLISTED","LS_COLLEGE_FINALIZED",
+  "LS_APPLICATION_PROCESS_STARTED","LS_APPLICATION_IN_PROCESS","LS_APPLICATION_PROCESS_ON_HOLD",
+  "LS_APPLICATION_SUBMITTED_TO_AGGREGATOR","LS_APPLICATION_SUBMITTED_TO_INSTITUTE",
+  "LS_APPLICATION_ON_HOLD_BY_AGGREGATOR","LS_APPLICATION_ON_HOLD_BY_INSTITUTE","LS_APPLICATION_REJECTED_BY_AGGREGATOR",
+  "LS_CONDITIONAL_ADMIT_RECEIVED","LS_UNCONDITIONAL_ADMIT_RECEIVED","LS_ADMIT_RECEIVED","LS_ADMIT_ACCEPTED",
+  "LS_ADMIT_DECLINED","LS_ADMIT_REJECTED_BY_INSTITUTE","LS_OFFER_REVOKED_BY_UNIVERSITY","LS_DEPOSIT_PAID",
+  "LS_PAYMENT_DONE","LS_TUITION_FEE_PAID","LS_VISA_FILING_STARTED","LS_VISA_APPLIED","LS_VISA_WIP",
+  "LS_VISA_PROCESS_ON_HOLD","LS_VISA_GRANTED","LS_VISA_REJECTED","LS_VISA_DROPPED","LS_USER_ACQUIRED",
+  "LS_LEAD_CLOSED_AFTER_SALES_CALL","LS_LEAD_DROP_OFF","LS_DEAD_LEAD"];
+/* Demo book for the leaver: a curated, representative slice across the funnel (325 leads total,
+   matching the figure used elsewhere in the mockup/PRD). Every value above is still selectable
+   in the stage filters even when this leaver has 0 leads in it. */
+var STAGE_N = {
+  LS_LEAD_CAPTURED:40, LS_COLLEGE_SHORTLISTED:70, LS_APPLICATION_SUBMITTED_TO_INSTITUTE:45,
+  LS_CONDITIONAL_ADMIT_RECEIVED:30, LS_UNCONDITIONAL_ADMIT_RECEIVED:15, LS_ADMIT_ACCEPTED:10,
+  LS_PAYMENT_DONE:12, LS_VISA_GRANTED:8, LS_ADMIT_DECLINED:35, LS_APPLICATION_REJECTED_BY_AGGREGATOR:20,
+  LS_DEAD_LEAD:25, LS_LEAD_DROP_OFF:15
+};
+/* Terminal stages: no further follow-up is expected, so no "next follow-up" date is generated. */
+var TERMINAL_STAGES = ["LS_ADMIT_DECLINED","LS_APPLICATION_REJECTED_BY_AGGREGATOR","LS_DEAD_LEAD","LS_LEAD_DROP_OFF"];
+var SERVICING_TYPES = ["FREE_SERVICE","PAID_SERVICE"];
+var PROGRAM_TYPES = ["MASTERS","UNDER_GRADUATION"];
+function prettyEnum(code){ return String(code).replace(/^LS_/,"").split("_").map(function(w){return w[0]+w.slice(1).toLowerCase();}).join(" "); }
+var STAGE_LABEL = {}; STAGES.forEach(function(s){ STAGE_LABEL[s]=prettyEnum(s); });
+var FN = ["Aarav","Ananya","Rohan","Ishita","Kabir","Diya","Vivaan","Meher","Aditya","Saanvi","Reyansh","Kavya","Arnav","Tara","Dhruv","Riya","Yash","Nisha","Kunal","Pooja","Siddharth","Aditi","Varun","Sneha","Harsh","Tanvi","Manav","Ira","Nikhil","Zoya"];
+var LN = ["Shah","Patel","Reddy","Das","Menon","Kapoor","Bose","Pillai","Chopra","Agarwal","Bhat","Sinha","Rao","Malhotra","Jain","Saxena","Ghosh","Naidu","Kohli","Mishra"];
+var seed = 7; function rnd(){ seed = (seed*16807)%2147483647; return (seed-1)/2147483646; }
+function pick(a){ return a[Math.floor(rnd()*a.length)]; }
+var TODAY = new Date(2026,8,25);
+function addDays(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function fmt(d){ if(!d) return "—"; return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}); }
+function fmtShort(d){ if(!d) return "—"; return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"}); }
+function iso(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function parseIso(s){ var p=s.split("-"); return new Date(+p[0],+p[1]-1,+p[2]); }
+
+function makeLeads(){
+  var out=[], id=40210;
+  Object.keys(STAGE_N).forEach(function(st){
+    for(var i=0;i<STAGE_N[st];i++){
+      var f=pick(FN), l=pick(LN);
+      var terminal = TERMINAL_STAGES.indexOf(st)!==-1;
+      var last = addDays(TODAY,-Math.floor(rnd()*(terminal?120:20))-1);
+      var next = terminal ? null : addDays(TODAY,Math.floor(rnd()*14)+1);
+      out.push({id:"LD-"+(id++),first:f,name:f+" "+l,stage:st,servicing:pick(SERVICING_TYPES),program:pick(PROGRAM_TYPES),last:last,next:next,
+        email: rnd()<0.012 ? "" : (f+"."+l).toLowerCase()+"@gmail.com",
+        phone: rnd()<0.01 ? "" : "+91 9"+Math.floor(100000000+rnd()*899999999),
+        flaky: rnd()<0.008});
+    }
+  });
+  return out;
+}
+
+/* ---------- state ---------- */
+var S;
+function reset(){
+  seed=7;
+  S={view:"priya",route:"home",resOpen:true,leads:makeLeads(),assign:{},req:null,notes:{},
+     clock:"25 Sep 2026, 11:10 AM",phase:"before",
+     tl:{stage:"All",servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
+     draftDate:"",formErr:"",lgcDone:{},smFilter:"All"};
+  ["priya","vikram","ankit","meera","rahul","sneha","karan","arjun","neha"].forEach(function(k){S.notes[k]=[];});
+}
+reset();
+function now(){ return S.clock; }
+function notify(who,text,action){ S.notes[who].unshift({text:text,at:now(),action:action||null,read:false}); }
+function hist(text,by){ S.req.history.unshift({text:text,by:by,at:now()}); }
+function me(){ return PEOPLE[S.view]; }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function toast(t){ var el=document.getElementById("toast"); el.innerHTML='<div class="toast">'+esc(t)+'</div>'; clearTimeout(toast._t); toast._t=setTimeout(function(){el.innerHTML="";},2600); }
+function counts(){ var c={}; STAGES.forEach(function(s){c[s]=0;}); S.leads.forEach(function(l){c[l.stage]++;}); return c; }
+function assignedCount(){ return Object.keys(S.assign).length; }
+function statusBadge(st){
+  var m={pending:["Pending SM approval","b-amber"],approved:["Approved, TL assigning","b-blue"],transferred:["Transferred","b-green"],rejected:["Rejected","b-red"],cancelled:["Cancelled","b-grey"]};
+  var x=m[st]; return '<span class="badge '+x[1]+'">'+x[0]+'</span>';
+}
+var ICON={res:"&#128682;",book:"&#128214;",cap:"&#127891;",list:"&#128203;",task:"&#9745;"};
+
+/* ---------- demo bar ---------- */
+function renderDemo(){
+  var opts=VIEWS.map(function(v){return '<option value="'+v.id+'"'+(S.view===v.id?" selected":"")+'>'+v.label+'</option>';}).join("");
+  var canRun = S.req && S.req.status==="approved" && S.phase==="before";
+  var canSkip = S.phase==="retrying";
+  document.getElementById("demo").innerHTML =
+    '<b>Mockup controls</b><label>View as <select id="viewSel">'+opts+'</select></label>'+
+    '<span class="clock">Clock: '+esc(S.clock)+'</span>'+
+    '<button id="runBtn"'+(canRun?"":" disabled")+' title="Runs the job that normally fires at 8 PM on the last working day">Run 8 PM transfer</button>'+
+    '<button id="skipBtn"'+(canSkip?"":" disabled")+'>Skip ahead 1 hour (retries)</button>'+
+    '<span class="sp"></span><button id="resetBtn">Reset</button>';
+  document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; S.route="home"; S.tl.sel={}; closeBell(); render(); };
+  document.getElementById("runBtn").onclick=runTransfer;
+  document.getElementById("skipBtn").onclick=finishRetries;
+  document.getElementById("resetBtn").onclick=function(){ reset(); closeBell(); render(); toast("Mockup reset"); };
+  if(!canRun) document.getElementById("runBtn").style.opacity=".5";
+  if(!canSkip) document.getElementById("skipBtn").style.opacity=".5";
+}
+
+/* ---------- top bar + bell ---------- */
+function renderTop(){
+  var p=me(); var init=p.name.split(" ").map(function(x){return x[0];}).join("");
+  document.getElementById("av").textContent=init;
+  document.getElementById("whoName").textContent=p.name;
+  var unread=S.notes[p.id].filter(function(n){return !n.read;}).length;
+  var dot=document.getElementById("bellDot"); dot.hidden=!unread; dot.textContent=unread;
+}
+function closeBell(){ document.getElementById("bellPanel").hidden=true; }
+document.getElementById("bellBtn").onclick=function(){
+  var panel=document.getElementById("bellPanel");
+  if(!panel.hidden){ closeBell(); return; }
+  var list=S.notes[me().id];
+  panel.innerHTML='<h4>Notifications</h4>'+(list.length?list.map(function(n,i){
+    return '<div class="n">'+esc(n.text)+'<small>'+esc(n.at)+'</small>'+(n.action?'<button class="btn sm p" data-na="'+i+'">'+esc(n.action.label)+'</button>':'')+'</div>';
+  }).join(""):'<div class="empty">No notifications.</div>');
+  list.forEach(function(n){n.read=true;});
+  panel.hidden=false; renderTop();
+  panel.querySelectorAll("[data-na]").forEach(function(b){ b.onclick=function(){ var a=list[+b.dataset.na].action; closeBell(); S.route=a.route; render(); window.scrollTo(0,0); }; });
+};
+
+/* ---------- common blocks ---------- */
+function ticketsBlock(){
+  return '<button class="rtk">+ Raise New Ticket</button><h2 class="sec">MY TICKETS</h2>'+
+  '<div class="tix"><div><small>TOTAL RAISED</small><b style="color:var(--blue)">0</b></div><div><small>RESOLVED</small><b style="color:var(--green)">0</b></div><div><small>NOT RESOLVED</small><b style="color:var(--red)">0</b></div></div>';
+}
+function staticCard(icon,title,sub){
+  return '<div class="card"><div class="chead"><span class="ic">'+icon+'</span><span class="t"><b>'+title+'</b><small>'+sub+'</small></span><span class="chev">&#8964;</span></div></div>';
+}
+function stageGrid(){
+  var c=counts(), tot=S.leads.length;
+  var present=STAGES.filter(function(s){return c[s]>0;}).sort(function(a,b){return c[b]-c[a];});
+  var h=present.map(function(s){ return '<div><small>'+esc(STAGE_LABEL[s])+'</small><b class="num">'+c[s]+'</b></div>'; }).join("");
+  return '<div class="stagegrid">'+h+'<div class="tot"><small>Total</small><b class="num">'+tot+'</b></div></div>';
+}
+function tracker(r){
+  var st=r.status;
+  var steps=[["Submitted",r.tSub],["SM approved",r.tApp],["TL assigning",r.tApp],["Leads transferred",r.tTr]];
+  var done = st==="pending"?1: st==="approved"?2: st==="transferred"?4: 1;
+  return '<div class="tracker">'+steps.map(function(s,i){
+    var cls = i<done ? (i===2 && st==="approved" ? "cur":"done") : (i===done?"cur":"");
+    if(st==="approved" && i===2) cls="cur";
+    return '<div class="step '+cls+'"><i>'+(cls==="done"?"&#10003;":(i+1))+'</i><b>'+s[0]+'</b>'+(cls==="done"&&s[1]?'<span>'+esc(s[1])+'</span>':'')+'</div>';
+  }).join("")+'</div>';
+}
+
+/* ---------- counselor (leaver) ---------- */
+function resignationCard(){
+  var r=S.req, body="";
+  var open=S.resOpen;
+  if(!r || r.status==="cancelled" || (r.status==="rejected" && r.reopened)){
+    var min=iso(addDays(TODAY,1));
+    body = (r&&r.status==="cancelled"?'<div class="note"><span class="badge b-grey">Cancelled by '+esc(PEOPLE.vikram.name)+'</span> on '+esc(r.tCan)+'. You can submit a new request below.</div>':'')+
+      '<div class="note">Your leads will move to new counselors automatically at 8 PM on your last working day. Students will be informed by email and WhatsApp.</div>'+
+      '<div><div style="font-size:12px;font-weight:600;color:#39445a;margin-bottom:6px">Your leads</div>'+stageGrid()+'</div>'+
+      '<label class="f">Last working day<input type="date" id="lwd" min="'+min+'" value="'+esc(S.draftDate)+'"></label>'+
+      (S.formErr?'<div class="err">'+esc(S.formErr)+'</div>':'')+
+      '<div class="row"><button class="btn p" id="submitRes"'+(S.draftDate?"":" disabled")+'>Submit</button></div>';
+  } else {
+    var lwdTxt = fmt(r.lwd)+(r.changedFrom?' <span style="color:var(--muted);font-weight:400">(changed by '+esc(PEOPLE.vikram.name)+' from '+fmt(r.changedFrom)+')</span>':'');
+    body = '<div class="meta"><div><small>Last working day</small><b>'+lwdTxt+'</b></div><div><small>Status</small>'+statusBadge(r.status)+'</div></div>';
+    if(r.status==="rejected"){
+      body += '<div class="note" style="background:var(--red-soft)"><b>Reason from your SM:</b> '+esc(r.reason)+'<br>Please speak to your SM.</div>';
+    } else {
+      body += tracker(r);
+      if(r.status==="approved") body += '<div class="note">New leads are no longer assigned to you.</div>';
+      if(r.status==="pending") body += '<div class="note">Waiting for '+esc(PEOPLE.vikram.name)+' to approve. You can\'t withdraw this request; talk to your SM if you need to cancel it.</div>';
+    }
+  }
+  return '<div class="card'+(open?" open":"")+'"><button class="chead" id="resHead" aria-expanded="'+open+'"><span class="ic">'+ICON.res+'</span><span class="t"><b>Resignation<span class="new">NEW</span></b><small>Submit your last working day and hand over your leads</small></span><span class="chev">&#8964;</span></button>'+(open?'<div class="cbody">'+body+'</div>':'')+'</div>';
+}
+function bindResignation(){
+  var h=document.getElementById("resHead"); if(h) h.onclick=function(){ S.resOpen=!S.resOpen; render(); };
+  var d=document.getElementById("lwd"); if(d) d.oninput=function(){ S.draftDate=d.value; S.formErr=""; var b=document.getElementById("submitRes"); if(b) b.disabled=!d.value; };
+  var s=document.getElementById("submitRes"); if(s) s.onclick=function(){
+    var dt=parseIso(S.draftDate);
+    if(dt<=TODAY){ S.formErr="Pick a date from tomorrow onwards."; render(); return; }
+    var c=counts(), tot=S.leads.length;
+    var present=STAGES.filter(function(s){return c[s]>0;}).sort(function(a,b){return c[b]-c[a];});
+    var breakdown=present.map(function(s){return c[s]+" "+STAGE_LABEL[s];}).join(", ");
+    showModal('<h3>Confirm your resignation</h3><p>Last working day: <b>'+fmt(dt)+'</b>.</p><p><b class="num">'+tot+'</b> leads will be handed over ('+breakdown+').</p><p>You can\'t withdraw this after submitting. Only your SM can cancel it.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Go back</button><button class="btn p" id="confirmRes">Confirm</button></div>');
+    document.getElementById("confirmRes").onclick=function(){
+      S.req={status:"pending",lwd:dt,tSub:now(),history:[],reason:"",changedFrom:null,msgs:null};
+      hist("Submitted with last working day "+fmt(dt),LEAVER.name);
+      notify("vikram",LEAVER.name+" submitted a resignation. Last working day "+fmt(dt)+".",{label:"Review request",route:"detail"});
+      S.draftDate=""; closeModal(); render(); toast("Resignation submitted");
+    };
+  };
+}
+function counselorHome(){
+  if(S.req && S.req.status==="transferred"){
+    return '<div class="dead"><div class="ic" style="margin:0 auto 10px">&#128274;</div><h3 style="margin:0 0 6px">Your CRM login has been deactivated</h3><p style="color:var(--muted);margin:0">All '+S.leads.length+' of your leads were transferred on '+fmt(S.req.lwd)+' at 8 PM. Thank you for your work at Leap.</p></div>';
+  }
+  return ticketsBlock()+staticCard(ICON.book,"IMP Sheet","Important links &amp; resources")+staticCard(ICON.cap,"Training Modules","Videos, documents &amp; platform access")+resignationCard();
+}
+
+/* ---------- SM ---------- */
+function msgCounts(ch){
+  var m=S.req&&S.req.msgs; if(!m) return null;
+  var c={Sent:0,Failed:0,Pending:0}; Object.keys(m).forEach(function(k){ c[m[k][ch].s]++; }); return c;
+}
+function msgCell(ch){
+  var c=msgCounts(ch); if(!c) return '<span style="color:var(--faint)">—</span>';
+  return '<span class="num"><span style="color:var(--green)">'+c.Sent+'</span> / <span style="color:var(--red)">'+c.Failed+'</span> / <span style="color:var(--amber)">'+c.Pending+'</span></span>';
+}
+function lgcCell(){
+  if(!S.req||!S.req.msgs) return '<span style="color:var(--faint)">—</span>';
+  var done=Object.keys(S.lgcDone).length; return '<span class="num">'+done+' / '+(S.leads.length-done)+'</span>';
+}
+function smRows(){
+  var rows=[];
+  if(S.req) rows.push({live:true,name:LEAVER.name,role:"Counselor",tl:"Ankit Sharma",lwd:fmt(S.req.lwd),status:S.req.status,leads:S.leads.length,asg:assignedCount()});
+  rows.push({name:"Farhan Ali",role:"Counselor",tl:"Meera Iyer",lwd:"29 Aug 2026",status:"transferred",leads:288,asg:288,e:"285 / 3 / 0",w:"286 / 2 / 0",g:"271 / 17"});
+  rows.push({name:"Ritika Sen",role:"Counselor",tl:"Ankit Sharma",lwd:"14 Aug 2026",status:"transferred",leads:241,asg:241,e:"241 / 0 / 0",w:"239 / 2 / 0",g:"241 / 0"});
+  rows.push({name:"Dev Khanna",role:"Counselor",tl:"Meera Iyer",lwd:"—",status:"rejected",leads:302,asg:0});
+  return rows;
+}
+function smHome(){
+  var rows=smRows().filter(function(r){ return S.smFilter==="All" || r.status===S.smFilter; });
+  var pend=smRows().filter(function(r){return r.status==="pending";}).length;
+  var fopts=[["All","All"],["pending","Pending SM approval"],["approved","Approved, TL assigning"],["transferred","Transferred"],["rejected","Rejected"],["cancelled","Cancelled"]].map(function(o){return '<option value="'+o[0]+'"'+(S.smFilter===o[0]?" selected":"")+'>'+o[1]+'</option>';}).join("");
+  var table = rows.length ? '<div class="tw"><table><thead><tr><th>Name</th><th>Role</th><th>TL</th><th>Last working day</th><th>Status</th><th>Leads</th><th>Assigned</th><th>Email S/F/P</th><th>WhatsApp S/F/P</th><th>LGC tasks done/open</th></tr></thead><tbody>'+
+    rows.map(function(r){
+      return '<tr class="'+(r.live?"cl":"")+'"'+(r.live?' data-open="1" tabindex="0"':'')+'><td><b>'+esc(r.name)+'</b></td><td>'+r.role+'</td><td>'+r.tl+'</td><td>'+r.lwd+'</td><td>'+statusBadge(r.status)+'</td><td class="num">'+r.leads+'</td><td class="num">'+r.asg+' / '+r.leads+'</td><td>'+(r.live?msgCell("email"):(r.e||'<span style="color:var(--faint)">—</span>'))+'</td><td>'+(r.live?msgCell("wa"):(r.w||'<span style="color:var(--faint)">—</span>'))+'</td><td>'+(r.live?lgcCell():(r.g||'<span style="color:var(--faint)">—</span>'))+'</td></tr>';
+    }).join("")+'</tbody></table></div>' : '<div class="note">No requests with this status.</div>';
+  return ticketsBlock()+staticCard(ICON.book,"IMP Sheet","Important links &amp; resources")+
+   '<div class="card open"><div class="chead"><span class="ic">'+ICON.list+'</span><span class="t"><b>Resignations<span class="new">NEW</span> '+(pend?'<span class="badge b-amber">'+pend+' pending</span>':'')+'</b><small>All resignation requests from your teams. Click Priya Rao\'s row to act on it.</small></span></div>'+
+   '<div class="cbody"><label class="f" style="max-width:260px">Status<select class="in" id="smFilter">'+fopts+'</select></label>'+table+'<div style="font-size:12px;color:var(--muted)">S/F/P = Sent / Failed / Pending. Older rows are sample history.</div></div></div>';
+}
+function bindSmHome(){
+  var f=document.getElementById("smFilter"); if(f) f.onchange=function(){ S.smFilter=f.value; render(); };
+  document.querySelectorAll("[data-open]").forEach(function(tr){ tr.onclick=function(){ S.route="detail"; render(); window.scrollTo(0,0); }; tr.onkeydown=function(e){ if(e.key==="Enter") tr.onclick(); }; });
+}
+
+/* ---------- request detail (SM, TL) ---------- */
+function sampleLead(){ return S.leads.find(function(l){return l.email && l.phone;}) || S.leads[0]; }
+function previewMsgs(){
+  var l=sampleLead(); var to=PEOPLE[S.assign[l.id]||"rahul"];
+  var tl=PEOPLE.ankit, sm=PEOPLE.vikram;
+  var email='Subject: Your new Leap counselor: '+to.name+'\n\nHi '+l.first+',\n\nI\'m moving on from Leap, and my last day is '+fmt(S.req.lwd)+'. It\'s been great working with you.\n\nFrom now on, '+to.name+' will be your counselor and will take things forward from where we left off.\n\nYour new counselor: '+to.name+' · '+to.phone+' · '+to.email+'\nTeam Lead: '+tl.name+' · '+tl.phone+' · '+tl.email+'\nSenior Manager: '+sm.name+' · '+sm.phone+' · '+sm.email+'\n\nJust reply to this email to reach '+to.name+' directly.\n\nAll the best,\n'+LEAVER.name;
+  var wa='Hi '+l.first+', your Leap counselor '+LEAVER.name+' has moved on. Your new counselor is '+to.name+' ('+to.phone+'). You can also reach Team Lead '+tl.name+' ('+tl.phone+') or Senior Manager '+sm.name+' ('+sm.phone+'). Reply here anytime.';
+  return '<div class="two"><div><div class="mh"><b>Email</b> · From: '+esc(LEAVER.email)+' · To: '+esc(l.email||"(no email)")+'<br>Reply-To: '+esc(to.email)+'<br>CC: '+esc(to.email)+', '+esc(tl.email)+', '+esc(sm.email)+', debasish.sahoo@leapfinance.com</div><div class="msg">'+esc(email)+'</div></div>'+
+    '<div><div class="mh"><b>WhatsApp</b> · From: Leap company number · To: '+esc(l.phone||"(no phone)")+'</div><div class="msg wa">'+esc(wa)+'</div></div></div>'+
+    '<div style="font-size:12px;color:var(--muted)">Preview for '+esc(l.name)+' ('+l.id+'). Every student gets the same fixed template with their own names filled in.</div>';
+}
+function detailPage(){
+  var r=S.req; var isSM=S.view==="vikram";
+  if(!r) return '<button class="back" data-home>&larr; Back</button><div class="note">No request to show.</div>';
+  var acts="";
+  if(isSM){
+    if(r.status==="pending") acts='<button class="btn p" id="aApprove">Approve</button><button class="btn" id="aChange">Change date &amp; approve</button><button class="btn d" id="aReject">Reject</button>';
+    if(r.status==="approved") acts='<button class="btn p" data-assign>Assign leads</button><button class="btn d" id="aCancel">Cancel resignation</button>';
+    if(r.status==="rejected" && !r.reopened) acts='<button class="btn" id="aReopen">Reopen for counselor</button>';
+  } else if(r.status==="approved"){ acts='<button class="btn p" data-assign>Assign leads</button>'; }
+  var failed=[];
+  if(r.msgs){ S.leads.forEach(function(l){ var m=r.msgs[l.id]; ["email","wa"].forEach(function(ch){ if(m[ch].s==="Failed") failed.push({l:l,ch:ch==="email"?"Email":"WhatsApp",why:m[ch].why,at:m[ch].at}); }); }); }
+  var failBlock = r.msgs ? (failed.length?'<div class="tw"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Channel</th><th>Reason</th><th>Last tried</th></tr></thead><tbody>'+failed.map(function(f){return '<tr><td>'+esc(f.l.name)+'</td><td>'+f.l.id+'</td><td>'+f.ch+'</td><td>'+esc(f.why)+'</td><td>'+esc(f.at)+'</td></tr>';}).join("")+'</tbody></table></div>':'<div class="note">No failed messages'+(S.phase==="retrying"?" yet. Some sends are still retrying.":".")+'</div>') : '<div class="note">Messages are sent at 8 PM on the last working day.</div>';
+  var kp = r.msgs ? '<div class="kpis"><span class="badge b-green">Email sent '+msgCounts("email").Sent+'</span><span class="badge b-red">Email failed '+msgCounts("email").Failed+'</span><span class="badge b-amber">Email retrying '+msgCounts("email").Pending+'</span><span class="badge b-green">WhatsApp sent '+msgCounts("wa").Sent+'</span><span class="badge b-red">WhatsApp failed '+msgCounts("wa").Failed+'</span><span class="badge b-amber">WhatsApp retrying '+msgCounts("wa").Pending+'</span></div>' : "";
+  return '<div class="page"><button class="back" data-home>&larr; Back to Learning &amp; Development</button>'+
+   '<div class="ph"><div><h1>'+esc(LEAVER.name)+'\'s resignation</h1><p>Counselor · TL '+esc(PEOPLE.ankit.name)+' · SM '+esc(PEOPLE.vikram.name)+'</p></div>'+statusBadge(r.status)+'</div>'+
+   '<div class="card"><div class="cbody" style="border:0"><div class="meta"><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>Last working day</small><b>'+fmt(r.lwd)+'</b></div><div><small>Transfer</small><b>8 PM, '+fmtShort(r.lwd)+'</b></div><div><small>Assigned</small><b class="num">'+assignedCount()+' / '+S.leads.length+'</b></div></div>'+stageGrid()+
+   (r.status==="rejected"?'<div class="note" style="background:var(--red-soft)"><b>Rejection reason:</b> '+esc(r.reason)+(r.reopened?'<br>Reopened for the counselor.':'')+'</div>':'')+
+   (acts?'<div class="row">'+acts+'</div>':(isSM?'':'<div style="font-size:12px;color:var(--muted)">Approval actions are for the SM only.</div>'))+'</div></div>'+
+   '<div class="card"><div class="cbody" style="border:0"><b>Student messages</b>'+kp+failBlock+'</div></div>'+
+   (r.status!=="rejected"&&r.status!=="cancelled"?'<div class="card"><div class="cbody" style="border:0"><b>Message preview</b>'+previewMsgs()+'</div></div>':'')+
+   '<div class="card"><div class="cbody" style="border:0"><b>History</b><ul class="hist">'+r.history.map(function(h){return '<li>'+esc(h.text)+' · '+esc(h.by)+'<small>'+esc(h.at)+'</small></li>';}).join("")+'</ul></div></div></div>';
+}
+function approve(newDate){
+  var r=S.req;
+  if(newDate){ r.changedFrom=r.lwd; hist("Last working day changed from "+fmt(r.lwd)+" to "+fmt(newDate),PEOPLE.vikram.name); r.lwd=newDate; }
+  r.status="approved"; r.tApp=now();
+  hist("Approved. New lead allocation to "+LEAVER.name+" stopped",PEOPLE.vikram.name);
+  notify("ankit","Assign "+LEAVER.name+"'s "+S.leads.length+" leads before 8 PM on "+fmt(r.lwd)+".",{label:"Assign leads",route:"assign"});
+  notify("priya","Your resignation was approved. Last working day: "+fmt(r.lwd)+".");
+}
+function bindDetail(){
+  function g(id){return document.getElementById(id);}
+  if(g("aApprove")) g("aApprove").onclick=function(){ approve(null); render(); toast("Approved. Ankit Sharma has been alerted"); };
+  if(g("aChange")) g("aChange").onclick=function(){
+    showModal('<h3>Change date &amp; approve</h3><label class="f">Last working day<input type="date" id="cd" min="'+iso(addDays(TODAY,1))+'" value="'+iso(S.req.lwd)+'"></label><div class="err" id="cdErr"></div><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Go back</button><button class="btn p" id="cdSave">Save &amp; approve</button></div>');
+    g("cdSave").onclick=function(){ var v=g("cd").value; if(!v||parseIso(v)<=TODAY){ g("cdErr").textContent="Pick a date from tomorrow onwards."; return; } approve(parseIso(v)); closeModal(); render(); toast("Date changed and approved"); };
+  };
+  if(g("aReject")) g("aReject").onclick=function(){
+    showModal('<h3>Reject resignation</h3><label class="f">Reason<textarea id="rr" maxlength="500" placeholder="For example: last working day doesn\'t match HR records"></textarea></label><div class="err" id="rrErr"></div><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Go back</button><button class="btn d" id="rrSave">Reject</button></div>');
+    g("rrSave").onclick=function(){ var v=g("rr").value.trim(); if(!v){ g("rrErr").textContent="Add a reason."; return; } S.req.status="rejected"; S.req.reason=v; hist("Rejected: "+v,PEOPLE.vikram.name); notify("priya","Your resignation was rejected: "+v); closeModal(); render(); toast("Rejected. Priya Rao has been told"); };
+  };
+  if(g("aCancel")) g("aCancel").onclick=function(){
+    showModal('<h3>Cancel '+esc(LEAVER.name)+'\'s resignation?</h3><p>All lead assignments will be cleared and they will start getting new leads again.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Keep it</button><button class="btn d" id="cc">Cancel resignation</button></div>');
+    g("cc").onclick=function(){ S.req.status="cancelled"; S.req.tCan=now(); S.assign={}; hist("Cancelled. Assignments cleared and lead allocation restored",PEOPLE.vikram.name); notify("priya","Your resignation was cancelled by "+PEOPLE.vikram.name+"."); notify("ankit",LEAVER.name+"'s resignation was cancelled. Assignments were cleared."); closeModal(); render(); toast("Resignation cancelled"); };
+  };
+  if(g("aReopen")) g("aReopen").onclick=function(){ S.req.reopened=true; hist("Reopened for counselor",PEOPLE.vikram.name); notify("priya","Your SM reopened your resignation. You can submit a new request."); render(); toast("Reopened. Priya Rao can submit again"); };
+}
+
+/* ---------- TL assign ---------- */
+function eligible(){ return Object.keys(PEOPLE).map(function(k){return PEOPLE[k];}).filter(function(p){return p.role==="Counselor" && p.sm==="vikram" && p.id!==LEAVER.id;}); }
+function filtered(){
+  var t=S.tl;
+  var rows=S.leads.filter(function(l){
+    if(t.stage!=="All"&&l.stage!==t.stage) return false;
+    if(t.servicing!=="All"&&l.servicing!==t.servicing) return false;
+    if(t.program!=="All"&&l.program!==t.program) return false;
+    if(t.show==="Unassigned"&&S.assign[l.id]) return false;
+    if(t.show==="Assigned"&&!S.assign[l.id]) return false;
+    return true;
+  });
+  var k=t.sort, d=t.dir;
+  rows.sort(function(a,b){
+    var x,y;
+    if(k==="next"||k==="last"){ x=a[k]?a[k].getTime():Infinity; y=b[k]?b[k].getTime():Infinity; if(x===y) return 0; return (x<y?-1:1)*d; }
+    if(k==="to"){ x=S.assign[a.id]?PEOPLE[S.assign[a.id]].name:"~"; y=S.assign[b.id]?PEOPLE[S.assign[b.id]].name:"~"; }
+    else { x=a[k]; y=b[k]; }
+    return x<y?-d:x>y?d:0;
+  });
+  return rows;
+}
+function assignPage(){
+  var r=S.req, t=S.tl;
+  if(!r) return '<button class="back" data-home>&larr; Back</button><div class="note">No handover to assign.</div>';
+  var locked = r.status!=="approved";
+  var rows=filtered(), per=50, pages=Math.max(1,Math.ceil(rows.length/per)); if(t.page>=pages) t.page=pages-1;
+  var slice=rows.slice(t.page*per,t.page*per+per);
+  var selN=Object.keys(t.sel).length, asg=assignedCount(), tot=S.leads.length;
+  var allShownSel = rows.length && rows.every(function(l){return t.sel[l.id];});
+  function optPretty(list,v){ return '<option value="All"'+(v==="All"?" selected":"")+'>All</option>'+list.map(function(x){return '<option value="'+x+'"'+(x===v?" selected":"")+'>'+esc(prettyEnum(x))+'</option>';}).join(""); }
+  function th(key,label){ var ar = t.sort===key ? (t.dir===1?" &#9650;":" &#9660;") : ""; return '<th class="s" data-sort="'+key+'">'+label+ar+'</th>'; }
+  var banner = locked ? '<div class="note" style="background:'+(r.status==="transferred"?"var(--green-soft)":"var(--grey-soft)")+'"><b>'+(r.status==="transferred"?"Transfer complete.":r.status==="cancelled"?"Resignation cancelled.":"Waiting for SM approval.")+'</b> This list is read only.</div>' :
+    '<div class="note">Anything left unassigned at 8 PM on '+fmt(r.lwd)+' will be split evenly across '+esc(PEOPLE.ankit.name)+'\'s team.</div>';
+  var table = slice.length ? '<div class="tw"><table><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all shown"'+(allShownSel?" checked":"")+(locked?" disabled":"")+'></th>'+th("name","Student")+th("id","Lead ID")+th("stage","Stage")+th("servicing","Servicing type")+th("program","Program")+th("last","Last contacted")+th("next","Next follow-up")+th("to","Assigned to")+'</tr></thead><tbody>'+
+    slice.map(function(l){ var a=S.assign[l.id]; return '<tr class="'+(t.sel[l.id]?"sel":"")+'"><td><input type="checkbox" data-sel="'+l.id+'"'+(t.sel[l.id]?" checked":"")+(locked?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.servicing))+'</td><td>'+esc(prettyEnum(l.program))+'</td><td class="num">'+fmtShort(l.last)+'</td><td class="num">'+fmtShort(l.next)+'</td><td>'+(a?esc(PEOPLE[a].name):'<span class="un">Unassigned</span>')+'</td></tr>'; }).join("")+
+    '</tbody></table></div><div class="pag"><span class="num">'+(t.page*per+1)+'–'+(t.page*per+slice.length)+' of '+rows.length+'</span><button class="btn sm" id="pPrev"'+(t.page?"":" disabled")+'>Previous</button><button class="btn sm" id="pNext"'+(t.page<pages-1?"":" disabled")+'>Next</button></div>'
+    : '<div class="note">No leads match these filters.</div>';
+  return '<div class="page"><button class="back" data-home>&larr; Back to Learning &amp; Development</button>'+
+    '<div class="ph"><div><h1>Assign '+esc(LEAVER.name)+'\'s leads</h1><p>Transfer at 8 PM on '+fmt(r.lwd)+'</p></div><div class="prog"><span class="num"><b>'+asg+'</b> of '+tot+' assigned</span><div class="bar"><span style="width:'+(asg/tot*100)+'%"></span></div></div></div>'+
+    banner+
+    '<div class="fbar"><label class="f">Stage<select class="in" id="fStage">'+optPretty(STAGES,t.stage)+'</select></label><label class="f">Servicing type<select class="in" id="fServicing">'+optPretty(SERVICING_TYPES,t.servicing)+'</select></label><label class="f">Program<select class="in" id="fProg">'+optPretty(PROGRAM_TYPES,t.program)+'</select></label>'+
+    '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Show<div class="seg">'+["All","Unassigned","Assigned"].map(function(s){return '<button data-show="'+s+'" class="'+(t.show===s?"on":"")+'">'+s+'</button>';}).join("")+'</div></div>'+
+    (!locked&&rows.length?'<button class="btn sm" id="selShown" style="margin-left:auto">'+(allShownSel?"Clear selection":"Select all "+rows.length+" shown")+'</button>':'')+'</div>'+
+    table+'</div>';
+}
+function bottomBar(){
+  var el=document.getElementById("bottom");
+  var n=Object.keys(S.tl.sel).length;
+  if(S.route!=="assign"||!n||!S.req||S.req.status!=="approved"){ el.innerHTML=""; return; }
+  el.innerHTML='<div class="bottom"><b class="num">'+n+' selected</b><select class="in" id="asgTo"><option value="">Assign to…</option>'+eligible().map(function(p){ var tl=PEOPLE[p.tl].name; var cur=p.open+Object.keys(S.assign).filter(function(k){return S.assign[k]===p.id;}).length; return '<option value="'+p.id+'">'+esc(p.name)+' · '+esc(tl)+' · '+cur+' open leads</option>'; }).join("")+'</select><button class="btn p" id="asgGo" disabled>Assign</button><button class="btn" id="asgClear" style="background:transparent;color:#fff;border-color:#4a556b">Clear</button></div>';
+  var s=document.getElementById("asgTo"), g=document.getElementById("asgGo");
+  s.onchange=function(){ g.disabled=!s.value; };
+  g.onclick=function(){
+    var who=s.value; var ids=Object.keys(S.tl.sel); var by=me().name;
+    ids.forEach(function(id){ S.assign[id]=who; });
+    hist("Assigned "+ids.length+" leads to "+PEOPLE[who].name,by);
+    S.tl.sel={}; render(); toast(ids.length+" leads assigned to "+PEOPLE[who].name);
+  };
+  document.getElementById("asgClear").onclick=function(){ S.tl.sel={}; render(); };
+}
+function bindAssign(){
+  var t=S.tl;
+  function on(id,ev,fn){ var e=document.getElementById(id); if(e) e[ev]=fn; }
+  on("fStage","onchange",function(e){ t.stage=e.target.value; t.page=0; render(); });
+  on("fServicing","onchange",function(e){ t.servicing=e.target.value; t.page=0; render(); });
+  on("fProg","onchange",function(e){ t.program=e.target.value; t.page=0; render(); });
+  document.querySelectorAll("[data-show]").forEach(function(b){ b.onclick=function(){ t.show=b.dataset.show; t.page=0; render(); }; });
+  document.querySelectorAll("[data-sort]").forEach(function(h){ h.onclick=function(){ var k=h.dataset.sort; if(t.sort===k) t.dir=-t.dir; else { t.sort=k; t.dir=1; } render(); }; });
+  document.querySelectorAll("[data-sel]").forEach(function(c){ c.onchange=function(){ if(c.checked) t.sel[c.dataset.sel]=1; else delete t.sel[c.dataset.sel]; render(); }; });
+  function toggleAll(){ var rows=filtered(); var all=rows.every(function(l){return t.sel[l.id];}); if(all) t.sel={}; else rows.forEach(function(l){t.sel[l.id]=1;}); render(); }
+  on("selAll","onchange",toggleAll); on("selShown","onclick",toggleAll);
+  on("pPrev","onclick",function(){ t.page--; render(); window.scrollTo(0,0); });
+  on("pNext","onclick",function(){ t.page++; render(); window.scrollTo(0,0); });
+}
+
+/* ---------- TL home ---------- */
+function tlHome(){
+  var r=S.req;
+  var card = '<div class="card open"><div class="chead"><span class="ic">'+ICON.list+'</span><span class="t"><b>Handovers to assign<span class="new">NEW</span></b><small>Leads from counselors in your team who are leaving</small></span></div><div class="cbody">'+
+    (r && r.status==="approved" ? '<div class="row" style="justify-content:space-between"><div><b>'+esc(LEAVER.name)+'</b> · Last working day '+fmt(r.lwd)+'<br><span class="num" style="color:var(--muted)">'+assignedCount()+' of '+S.leads.length+' assigned</span></div><button class="btn p" data-assign>Assign leads</button></div>'
+      : r && r.status==="transferred" ? '<div class="row" style="justify-content:space-between"><div><b>'+esc(LEAVER.name)+'</b> '+statusBadge("transferred")+'</div><button class="btn" data-detail>View details</button></div>'
+      : '<div class="note">'+(r&&r.status==="pending"?esc(LEAVER.name)+' has resigned and is waiting for SM approval. You\'ll get a bell alert when you can assign leads.':'No handovers right now.')+'</div>')+
+    '</div></div>';
+  return ticketsBlock()+staticCard(ICON.book,"IMP Sheet","Important links &amp; resources")+staticCard(ICON.cap,"Training Modules","Videos, documents &amp; platform access")+card+
+    staticCard(ICON.res,"Resignation","Submit your last working day and hand over your leads");
+}
+
+/* ---------- new counselor ---------- */
+function rahulHome(){
+  var mine=S.req&&S.req.status==="transferred" ? S.leads.filter(function(l){return S.assign[l.id]==="rahul";}) : [];
+  var tasks = mine.length ? '<div class="tw"><table><thead><tr><th>Task</th><th>Due</th><th>Ready message</th><th></th></tr></thead><tbody>'+mine.slice(0,8).map(function(l){
+      var m='Hi '+l.first+', I\'m Rahul Verma, your new counselor at Leap, taking over from '+LEAVER.name+'. Looking forward to helping you. Message me here anytime.';
+      var done=S.lgcDone[l.id];
+      return '<tr><td>Post intro in '+esc(l.name)+'\'s Leap group chat</td><td>'+fmtShort(addDays(S.req.lwd,1))+', 12 PM</td><td style="white-space:normal;min-width:260px;font-size:12px;color:#39445a">'+esc(m)+'</td><td>'+(done?'<span class="badge b-green">Done</span>':'<div class="row"><button class="btn sm" data-copy="'+esc(m)+'">Copy</button><button class="btn sm p" data-done="'+l.id+'">Mark done</button></div>')+'</td></tr>';
+    }).join("")+'</tbody></table></div><div style="font-size:12px;color:var(--muted)">Showing 8 of '+mine.length+' tasks.</div>'
+    : '<div class="note">No handover tasks. When a teammate\'s leads are transferred to you, a task appears here for each student\'s Leap group chat.</div>';
+  return ticketsBlock()+staticCard(ICON.book,"IMP Sheet","Important links &amp; resources")+staticCard(ICON.cap,"Training Modules","Videos, documents &amp; platform access")+
+    '<div class="card open"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Leap group chat intros<span class="new">NEW</span></b><small>'+(mine.length?"You received "+mine.length+" leads from "+LEAVER.name:"Tasks from handovers")+'</small></span></div><div class="cbody">'+tasks+'</div></div>'+
+    staticCard(ICON.res,"Resignation","Submit your last working day and hand over your leads");
+}
+function bindRahul(){
+  document.querySelectorAll("[data-copy]").forEach(function(b){ b.onclick=function(){ var t=b.dataset.copy; try{ navigator.clipboard.writeText(t).then(function(){toast("Message copied");},function(){toast("Copy blocked. Select the text instead");}); }catch(e){ toast("Copy blocked. Select the text instead"); } }; });
+  document.querySelectorAll("[data-done]").forEach(function(b){ b.onclick=function(){ S.lgcDone[b.dataset.done]=1; render(); }; });
+}
+
+/* ---------- 8 PM transfer ---------- */
+function runTransfer(){
+  var r=S.req; if(!r||r.status!=="approved") return;
+  S.clock=fmt(r.lwd)+", 8:00 PM";
+  // 1. auto split leftovers across the TL team, fewest open leads first
+  var pool=eligible().filter(function(p){return p.tl===LEAVER.tl;});
+  var load=function(p){ return p.open+Object.keys(S.assign).filter(function(k){return S.assign[k]===p.id;}).length; };
+  pool.sort(function(a,b){return load(a)-load(b);});
+  var left=S.leads.filter(function(l){return !S.assign[l.id];}).sort(function(a,b){return a.id<b.id?-1:1;});
+  left.forEach(function(l,i){ S.assign[l.id]=pool[i%pool.length].id; });
+  if(left.length) hist("Auto split "+left.length+" unassigned leads across "+PEOPLE.ankit.name+"'s team","System");
+  // 2. move leads, 3. queue messages
+  hist("Moved "+S.leads.length+" leads with open tasks, follow-ups and history","System");
+  r.msgs={};
+  S.leads.forEach(function(l){
+    var e = !l.email ? {s:"Failed",why:"No email on lead",at:now()} : l.flaky ? {s:"Pending",why:"",at:now()} : {s:"Sent",at:now()};
+    var w = !l.phone ? {s:"Failed",why:"No phone on lead",at:now()} : (l.flaky&&l.email) ? {s:"Pending",why:"",at:now()} : {s:"Sent",at:now()};
+    r.msgs[l.id]={email:e,wa:w};
+  });
+  hist("Sent student emails and WhatsApp messages; failed sends will retry 3 times over 1 hour","System");
+  // 4. tasks + bells
+  var per={}; S.leads.forEach(function(l){ per[S.assign[l.id]]=(per[S.assign[l.id]]||0)+1; });
+  Object.keys(per).forEach(function(k){ notify(k,"You received "+per[k]+" leads from "+LEAVER.name+"."); });
+  hist("Created "+S.leads.length+" Leap group chat intro tasks for new counselors","System");
+  r.status="transferred"; r.tTr=now();
+  hist(LEAVER.name+"'s CRM login deactivated","System");
+  S.phase="retrying"; S.tl.sel={};
+  render(); toast("Transfer done. Check the SM view for delivery");
+}
+function finishRetries(){
+  if(S.phase!=="retrying") return;
+  S.clock=fmt(S.req.lwd)+", 9:00 PM";
+  var i=0;
+  Object.keys(S.req.msgs).forEach(function(k){ var m=S.req.msgs[k]; ["email","wa"].forEach(function(ch){ if(m[ch].s==="Pending"){ i++; m[ch]= (i%2) ? {s:"Failed",why: ch==="email"?"Mailbox unavailable (550)":"Number not on WhatsApp",at:now()} : {s:"Sent",at:now()}; } }); });
+  hist("Retries finished. Remaining failures listed for SM","System");
+  S.phase="done"; render(); toast("Retries finished");
+}
+
+/* ---------- modal ---------- */
+function showModal(html){ var m=document.getElementById("modal"); m.innerHTML='<div class="modal" role="dialog" aria-modal="true"><div class="mbox">'+html+'</div></div>'; m.querySelectorAll('[data-m="close"]').forEach(function(b){b.onclick=closeModal;}); var f=m.querySelector("input,textarea,button.p"); if(f) f.focus(); }
+function closeModal(){ document.getElementById("modal").innerHTML=""; }
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ closeModal(); closeBell(); } });
+
+/* ---------- render ---------- */
+function render(){
+  renderDemo(); renderTop();
+  var m=document.getElementById("main"), v=S.view, html="";
+  if(S.route==="assign" && (v==="ankit"||v==="vikram")) html=assignPage();
+  else if(S.route==="detail" && (v==="vikram"||v==="ankit")) html=detailPage();
+  else { S.route="home"; html = v==="priya"?counselorHome(): v==="vikram"?smHome(): v==="ankit"?tlHome(): rahulHome(); }
+  m.innerHTML=html;
+  m.querySelectorAll("[data-home]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.tl.sel={}; render(); }; });
+  m.querySelectorAll("[data-assign]").forEach(function(b){ b.onclick=function(){ S.route="assign"; render(); window.scrollTo(0,0); }; });
+  m.querySelectorAll("[data-detail]").forEach(function(b){ b.onclick=function(){ S.route="detail"; render(); window.scrollTo(0,0); }; });
+  if(v==="priya") bindResignation();
+  if(v==="vikram"&&S.route==="home") bindSmHome();
+  if(S.route==="detail") bindDetail();
+  if(S.route==="assign") bindAssign();
+  if(v==="rahul") bindRahul();
+  bottomBar();
+}
+render();
+})();
+</script>
+</body>
+</html>
