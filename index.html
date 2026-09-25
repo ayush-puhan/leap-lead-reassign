@@ -84,6 +84,41 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .stagepick .hdr{display:flex;justify-content:space-between;align-items:center;padding:2px 6px 8px;margin-bottom:4px;border-bottom:1px solid var(--line-soft);font-size:12px;font-weight:700}
 .stagepick label{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:4px;font-size:13px;font-weight:400;cursor:pointer}
 .stagepick label:hover{background:#f6f8fb}
+
+/* Tasks & Performance — visual language borrowed from the counselor CRM's own tab: red "boost"
+   cards for Action Required output metrics, green for volume/quality input metrics, and per-task
+   cards with a "How to close" explainer for pipeline drawers. Only Boost STI / Boost Deposit and
+   the Connect with Reassigned Leads cards are real in this mockup — the rest is static dressing. */
+.boosthead{display:flex;align-items:center;gap:10px;margin:18px 0 2px;font-size:12px;font-weight:800;letter-spacing:.4px;color:#4b566b;text-transform:uppercase}
+.boosthead .bar{width:4px;height:16px;background:var(--blue);border-radius:2px;display:inline-block}
+.boosthead .pill{margin-left:auto;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:none;letter-spacing:.2px}
+.pill-red{background:#fde2e1;color:#b42318}
+.pill-amber{background:var(--amber-soft);color:var(--amber)}
+.boostgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:820px){.boostgrid{grid-template-columns:repeat(2,1fr)}}
+.boostcard{border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;min-height:150px;cursor:pointer;border:1px solid transparent}
+.boostcard.red{background:linear-gradient(180deg,#fdeceb,#fbe0df)}
+.boostcard.red{border-color:#f6c9c7}
+.boostcard.green{background:linear-gradient(180deg,#e8f7ee,#ddf3e6);border-color:#bfe6cf}
+.boostcard .bhead{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.3px;color:#8a4a46}
+.boostcard.green .bhead{color:#276745}
+.boostcard .bnum{font-size:30px;font-weight:800;color:#c0342b;line-height:1}
+.boostcard.green .bnum{color:#1c7a4a}
+.boostcard .bsub{font-size:12px;color:#8a4a46}
+.boostcard.green .bsub{color:#276745}
+.boostcard .bdue{align-self:flex-start;background:rgba(255,255,255,.7);border-radius:5px;padding:2px 8px;font-size:11px;color:#8a4a46;font-weight:600}
+.boostcard.green .bdue{color:#276745}
+.boostcard .blink{margin-top:auto;font-size:12px;font-weight:700;color:#b42318}
+.boostcard.green .blink{color:#1c7a4a}
+.taskcard{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fff}
+.taskcard .tchead b{font-size:14px;display:block}
+.taskcard .tchead small{color:var(--muted);font-size:12px}
+.taskcard .tcbadge{align-self:flex-start;background:var(--amber-soft);color:var(--amber);font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px}
+.htc{background:var(--grey-soft);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.htc .htclabel{font-size:10px;font-weight:800;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+.htc .htcchip{align-self:flex-start;background:var(--blue-soft);color:var(--blue);font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px}
+.htc p{margin:0;font-size:12px;color:#39445a;line-height:1.5}
+.taskcard .tcbtns{display:flex;gap:8px}
 label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a}
 input[type=date],select.in,textarea{border:1px solid #c8d1de;border-radius:6px;padding:8px 10px;font:inherit;color:var(--ink);background:#fff;max-width:100%}
 textarea{min-height:80px;resize:vertical;width:100%}
@@ -306,7 +341,7 @@ function reset(){
   S={view:"priya",route:"home",resOpen:true,leads:makeLeads(),assign:{},req:null,notes:{},
      clock:"25 Sep 2026, 11:10 AM",phase:"before",
      tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
-     draftDate:"",formErr:"",lgcDone:{},smFilter:"All",activeTab:"ld"};
+     draftDate:"",formErr:"",lgcDone:{},smFilter:"All",activeTab:"ld",boostOpen:{},remOpen:false};
   ["priya","vikram","ankit","meera","rahul","sneha","karan","arjun","neha"].forEach(function(k){S.notes[k]=[];});
 }
 reset();
@@ -702,32 +737,99 @@ function tlHome(){
    Performance tab — its "Add a Reminder for Yourself" section — but not rebuilt here; this mockup
    only adds the one new task type, as static/derived display with no save, close or reminder
    logic behind it, since none of that exists to hook into yet). ---------- */
+/* Per-task cards styled after the counselor CRM's own "Boost STI" pipeline drawer (student header,
+   a task-type badge, a "How to close" explainer, View student/View Task actions) rather than the
+   plain table this used to be. */
 function connectTasksCard(forId, oversight){
   var TASK_GROUPS = ["sti","deposit_done"];
-  var empty = '<div class="card"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Connect with Reassigned Leads</b><small>No open tasks right now</small></span></div></div>';
-  if(!S.req || S.req.status!=="transferred") return empty;
+  var open='<div class="card open" id="connectTasksCard"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Connect with Reassigned Leads<span class="new">NEW</span></b><small>Reach out to students you\'ve just taken over in Boost STI or Boost Deposit</small></span></div><div class="cbody">';
+  var close='</div></div>';
+  if(!S.req || S.req.status!=="transferred") return open+'<div class="note">No open tasks right now.</div>'+close;
   var rows = S.leads.filter(function(l){
     var owner=S.assign[l.id];
     if(!owner || TASK_GROUPS.indexOf(leadGroup(l))===-1) return false;
     return oversight ? PEOPLE[owner].tl===LEAVER.tl : owner===forId;
   });
-  if(!rows.length) return empty;
-  var body = '<div class="note">Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student. (Mocked here — this CRM has no call/meeting-event tracking to hook into yet, so nothing actually closes these.)</div>'+
-    '<div class="tw"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage bucket</th>'+(oversight?'<th>Assigned to</th>':'')+'<th>Status</th></tr></thead><tbody>'+
-    rows.map(function(l){
-      var grp=leadGroup(l), badgeCls = grp==="sti"?"b-blue":"b-green", badgeLbl = grp==="sti"?"Boost STI":"Boost Deposit";
-      return '<tr><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td><span class="badge '+badgeCls+'">'+badgeLbl+'</span></td>'+(oversight?'<td>'+esc(PEOPLE[S.assign[l.id]].name)+'</td>':'')+'<td><span class="badge b-amber">Open</span></td></tr>';
-    }).join("")+
-    '</tbody></table></div>';
-  return '<div class="card open"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Connect with Reassigned Leads<span class="new">NEW</span></b><small>Reach out to students you\'ve just taken over in Boost STI or Boost Deposit</small></span></div><div class="cbody">'+body+'</div></div>';
+  if(!rows.length) return open+'<div class="note">No open tasks right now.</div>'+close;
+  var note='<div class="note">Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student. (Mocked here — this CRM has no call/meeting-event tracking to hook into yet, so nothing actually closes these.)</div>';
+  var cards = rows.map(function(l){
+    var grp=leadGroup(l), badgeLbl = grp==="sti"?"Boost STI":"Boost Deposit";
+    var owner=PEOPLE[S.assign[l.id]];
+    var sub = l.id+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(oversight?' · Assigned to '+esc(owner.name):'');
+    return '<div class="taskcard"><div class="tchead"><b>'+esc(l.name)+'</b><small>'+sub+'</small></div>'+
+      '<span class="tcbadge">'+badgeLbl+'</span>'+
+      '<div class="htc"><span class="htclabel">How to close</span><span class="htcchip">Connect with Reassigned Lead</span><p>Book and join a meeting with '+esc(l.first)+', or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.</p></div>'+
+      '<div class="tcbtns"><button class="btn sm" data-viewstudent="'+l.id+'">View student</button><button class="btn sm" data-viewtask="'+l.id+'">View Task</button></div>'+
+    '</div>';
+  }).join("");
+  return open+note+cards+close;
+}
+/* Static "boost" metric card — icon/title/number/subtitle/due-today, matching the CRM's Boost
+   Output & Boost Input rows. Only "sti" and "deposit" are wired (they jump down to the real
+   Connect with Reassigned Leads card); every other key is decorative, per the request to copy the
+   page's look without rebuilding its unrelated metrics. */
+function boostCard(cls,icon,title,num,sub,due,key){
+  return '<div class="boostcard '+cls+'" data-boost="'+key+'"><div class="bhead"><span>'+icon+' '+esc(title.toUpperCase())+'</span><span>&#8635;</span></div><div class="bnum num">'+num+'</div><div class="bsub">'+esc(sub)+'</div>'+(due?'<div class="bdue">'+esc(due)+'</div>':'')+'<div class="blink">View Pipeline &rarr;</div></div>';
+}
+function boostInputCards(){
+  var isl='<div class="boostcard green" data-boost="isl"><div class="bhead"><span>&#11088; ISL FEEDBACK RATING</span></div><div class="bnum num">3.9<small style="font-size:14px;font-weight:600"> / 5</small></div><div class="bsub">Based on recent surveys</div><div class="blink">View details &rarr;</div></div>';
+  var qs='<div class="boostcard green" data-boost="quality"><div class="bhead"><span>&#127942; QUALITY SCORE</span></div><div class="bnum num" style="font-size:22px">82% <small style="font-size:12px;font-weight:600">1st</small></div><div class="bsub">2nd attempt 61%</div><div class="blink">View details &rarr;</div></div>';
+  var rows=[["Customer Support",0],["Low ISL Feedback",0],["Messages Not Replied",2],["IS Pending and Breached",1]];
+  var esc_='<div class="boostcard green" data-boost="escalation" style="gap:6px"><div class="bhead"><span>&#9888; POTENTIAL ESCALATION</span></div>'+
+    rows.map(function(r){return '<div class="row" style="justify-content:space-between;font-size:12px;background:rgba(255,255,255,.65);border-radius:6px;padding:4px 8px;margin:0"><span>'+r[0]+'</span><b class="num">'+r[1]+'</b></div>';}).join("")+
+    '<div class="blink">View all groups &rarr;</div></div>';
+  var own='<div class="boostcard green" data-boost="own"><div class="bhead"><span>&#128276; OWN TASKS</span></div><div class="bnum num">0</div><div class="bsub">0 pending reminders</div></div>';
+  return isl+qs+esc_+own;
+}
+/* Generic collapsed-by-default card for the parts of the tab this mockup doesn't model
+   (Top Performers, Performance Summary) — expands to say so rather than pretending to be real. */
+function staticCollapsible(icon,title,sub){
+  var key="sc_"+title, open=!!S.boostOpen[key];
+  return '<div class="card'+(open?" open":"")+'"><button class="chead" data-sctoggle="'+key+'"><span class="ic">'+icon+'</span><span class="t"><b>'+esc(title)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="cbody"><div class="note">Not modeled in this mockup.</div></div>':'')+'</div>';
+}
+/* Mock-only "Add a Reminder for Yourself" — same collapsible card + form shape as the real CRM
+   section this task list sits below, but Save just confirms and throws the input away: no
+   reminder system exists in this mockup to actually save it into. */
+function reminderCard(){
+  var open=!!S.remOpen;
+  var body = !open ? "" :
+    '<div class="row" style="gap:8px;margin-bottom:4px">'+["Call to User","Send Message","Payment Follow Up","Custom Task"].map(function(t,i){return '<button type="button" class="btn sm'+(i===0?" p":"")+'">'+t+'</button>';}).join("")+'</div>'+
+    '<label class="f">Student ID <span style="color:var(--red)">*</span><input type="text" placeholder="e.g. LD-40224"></label>'+
+    '<label class="f">Date &amp; time<input type="datetime-local"></label>'+
+    '<label class="f">Description (optional)<textarea rows="2" placeholder="Add details about this reminder…"></textarea></label>'+
+    '<button type="button" class="btn p" id="saveReminderMock" style="width:100%">Save Reminder</button>';
+  return '<div class="card'+(open?" open":"")+'"><button class="chead" id="remHead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Add a Reminder for Yourself</b><small>Not modeled in this mockup — shown for layout reference only</small></span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="cbody">'+body+'</div>':'')+'</div>';
 }
 function tasksPerfPage(){
   var v=S.view;
-  var head='<div class="ph"><div><h1>Tasks &amp; Performance</h1><p>This mockup only models the leads-handover task below — the rest of this tab (stand-up table, scorecards, boost cards, Add a Reminder for Yourself) isn\'t rebuilt here.</p></div></div>';
-  var body = v==="rahul" ? connectTasksCard("rahul",false)
-    : v==="ankit" ? connectTasksCard(null,true)
-    : '<div class="note">No handover-related tasks for this role.</div>';
+  var head='<div class="ph"><div><h1>Tasks &amp; Performance</h1><p>Layout borrowed from the counselor CRM\'s own Tasks &amp; Performance tab. Only Boost STI, Boost Deposit and Connect with Reassigned Leads are backed by real (mock) data here — the rest is static dressing.</p></div></div>';
+  if(v!=="rahul" && v!=="ankit") return '<div class="page">'+head+'<div class="note">No handover-related tasks for this role.</div></div>';
+  var body =
+    '<div class="boosthead"><span class="bar"></span>Boost Output<span class="pill pill-red">Action Required</span></div>'+
+    '<div class="boostgrid">'+
+      boostCard("red","&#128640;","Boost Referrals",68,"68 students can refer","0 due today","referrals")+
+      boostCard("red","&#127919;","Boost STI",142,"142 students need attention","3 due today","sti")+
+      boostCard("red","&#128179;","Boost Deposit",135,"135 students need attention","2 due today","deposit")+
+      boostCard("red","&#127974;","Boost Revenue",8,"Revenue opportunities","1 due today","revenue")+
+    '</div>'+
+    '<div class="boosthead"><span class="bar" style="background:var(--green)"></span>Boost Input<span class="pill pill-amber">Volume + Quality</span></div>'+
+    '<div class="boostgrid">'+boostInputCards()+'</div>'+
+    staticCollapsible("&#10024;","Top Performers")+
+    staticCollapsible("&#128202;","Performance Summary","Scorecard · Targets vs Actuals")+
+    reminderCard()+
+    connectTasksCard(v==="rahul"?"rahul":null, v==="ankit");
   return '<div class="page">'+head+body+'</div>';
+}
+function bindTasksPerf(){
+  document.querySelectorAll("[data-boost]").forEach(function(b){ b.onclick=function(){
+    var k=b.dataset.boost;
+    if(k==="sti"||k==="deposit"){ var el=document.getElementById("connectTasksCard"); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); }
+    else toast("Not modeled in this mockup");
+  }; });
+  document.querySelectorAll("[data-sctoggle]").forEach(function(b){ b.onclick=function(){ var k=b.dataset.sctoggle; S.boostOpen[k]=!S.boostOpen[k]; render(); }; });
+  var rh=document.getElementById("remHead"); if(rh) rh.onclick=function(){ S.remOpen=!S.remOpen; render(); };
+  var sr=document.getElementById("saveReminderMock"); if(sr) sr.onclick=function(){ toast("Reminder saved (not modeled in this mockup)"); };
+  document.querySelectorAll("[data-viewstudent],[data-viewtask]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
 }
 
 /* ---------- new counselor ---------- */
@@ -803,11 +905,12 @@ function render(){
   m.querySelectorAll("[data-home]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.tl.sel={}; S.tl.stageMenuOpen=false; S.tl.grpMenuOpen=false; render(); window.scrollTo(0,0); }; });
   m.querySelectorAll("[data-assign]").forEach(function(b){ b.onclick=function(){ S.route="assign"; render(); window.scrollTo(0,0); }; });
   m.querySelectorAll("[data-detail]").forEach(function(b){ b.onclick=function(){ S.route="detail"; render(); window.scrollTo(0,0); }; });
-  if(v==="priya") bindResignation();
-  if(v==="vikram"&&S.route==="home") bindSmHome();
+  if(S.route==="home"&&S.activeTab==="tasks") bindTasksPerf();
+  else if(v==="priya") bindResignation();
+  if(v==="vikram"&&S.route==="home"&&S.activeTab!=="tasks") bindSmHome();
   if(S.route==="detail") bindDetail();
   if(S.route==="assign") bindAssign();
-  if(v==="rahul") bindRahul();
+  if(v==="rahul"&&S.activeTab!=="tasks") bindRahul();
   bottomBar();
 }
 render();
