@@ -192,10 +192,15 @@ All users log in to the existing CRM with their own account. No new login is nee
 - Lead counts by stage group, the same collapsible groups as Screen 1.
 - Action buttons depend on status (SM only):
   - Pending SM approval: **Approve**, **Change date & approve**, **Reject**.
-  - Approved, TL assigning: **Assign leads** (opens Screen 6), **Cancel resignation**.
+  - Approved, TL assigning: an assignment button (opens Screen 6) plus **Cancel resignation**. The button's label and an accompanying note change with progress, so the SM never sees a plain "Assign leads" button when work has already been done (see below).
   - Rejected: **Reopen for counselor**.
   - Transferred, Cancelled: no buttons.
-- The TL sees only **Assign leads** (when Approved) and no approval buttons.
+- The TL sees only the assignment button (when Approved) and no approval buttons.
+- **Assignment progress note and button**, shown whenever the status is Approved, TL assigning (to both the SM here and the TL on their own Learning & Development card):
+  - 0 leads assigned yet: no note, button reads **Assign leads** (primary/blue).
+  - Some but not all assigned: a note "[Assigned] of [Total] leads assigned so far.", button reads **Continue assigning** (primary/blue).
+  - All leads assigned: a green note "All [Total] leads have already been assigned. Open below to review or change any of them before the 8 PM transfer.", button reads **Review assignments** (secondary/outline, not primary — so it doesn't read as a fresh, un-done task).
+  - This is what stops the TL and the SM from duplicating each other's work: whoever looks second sees the true state instead of a button that looks identical whether 0 or 325 leads are done.
 - **Failed messages** section, shown after transfer when there are any. A table with Student name, Lead ID, Channel (Email / WhatsApp), Reason (the provider's error text), and Last tried (time).
 - **History** section: a timeline of every action, newest first. Examples: "Submitted by Priya R · 12 Oct 10:42", "Last working day changed from 30 Oct to 25 Oct by Ankit S".
 
@@ -205,7 +210,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 - **Reject**: opens a textbox "Reason" (required, max 500 characters). **Reject** sets the status to Rejected and sends a bell to the leaver.
 - **Cancel resignation**: opens a confirm modal: "Cancel [Name]'s resignation? All lead assignments will be cleared and they will start getting new leads again." Buttons **Keep it** and **Cancel resignation**.
 - **Reopen for counselor**: the counselor's card returns to Screen 1. The rejected request stays in the list.
-- **Assign leads**: opens Screen 6.
+- **Assign leads / Continue assigning / Review assignments**: opens Screen 6, whichever label is currently showing.
 
 **Empty state:** History always has at least the "Submitted" entry.
 **Error state:** If an action fails: red text under the buttons, "Couldn't save. Try again." Status does not change.
@@ -215,10 +220,10 @@ All users log in to the existing CRM with their own account. No new login is nee
 
 **What the user sees:**
 - Header: "Assign [Leaver name]'s leads · Transfer at 8 PM on [date]". Progress: "[Assigned] of [Total] assigned".
-- Three filters, each with an "All" option plus the values below:
-  - **Stage** — every individual value in the CRM's Bofu Status field (see [Reference: Field Values](#reference-field-values)). Always the full flat list of stages, never just the 6 groups.
-  - **Servicing type** — `Free Service` (`FREE_SERVICE`), `Paid Service` (`PAID_SERVICE`).
-  - **Program** — `Masters` (`MASTERS`), `Under Graduation` (`UNDER_GRADUATION`).
+- Three filters:
+  - **Stage** — a multi-select dropdown: a button (labelled "All stages", the one selected stage's name, or "[N] stages selected") opens a checklist panel listing every individual value in the CRM's Bofu Status field (see [Reference: Field Values](#reference-field-values)), each with its own checkbox, plus a **Clear** action that resets to "All stages". Any number of stages can be checked at once (OR — a lead matching any checked stage is shown); this is always the full flat list of individual stages, never just the 6 groups. This is separate from, and works alongside, the Group by toggle below.
+  - **Servicing type** — single-select: `Free Service` (`FREE_SERVICE`), `Paid Service` (`PAID_SERVICE`), or All.
+  - **Program** — single-select: `Masters` (`MASTERS`), `Under Graduation` (`UNDER_GRADUATION`), or All.
 - A **Show** toggle: All / Unassigned / Assigned.
 - A **Group by** toggle: **Stage groups** (default) / **Flat list**. This is a display layout choice, separate from the three filters above, and from the Show toggle.
   - **Stage groups**: the rows that match the current filters are bucketed into the 6 stage groups (see [Reference: Stage Groups](#reference-stage-groups)) — Pre ISL Drop Off and Post ISL Drop Off are separate groups here, not sub-sections of one group. Each group starts collapsed, showing its name and matching-row count; clicking it expands a table of its leads inline.
@@ -226,16 +231,19 @@ All users log in to the existing CRM with their own account. No new login is nee
 - Table columns (same in both layouts): checkbox, Student name, Lead ID, Stage, Servicing type, Program, Last contacted (date), Next follow-up (date), Assigned to (counselor name or "Unassigned").
 - Default sort (Flat list only): Next follow-up, soonest first, with empty dates last. Columns can be sorted by clicking the header. (Stage groups keeps each group's rows in the order they were generated; sorting within a group is not in v0.)
 - A **Select all [N] shown** checkbox in the flat table's header, and a **Select all [N] shown** button above the table in both layouts. Both select every row that matches the current filters — in Stage groups layout this includes rows in collapsed (not yet expanded) groups too.
+- In Stage groups layout, each expanded group's own mini-table also has a checkbox in its header — selecting it selects (or clears) every lead in that one group only, without touching selections in any other group. This is the fast way to "select all leads of a stage [group] at once."
 - A bottom bar that appears when rows are selected: "[N] selected", an **Assign to** counselor dropdown, and an **Assign** button.
-- Text under the header: "Anything left unassigned at 8 PM on [date] will be split evenly across [TL name]'s team."
+- Text under the header changes with progress: "Anything left unassigned at 8 PM on [date] will be split evenly across [TL name]'s team." while incomplete, or a green "All [Total] leads are assigned. They'll transfer automatically at 8 PM on [date] — you can still change any assignment until then." once every lead has an assignee.
+- A **Back to Learning & Development** button below the table, always present (not just the small breadcrumb-style back link above the header) — so there is always an obvious, reachable way to leave this screen after selecting or assigning. Once every lead is assigned, it reads **Done — back to Learning & Development** instead, as a clear closing confirmation.
 
 **What the user can do:**
-- Filter (by Stage, Servicing type and Program, in combination), and switch Group by / Show.
+- Filter (by Stage — any number checked at once — Servicing type and Program, in combination), and switch Group by / Show.
 - Sort (Flat list layout) and page (Flat list layout).
 - Expand or collapse any stage group independently — expand state is remembered while on this screen.
-- Tick rows or Select all shown.
-- Pick a counselor and click **Assign**. The selected rows update to that counselor, the progress count updates, and the selection clears. Assigning rows that already have a counselor replaces the old choice.
+- Tick rows, Select all shown, or (Stage groups layout) select every lead within one expanded group in a single click.
+- Pick a counselor and click **Assign**. The selected rows update to that counselor, the progress count updates, and the selection clears. A confirming toast names the counselor and count ("[N] leads assigned to [Name]"). Assigning rows that already have a counselor replaces the old choice.
 - Search the counselor dropdown by name. It lists active counselors under the same SM, excluding the leaver, as "Name · TL name · current open leads".
+- Click **Back to Learning & Development** (or **Done — back to Learning & Development** once complete) at any time — nothing is lost, since every assignment saves immediately when made.
 
 **Empty state:** If the leaver has 0 leads: "No leads to assign."
 **Filter returns nothing:** "No leads match these filters." (Shown in place of either layout — a group with 0 matching rows is simply left out rather than shown empty.)
@@ -286,9 +294,9 @@ All users log in to the existing CRM with their own account. No new login is nee
 
 | Field | Type | Required | Notes / Validation |
 |-------|------|----------|--------------------|
-| Stage | Dropdown | No (defaults to All) | Options: All, plus every Bofu Status value — see [Reference: Field Values](#reference-field-values). |
-| Servicing type | Dropdown | No (defaults to All) | Options: All, Free Service (`FREE_SERVICE`), Paid Service (`PAID_SERVICE`). |
-| Program | Dropdown | No (defaults to All) | Options: All, Masters (`MASTERS`), Under Graduation (`UNDER_GRADUATION`). |
+| Stage | Multi-select checklist (button opens a panel) | No (defaults to no stages checked, i.e. "All stages") | Options: every Bofu Status value — see [Reference: Field Values](#reference-field-values). Any number can be checked at once (OR); a **Clear** action in the panel resets to "All stages". |
+| Servicing type | Dropdown (single-select) | No (defaults to All) | Options: All, Free Service (`FREE_SERVICE`), Paid Service (`PAID_SERVICE`). |
+| Program | Dropdown (single-select) | No (defaults to All) | Options: All, Masters (`MASTERS`), Under Graduation (`UNDER_GRADUATION`). |
 
 ---
 
@@ -420,6 +428,7 @@ The variables in order are: student first name, leaver name, new counselor name,
 | Connection drops while assigning | Red toast "Couldn't assign. Try again." Nothing partial is saved for that click. |
 | TL hasn't assigned everything by 8 PM | Leftover leads are auto split across the TL's team (see rules). |
 | Assigned counselor leaves before transfer | Their rows go back to Unassigned and the TL gets a bell. |
+| TL has already assigned all (or some) leads, and the SM opens the request afterwards | The SM sees the true progress ("[N] of [Total] assigned" and, if complete, a green "already assigned" note) and a **Continue assigning** or **Review assignments** button instead of a plain **Assign leads** button — so the SM doesn't start reassigning leads the TL has already placed. Same the other way if the SM assigns first and the TL opens it later. |
 | SM changes the last working day to earlier than today's date | Not allowed. The picker starts from tomorrow. |
 | Student has no email or no phone | That channel is marked Failed with the reason, and the other channel still sends. |
 | Email or WhatsApp provider is down at 8 PM | Retried 3 times over 1 hour, then marked Failed on the SM's card. |

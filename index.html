@@ -88,6 +88,11 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .grprow .chev.open{transform:rotate(180deg)}
 .grpbody{padding:10px 4px 2px 14px;display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--line-soft);margin:2px 0 2px 14px}
 .grpsub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.stagepick{position:relative}
+.stagepick .panel{position:absolute;top:100%;left:0;margin-top:4px;z-index:25;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 30px rgba(15,23,42,.18);padding:8px;max-height:300px;overflow:auto;min-width:280px;display:flex;flex-direction:column;gap:1px}
+.stagepick .hdr{display:flex;justify-content:space-between;align-items:center;padding:2px 6px 8px;margin-bottom:4px;border-bottom:1px solid var(--line-soft);font-size:12px;font-weight:700}
+.stagepick label{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:4px;font-size:13px;font-weight:400;cursor:pointer}
+.stagepick label:hover{background:#f6f8fb}
 label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a}
 input[type=date],select.in,textarea{border:1px solid #c8d1de;border-radius:6px;padding:8px 10px;font:inherit;color:var(--ink);background:#fff;max-width:100%}
 textarea{min-height:80px;resize:vertical;width:100%}
@@ -309,7 +314,7 @@ function reset(){
   seed=7;
   S={view:"priya",route:"home",resOpen:true,leads:makeLeads(),assign:{},req:null,notes:{},
      clock:"25 Sep 2026, 11:10 AM",phase:"before",
-     tl:{stage:"All",servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{},groupBy:true,grpOpen:{}},
+     tl:{stage:[],stageMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{},groupBy:true,grpOpen:{}},
      draftDate:"",formErr:"",lgcDone:{},smFilter:"All",stageGroupOpen:{}};
   ["priya","vikram","ankit","meera","rahul","sneha","karan","arjun","neha"].forEach(function(k){S.notes[k]=[];});
 }
@@ -520,15 +525,27 @@ function previewMsgs(){
     '<div><div class="mh"><b>WhatsApp</b> · From: Leap company number · To: '+esc(l.phone||"(no phone)")+'</div><div class="msg wa">'+esc(wa)+'</div></div></div>'+
     '<div style="font-size:12px;color:var(--muted)">Preview for '+esc(l.name)+' ('+l.id+'). Every student gets the same fixed template with their own names filled in.</div>';
 }
+/* Progress-aware CTA for opening Screen 6, shared by Screen 5 (SM and TL) and the TL home card, so
+   whichever of the TL/SM looks at this second doesn't see a plain "Assign leads" button that reads
+   as if nothing has happened yet when the other one already did the work. */
+function assignCTA(showCancel){
+  var asg=assignedCount(), tot=S.leads.length, complete=tot>0&&asg===tot;
+  var label = complete ? "Review assignments" : (asg>0 ? "Continue assigning" : "Assign leads");
+  var badge = complete ? ' <span class="badge b-green">All assigned</span>' : (asg>0 ? ' <span class="badge b-amber">In progress</span>' : '');
+  var note = complete ? '<div class="note" style="background:var(--green-soft)">All '+tot+' leads have already been assigned. Open below to review or change any of them before the 8 PM transfer.</div>'
+    : (asg>0 ? '<div class="note">'+asg+' of '+tot+' leads assigned so far.</div>' : '');
+  var buttons = '<button class="btn '+(complete?"":"p")+'" data-assign>'+label+'</button>'+(showCancel?'<button class="btn d" id="aCancel">Cancel resignation</button>':'');
+  return {note:note, buttons:buttons, badge:badge, asg:asg, tot:tot};
+}
 function detailPage(){
   var r=S.req; var isSM=S.view==="vikram";
   if(!r) return '<button class="back" data-home>&larr; Back</button><div class="note">No request to show.</div>';
-  var acts="";
+  var acts="", noteHtml="";
   if(isSM){
     if(r.status==="pending") acts='<button class="btn p" id="aApprove">Approve</button><button class="btn" id="aChange">Change date &amp; approve</button><button class="btn d" id="aReject">Reject</button>';
-    if(r.status==="approved") acts='<button class="btn p" data-assign>Assign leads</button><button class="btn d" id="aCancel">Cancel resignation</button>';
+    if(r.status==="approved"){ var ab=assignCTA(true); noteHtml=ab.note; acts=ab.buttons; }
     if(r.status==="rejected" && !r.reopened) acts='<button class="btn" id="aReopen">Reopen for counselor</button>';
-  } else if(r.status==="approved"){ acts='<button class="btn p" data-assign>Assign leads</button>'; }
+  } else if(r.status==="approved"){ var ab2=assignCTA(false); noteHtml=ab2.note; acts=ab2.buttons; }
   var failed=[];
   if(r.msgs){ S.leads.forEach(function(l){ var m=r.msgs[l.id]; ["email","wa"].forEach(function(ch){ if(m[ch].s==="Failed") failed.push({l:l,ch:ch==="email"?"Email":"WhatsApp",why:m[ch].why,at:m[ch].at}); }); }); }
   var failBlock = r.msgs ? (failed.length?'<div class="tw"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Channel</th><th>Reason</th><th>Last tried</th></tr></thead><tbody>'+failed.map(function(f){return '<tr><td>'+esc(f.l.name)+'</td><td>'+f.l.id+'</td><td>'+f.ch+'</td><td>'+esc(f.why)+'</td><td>'+esc(f.at)+'</td></tr>';}).join("")+'</tbody></table></div>':'<div class="note">No failed messages'+(S.phase==="retrying"?" yet. Some sends are still retrying.":".")+'</div>') : '<div class="note">Messages are sent at 8 PM on the last working day.</div>';
@@ -537,7 +554,7 @@ function detailPage(){
    '<div class="ph"><div><h1>'+esc(LEAVER.name)+'\'s resignation</h1><p>Counselor · TL '+esc(PEOPLE.ankit.name)+' · SM '+esc(PEOPLE.vikram.name)+'</p></div>'+statusBadge(r.status)+'</div>'+
    '<div class="card"><div class="cbody" style="border:0"><div class="meta"><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>Last working day</small><b>'+fmt(r.lwd)+'</b></div><div><small>Transfer</small><b>8 PM, '+fmtShort(r.lwd)+'</b></div><div><small>Assigned</small><b class="num">'+assignedCount()+' / '+S.leads.length+'</b></div></div>'+groupedStageSummary(S.leads,S.stageGroupOpen)+
    (r.status==="rejected"?'<div class="note" style="background:var(--red-soft)"><b>Rejection reason:</b> '+esc(r.reason)+(r.reopened?'<br>Reopened for the counselor.':'')+'</div>':'')+
-   (acts?'<div class="row">'+acts+'</div>':(isSM?'':'<div style="font-size:12px;color:var(--muted)">Approval actions are for the SM only.</div>'))+'</div></div>'+
+   noteHtml+(acts?'<div class="row">'+acts+'</div>':(isSM?'':'<div style="font-size:12px;color:var(--muted)">Approval actions are for the SM only.</div>'))+'</div></div>'+
    '<div class="card"><div class="cbody" style="border:0"><b>Student messages</b>'+kp+failBlock+'</div></div>'+
    (r.status!=="rejected"&&r.status!=="cancelled"?'<div class="card"><div class="cbody" style="border:0"><b>Message preview</b>'+previewMsgs()+'</div></div>':'')+
    '<div class="card"><div class="cbody" style="border:0"><b>History</b><ul class="hist">'+r.history.map(function(h){return '<li>'+esc(h.text)+' · '+esc(h.by)+'<small>'+esc(h.at)+'</small></li>';}).join("")+'</ul></div></div></div>';
@@ -573,7 +590,7 @@ function eligible(){ return Object.keys(PEOPLE).map(function(k){return PEOPLE[k]
 function filtered(){
   var t=S.tl;
   var rows=S.leads.filter(function(l){
-    if(t.stage!=="All"&&l.stage!==t.stage) return false;
+    if(t.stage.length&&t.stage.indexOf(l.stage)===-1) return false;
     if(t.servicing!=="All"&&l.servicing!==t.servicing) return false;
     if(t.program!=="All"&&l.program!==t.program) return false;
     if(t.show==="Unassigned"&&S.assign[l.id]) return false;
@@ -594,9 +611,10 @@ function assignRowHtml(l,locked){
   var a=S.assign[l.id];
   return '<tr class="'+(S.tl.sel[l.id]?"sel":"")+'"><td><input type="checkbox" data-sel="'+l.id+'"'+(S.tl.sel[l.id]?" checked":"")+(locked?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.servicing))+'</td><td>'+esc(prettyEnum(l.program))+'</td><td class="num">'+fmtShort(l.last)+'</td><td class="num">'+fmtShort(l.next)+'</td><td>'+(a?esc(PEOPLE[a].name):'<span class="un">Unassigned</span>')+'</td></tr>';
 }
-function assignMiniTable(list,locked){
+function assignMiniTable(list,locked,groupKey){
   if(!list.length) return "";
-  return '<div class="tw"><table><thead><tr><th></th><th>Student</th><th>Lead ID</th><th>Stage</th><th>Servicing type</th><th>Program</th><th>Last contacted</th><th>Next follow-up</th><th>Assigned to</th></tr></thead><tbody>'+list.map(function(l){return assignRowHtml(l,locked);}).join("")+'</tbody></table></div>';
+  var allSel = list.every(function(l){return S.tl.sel[l.id];});
+  return '<div class="tw"><table><thead><tr><th><input type="checkbox" data-selgroup="'+groupKey+'" aria-label="Select all in this group"'+(allSel?" checked":"")+(locked?" disabled":"")+'></th><th>Student</th><th>Lead ID</th><th>Stage</th><th>Servicing type</th><th>Program</th><th>Last contacted</th><th>Next follow-up</th><th>Assigned to</th></tr></thead><tbody>'+list.map(function(l){return assignRowHtml(l,locked);}).join("")+'</tbody></table></div>';
 }
 /* Screen 6's grouped view: same rows as the flat table, bucketed under the same 5 stage groups used
    on Screen 1/5, with Dropped Off further split into Pre ISL / Post ISL. Selection, assignment and
@@ -610,7 +628,7 @@ function groupedAssignTable(rows,locked){
   GROUP_ORDER.forEach(function(k){
     var list=buckets[k]; if(!list.length) return;
     var open=!!S.tl.grpOpen[k];
-    html+='<div class="grprow-wrap"><button class="grprow" data-grptoggle="'+k+'" aria-expanded="'+open+'"><b>'+esc(GROUP_LABEL[k])+'</b><span class="n">'+list.length+'</span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="grpbody">'+assignMiniTable(list,locked)+'</div>':'')+'</div>';
+    html+='<div class="grprow-wrap"><button class="grprow" data-grptoggle="'+k+'" aria-expanded="'+open+'"><b>'+esc(GROUP_LABEL[k])+'</b><span class="n">'+list.length+'</span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="grpbody">'+assignMiniTable(list,locked,k)+'</div>':'')+'</div>';
   });
   return '<div class="grpwrap">'+html+'</div>';
 }
@@ -624,21 +642,31 @@ function assignPage(){
   var allShownSel = rows.length && rows.every(function(l){return t.sel[l.id];});
   function optPretty(list,v){ return '<option value="All"'+(v==="All"?" selected":"")+'>All</option>'+list.map(function(x){return '<option value="'+x+'"'+(x===v?" selected":"")+'>'+esc(prettyEnum(x))+'</option>';}).join(""); }
   function th(key,label){ var ar = t.sort===key ? (t.dir===1?" &#9650;":" &#9660;") : ""; return '<th class="s" data-sort="'+key+'">'+label+ar+'</th>'; }
+  var allAssigned = tot>0 && asg===tot;
   var banner = locked ? '<div class="note" style="background:'+(r.status==="transferred"?"var(--green-soft)":"var(--grey-soft)")+'"><b>'+(r.status==="transferred"?"Transfer complete.":r.status==="cancelled"?"Resignation cancelled.":"Waiting for SM approval.")+'</b> This list is read only.</div>' :
-    '<div class="note">Anything left unassigned at 8 PM on '+fmt(r.lwd)+' will be split evenly across '+esc(PEOPLE.ankit.name)+'\'s team.</div>';
+    (allAssigned ? '<div class="note" style="background:var(--green-soft)"><b>All '+tot+' leads are assigned.</b> They\'ll transfer automatically at 8 PM on '+fmt(r.lwd)+' — you can still change any assignment until then.</div>'
+      : '<div class="note">Anything left unassigned at 8 PM on '+fmt(r.lwd)+' will be split evenly across '+esc(PEOPLE.ankit.name)+'\'s team.</div>');
   var flatTable = slice.length ? '<div class="tw"><table><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all shown"'+(allShownSel?" checked":"")+(locked?" disabled":"")+'></th>'+th("name","Student")+th("id","Lead ID")+th("stage","Stage")+th("servicing","Servicing type")+th("program","Program")+th("last","Last contacted")+th("next","Next follow-up")+th("to","Assigned to")+'</tr></thead><tbody>'+
     slice.map(function(l){ return assignRowHtml(l,locked); }).join("")+
     '</tbody></table></div><div class="pag"><span class="num">'+(t.page*per+1)+'–'+(t.page*per+slice.length)+' of '+rows.length+'</span><button class="btn sm" id="pPrev"'+(t.page?"":" disabled")+'>Previous</button><button class="btn sm" id="pNext"'+(t.page<pages-1?"":" disabled")+'>Next</button></div>'
     : '<div class="note">No leads match these filters.</div>';
   var table = !rows.length ? '<div class="note">No leads match these filters.</div>' : (t.groupBy ? groupedAssignTable(rows,locked) : flatTable);
+  var stageLabel = !t.stage.length ? "All stages" : (t.stage.length===1 ? prettyEnum(t.stage[0]) : t.stage.length+" stages selected");
+  var stagePicker = '<div class="f"><span>Stage</span><div class="stagepick"><button type="button" class="btn sm" id="stageBtn">'+esc(stageLabel)+' &#8964;</button>'+
+    (t.stageMenuOpen ? '<div class="panel"><div class="hdr"><span>Stage (select any number)</span><button type="button" class="btn sm" id="stageClear">Clear</button></div>'+
+      STAGES.map(function(s){return '<label><input type="checkbox" data-stagechk="'+s+'"'+(t.stage.indexOf(s)!==-1?" checked":"")+'> '+esc(prettyEnum(s))+'</label>';}).join("")+
+      '</div>' : '')+
+    '</div></div>';
   return '<div class="page"><button class="back" data-home>&larr; Back to Learning &amp; Development</button>'+
     '<div class="ph"><div><h1>Assign '+esc(LEAVER.name)+'\'s leads</h1><p>Transfer at 8 PM on '+fmt(r.lwd)+'</p></div><div class="prog"><span class="num"><b>'+asg+'</b> of '+tot+' assigned</span><div class="bar"><span style="width:'+(asg/tot*100)+'%"></span></div></div></div>'+
     banner+
-    '<div class="fbar"><label class="f">Stage<select class="in" id="fStage">'+optPretty(STAGES,t.stage)+'</select></label><label class="f">Servicing type<select class="in" id="fServicing">'+optPretty(SERVICING_TYPES,t.servicing)+'</select></label><label class="f">Program<select class="in" id="fProg">'+optPretty(PROGRAM_TYPES,t.program)+'</select></label>'+
+    '<div class="fbar">'+stagePicker+'<label class="f">Servicing type<select class="in" id="fServicing">'+optPretty(SERVICING_TYPES,t.servicing)+'</select></label><label class="f">Program<select class="in" id="fProg">'+optPretty(PROGRAM_TYPES,t.program)+'</select></label>'+
     '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Show<div class="seg">'+["All","Unassigned","Assigned"].map(function(s){return '<button data-show="'+s+'" class="'+(t.show===s?"on":"")+'">'+s+'</button>';}).join("")+'</div></div>'+
     '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Group by<div class="seg"><button data-groupby="1" class="'+(t.groupBy?"on":"")+'">Stage groups</button><button data-groupby="0" class="'+(!t.groupBy?"on":"")+'">Flat list</button></div></div>'+
     (!locked&&rows.length?'<button class="btn sm" id="selShown" style="margin-left:auto">'+(allShownSel?"Clear selection":"Select all "+rows.length+" shown")+'</button>':'')+'</div>'+
-    table+'</div>';
+    table+
+    '<div class="row" style="justify-content:flex-end;padding-top:2px"><button class="btn p" data-home>'+(allAssigned?"Done — back to Learning &amp; Development":"Back to Learning &amp; Development")+'</button></div>'+
+    '</div>';
 }
 function bottomBar(){
   var el=document.getElementById("bottom");
@@ -658,7 +686,13 @@ function bottomBar(){
 function bindAssign(){
   var t=S.tl;
   function on(id,ev,fn){ var e=document.getElementById(id); if(e) e[ev]=fn; }
-  on("fStage","onchange",function(e){ t.stage=e.target.value; t.page=0; render(); });
+  on("stageBtn","onclick",function(){ t.stageMenuOpen=!t.stageMenuOpen; render(); });
+  on("stageClear","onclick",function(){ t.stage=[]; t.page=0; render(); });
+  document.querySelectorAll("[data-stagechk]").forEach(function(c){ c.onchange=function(){
+    var v=c.dataset.stagechk, i=t.stage.indexOf(v);
+    if(c.checked){ if(i===-1) t.stage.push(v); } else if(i!==-1) t.stage.splice(i,1);
+    t.page=0; render();
+  }; });
   on("fServicing","onchange",function(e){ t.servicing=e.target.value; t.page=0; render(); });
   on("fProg","onchange",function(e){ t.program=e.target.value; t.page=0; render(); });
   document.querySelectorAll("[data-show]").forEach(function(b){ b.onclick=function(){ t.show=b.dataset.show; t.page=0; render(); }; });
@@ -667,6 +701,13 @@ function bindAssign(){
   document.querySelectorAll("[data-sel]").forEach(function(c){ c.onchange=function(){ if(c.checked) t.sel[c.dataset.sel]=1; else delete t.sel[c.dataset.sel]; render(); }; });
   function toggleAll(){ var rows=filtered(); var all=rows.every(function(l){return t.sel[l.id];}); if(all) t.sel={}; else rows.forEach(function(l){t.sel[l.id]=1;}); render(); }
   on("selAll","onchange",toggleAll); on("selShown","onclick",toggleAll);
+  document.querySelectorAll("[data-selgroup]").forEach(function(c){ c.onchange=function(){
+    var key=c.dataset.selgroup;
+    var rows=filtered().filter(function(l){return leadGroup(l)===key;});
+    var all=rows.length && rows.every(function(l){return t.sel[l.id];});
+    if(all) rows.forEach(function(l){delete t.sel[l.id];}); else rows.forEach(function(l){t.sel[l.id]=1;});
+    render();
+  }; });
   on("pPrev","onclick",function(){ t.page--; render(); window.scrollTo(0,0); });
   on("pNext","onclick",function(){ t.page++; render(); window.scrollTo(0,0); });
 }
@@ -675,7 +716,7 @@ function bindAssign(){
 function tlHome(){
   var r=S.req;
   var card = '<div class="card open"><div class="chead"><span class="ic">'+ICON.list+'</span><span class="t"><b>Handovers to assign<span class="new">NEW</span></b><small>Leads from counselors in your team who are leaving</small></span></div><div class="cbody">'+
-    (r && r.status==="approved" ? '<div class="row" style="justify-content:space-between"><div><b>'+esc(LEAVER.name)+'</b> · Last working day '+fmt(r.lwd)+'<br><span class="num" style="color:var(--muted)">'+assignedCount()+' of '+S.leads.length+' assigned</span></div><button class="btn p" data-assign>Assign leads</button></div>'
+    (r && r.status==="approved" ? (function(){ var ab=assignCTA(false); return '<div class="row" style="justify-content:space-between"><div><b>'+esc(LEAVER.name)+'</b> · Last working day '+fmt(r.lwd)+'<br><span class="num" style="color:var(--muted)">'+ab.asg+' of '+ab.tot+' assigned</span>'+ab.badge+'</div>'+ab.buttons+'</div>'; })()
       : r && r.status==="transferred" ? '<div class="row" style="justify-content:space-between"><div><b>'+esc(LEAVER.name)+'</b> '+statusBadge("transferred")+'</div><button class="btn" data-detail>View details</button></div>'
       : '<div class="note">'+(r&&r.status==="pending"?esc(LEAVER.name)+' has resigned and is waiting for SM approval. You\'ll get a bell alert when you can assign leads.':'No handovers right now.')+'</div>')+
     '</div></div>';
@@ -752,7 +793,7 @@ function render(){
   else if(S.route==="detail" && (v==="vikram"||v==="ankit")) html=detailPage();
   else { S.route="home"; html = v==="priya"?counselorHome(): v==="vikram"?smHome(): v==="ankit"?tlHome(): rahulHome(); }
   m.innerHTML=html;
-  m.querySelectorAll("[data-home]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.tl.sel={}; render(); }; });
+  m.querySelectorAll("[data-home]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.tl.sel={}; S.tl.stageMenuOpen=false; render(); window.scrollTo(0,0); }; });
   m.querySelectorAll("[data-assign]").forEach(function(b){ b.onclick=function(){ S.route="assign"; render(); window.scrollTo(0,0); }; });
   m.querySelectorAll("[data-detail]").forEach(function(b){ b.onclick=function(){ S.route="detail"; render(); window.scrollTo(0,0); }; });
   bindGroupToggles(m, S.route==="assign" ? S.tl.grpOpen : S.stageGroupOpen);
