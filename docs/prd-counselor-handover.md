@@ -44,7 +44,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 - Card title: "Resignation". Subtitle: "Submit your last working day and hand over your leads".
 - Visible to every user with the Counselor or TL role. Not shown to SMs.
 - One field only: Last working day.
-- Shows a read-only summary of lead counts before submitting, grouped into 5 stage groups (**Open App**, **STI Done**, **Deposit Done**, **Visa**, **Dropped Off**) built on top of the CRM's real lead-stage field ("Bofu Status" — see [Reference: Field Values](#reference-field-values) and [Reference: Stage Groups](#reference-stage-groups)). Each group is collapsed by default showing its total; clicking it expands to show every individual Bofu Status stage inside it, with its own count. A group with 0 leads for this leaver is left out entirely.
+- Shows a read-only summary of lead counts before submitting, grouped into the CRM's official BOFU stage groups (**Pre STI / Open App**, **STI**, **Deposit Done**, **Visa**, **Pre ISL Drop Off**, **Post ISL Drop Off**) built on top of the CRM's real lead-stage field ("Bofu Status" — see [Reference: Field Values](#reference-field-values) and [Reference: Stage Groups](#reference-stage-groups)). Each group is collapsed by default showing its total; clicking it expands to show every individual Bofu Status stage inside it, with its own count. A group with 0 leads for this leaver is left out entirely.
 - Confirm screen before the request is created.
 - Once submitted, the counselor cannot withdraw. Only the SM can cancel.
 - A user can have only one request that is Pending SM approval or Approved, TL assigning at a time.
@@ -66,7 +66,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 - **Servicing type** filter: `FREE_SERVICE`, `PAID_SERVICE`, or "All".
 - **Program** filter: `MASTERS`, `UNDER_GRADUATION`, or "All".
 - A separate **Group by** toggle (Stage groups / Flat list) changes how the matching rows are laid out on screen, independent of the three filters above:
-  - **Stage groups** (default): rows are bucketed into the same 5 stage groups used on Screen 1 (see [Reference: Stage Groups](#reference-stage-groups)). Each group is a collapsed row showing its name and count; clicking it expands to reveal the individual leads inside, in a table with the same columns as the flat list. The Dropped Off group has one extra level: it expands into **Pre ISL** and **Post ISL** sub-sections (ISL = Institute Shortlisted), each listing its own leads.
+  - **Stage groups** (default): rows are bucketed into the same 6 stage groups used on Screen 1 (see [Reference: Stage Groups](#reference-stage-groups)). Each group is a collapsed row showing its name and count; clicking it expands to reveal the individual leads inside, in a table with the same columns as the flat list. **Pre ISL Drop Off** and **Post ISL Drop Off** (ISL = Institute Shortlisted) are two separate groups in this list, not one "Dropped Off" group with sub-sections — they sit outside the main funnel order.
   - **Flat list**: the original ungrouped, paginated table (50 rows per page).
   - Selecting rows, bulk-assigning, and "Select all shown" work identically in both layouts — grouping only changes how matching rows are visually organised, never which leads are selectable or how many.
 - The counselor dropdown lists every active counselor under the same SM, across all TLs, excluding the leaver.
@@ -124,8 +124,8 @@ All users log in to the existing CRM with their own account. No new login is nee
 - A card below Training Modules on Learning & Development. Title "Resignation", subtitle "Submit your last working day and hand over your leads", and an expand arrow.
 - When expanded:
   - Text: "Your leads will move to new counselors automatically at 8 PM on your last working day. Students will be informed by email and WhatsApp."
-  - A **Your leads** summary of collapsed group rows, one per stage group that has at least one lead, plus a Total row at the bottom. For example: "Open App (Prior to STI Stage) 122 · STI Done 155 · Visa 8 · Dropped Off 40 · Total 325" (Deposit Done is left out here because this leaver has 0 leads in it).
-  - Clicking a group row expands it in place to show every individual Bofu Status stage inside that group, with its own count, highest first — for example expanding "STI Done" shows "Application Submitted To Institute 45 · Admit Declined 35 · Conditional Admit Received 30 · Application Rejected By Aggregator 20 · Unconditional Admit Received 15 · Admit Accepted 10". Expanding "Dropped Off" shows two sub-headers, **Pre ISL** and **Post ISL**, each with its own stages and counts (see [Reference: Stage Groups](#reference-stage-groups)).
+  - A **Your leads** summary of collapsed group rows, one per stage group that has at least one lead, plus a Total row at the bottom. For example: "Pre STI / Open App 142 · STI 135 · Visa 8 · Pre ISL Drop Off 25 · Post ISL Drop Off 15 · Total 325" (Deposit Done is left out here because this leaver has 0 leads in it).
+  - Clicking a group row expands it in place to show every individual Bofu Status stage inside that group, with its own count, highest first — for example expanding "Pre STI / Open App" shows "College Shortlisted 110 · Application Rejected By Aggregator 20 · Payment Done 12", and expanding "STI" shows "Application Submitted To Institute 45 · Admit Declined 35 · Conditional Admit Received 30 · Unconditional Admit Received 15 · Admit Accepted 10" (see [Reference: Stage Groups](#reference-stage-groups)).
   - A **Last working day** date picker.
   - A **Submit** button, disabled until a valid date is picked.
 
@@ -141,7 +141,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 
 **What the user sees:**
 - Title: "Confirm your resignation".
-- Text: "Last working day: [DD MMM YYYY]. [Total] leads will be handed over ([group breakdown, e.g. 122 Open App (Prior to STI Stage), 155 STI Done, 8 Visa, 40 Dropped Off]). You can't withdraw this after submitting. Only your SM can cancel it."
+- Text: "Last working day: [DD MMM YYYY]. [Total] leads will be handed over ([group breakdown, e.g. 142 Pre STI / Open App, 135 STI, 8 Visa, 25 Pre ISL Drop Off, 15 Post ISL Drop Off]). You can't withdraw this after submitting. Only your SM can cancel it."
 - Buttons: **Go back** and **Confirm**.
 
 **What the user can do:**
@@ -216,12 +216,12 @@ All users log in to the existing CRM with their own account. No new login is nee
 **What the user sees:**
 - Header: "Assign [Leaver name]'s leads · Transfer at 8 PM on [date]". Progress: "[Assigned] of [Total] assigned".
 - Three filters, each with an "All" option plus the values below:
-  - **Stage** — every individual value in the CRM's Bofu Status field (see [Reference: Field Values](#reference-field-values)). Always the full flat list of stages, never just the 5 groups.
+  - **Stage** — every individual value in the CRM's Bofu Status field (see [Reference: Field Values](#reference-field-values)). Always the full flat list of stages, never just the 6 groups.
   - **Servicing type** — `Free Service` (`FREE_SERVICE`), `Paid Service` (`PAID_SERVICE`).
   - **Program** — `Masters` (`MASTERS`), `Under Graduation` (`UNDER_GRADUATION`).
 - A **Show** toggle: All / Unassigned / Assigned.
 - A **Group by** toggle: **Stage groups** (default) / **Flat list**. This is a display layout choice, separate from the three filters above, and from the Show toggle.
-  - **Stage groups**: the rows that match the current filters are bucketed into the 5 stage groups (see [Reference: Stage Groups](#reference-stage-groups)). Each group starts collapsed, showing its name and matching-row count; clicking it expands a table of its leads inline. Dropped Off expands one level deeper into Pre ISL / Post ISL sub-sections.
+  - **Stage groups**: the rows that match the current filters are bucketed into the 6 stage groups (see [Reference: Stage Groups](#reference-stage-groups)) — Pre ISL Drop Off and Post ISL Drop Off are separate groups here, not sub-sections of one group. Each group starts collapsed, showing its name and matching-row count; clicking it expands a table of its leads inline.
   - **Flat list**: one ungrouped, paginated table (50 rows per page) — the original Screen 6 layout.
 - Table columns (same in both layouts): checkbox, Student name, Lead ID, Stage, Servicing type, Program, Last contacted (date), Next follow-up (date), Assigned to (counselor name or "Unassigned").
 - Default sort (Flat list only): Next follow-up, soonest first, with empty dates last. Columns can be sorted by clicking the header. (Stage groups keeps each group's rows in the order they were generated; sorting within a group is not in v0.)
@@ -232,7 +232,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 **What the user can do:**
 - Filter (by Stage, Servicing type and Program, in combination), and switch Group by / Show.
 - Sort (Flat list layout) and page (Flat list layout).
-- Expand or collapse any stage group (or Pre ISL / Post ISL sub-section) independently — expand state is remembered while on this screen.
+- Expand or collapse any stage group independently — expand state is remembered while on this screen.
 - Tick rows or Select all shown.
 - Pick a counselor and click **Assign**. The selected rows update to that counselor, the progress count updates, and the selection clears. Assigning rows that already have a counselor replaces the old choice.
 - Search the counselor dropdown by name. It lists active counselors under the same SM, excluding the leaver, as "Name · TL name · current open leads".
@@ -362,12 +362,19 @@ The variables in order are: student first name, leaver name, new counselor name,
 - The transfer, message sending and Leap group chat tasks apply to every lead regardless of Stage, Servicing type or Program — the filters only affect what the TL/SM sees while assigning, never who ends up receiving a lead.
 
 **Stage groups (Screen 1, Screen 5, Screen 6)**
-- Every Bofu Status stage rolls up into exactly one of 5 groups: **Open App** (everything before the application reaches the institute), **STI Done** (application submitted to institute, through every admit outcome — positive or negative), **Deposit Done**, **Visa** (every visa status, positive or negative outcome alike), and **Dropped Off**. The full mapping is in [Reference: Stage Groups](#reference-stage-groups).
-- If a lead's Stage is `LS_USER_ACQUIRED` → it does not belong to any of the 5 groups. It is not hidden — it still appears in the flat Stage filter and in the Flat list layout — it is simply left out of the grouped view and the grouped totals.
-- **Dropped Off → Pre ISL vs Post ISL**: a lead whose current Stage is Dead Lead, Lead Drop Off, or Lead Closed After Sales Call is classified as:
-  - **Post ISL** if that lead's stage history shows it ever reached College Shortlisted (LS_COLLEGE_SHORTLISTED) or later, before going dead/dropping off.
-  - **Pre ISL** otherwise (it went dead/dropped off without ever being shortlisted).
-  - This requires the CRM to expose stage *history* for a lead, not just its current Stage — the current Stage code alone (e.g. `LS_DEAD_LEAD`) does not say whether shortlisting happened first. See Open Question 10.
+- The CRM's Bofu Status stages roll up into 6 official BOFU groups, confirmed by the team that owns the funnel. Funnel order is groups 1–4; groups 5–6 (the two drop-off groups) sit outside the linear funnel, not after Visa. The full mapping is in [Reference: Stage Groups](#reference-stage-groups):
+  1. **Pre STI / Open App**
+  2. **STI**
+  3. **Deposit Done**
+  4. **Visa**
+  5. **Pre ISL Drop Off**
+  6. **Post ISL Drop Off**
+- A counselor is only ever assigned a lead starting at `LS_PAYMENT_DONE` — that is the start of BOFU and the start of group 1, even though it isn't the lead's very first stage overall. Stages before it (Lead Captured, Webinar Scheduled/Attended/Cancelled, Counseling Call Done, Agent Change Call Scheduled) belong to an earlier, pre-sales part of the funnel that this tool never needs to touch, because a resigning counselor cannot own a lead that hasn't reached Payment Done yet.
+- If a lead's Stage is `LS_USER_ACQUIRED` or `LS_LEAD_CLOSED_AFTER_SALES_CALL` → it does not belong to any of the 6 groups (in practice this should be rare-to-never on a counselor's book). It is not hidden — it still appears in the flat Stage filter and in the Flat list layout — it is simply left out of the grouped view and the grouped totals.
+- **Pre ISL Drop Off vs Post ISL Drop Off**: a lead whose current Stage is Dead Lead or Lead Drop Off is classified using its last non-drop status, read from `calculated_lead_status_change_log`:
+  - **Pre ISL Drop Off** if that last status was `LS_PAYMENT_DONE` or earlier (it went cold before ever being shortlisted).
+  - **Post ISL Drop Off** if that last status was `LS_COLLEGE_SHORTLISTED` or later (it had already been shortlisted, or further along, before going cold).
+  - The current Stage code alone (`LS_DEAD_LEAD` / `LS_LEAD_DROP_OFF`) cannot answer this — it always requires the status change log.
 - If the Group by toggle is switched from Stage groups to Flat list (or back), the current Stage/Servicing type/Program filters and Show toggle are kept as-is — only the layout changes.
 - Expand/collapse state for a group is per-screen and resets when the page is left and reopened.
 
@@ -419,8 +426,9 @@ The variables in order are: student first name, leaver name, new counselor name,
 | Leaver has 0 leads | Flow still works. The transfer only deactivates the login. |
 | A lead is edited by the leaver after SM approval (including its Stage, Servicing type or Program) | Allowed. The transfer at 8 PM uses the lead's state at that moment. |
 | A lead's Stage is a value not in the CRM's current Bofu Status list (data cleanup, one-off) | It still shows in the table with its raw value and can still be assigned; it just won't match any of the named Stage filter options, only "All". |
-| A lead's Stage is `LS_USER_ACQUIRED` | Shows normally in the flat Stage filter and Flat list layout. Left out of all 5 stage groups and out of the Stage groups layout/totals — see Logic and Rules. |
-| The CRM can't tell whether a dropped-off/dead lead was ever shortlisted before it went cold | It can't be placed in Pre ISL vs Post ISL with confidence — see Open Question 10 for how the build should handle this (for example, default to Pre ISL until stage history is available). |
+| A lead's Stage is `LS_USER_ACQUIRED` or `LS_LEAD_CLOSED_AFTER_SALES_CALL` | Shows normally in the flat Stage filter and Flat list layout. Left out of all 6 stage groups and out of the Stage groups layout/totals — see Logic and Rules. |
+| A lead's Stage is a pre-payment stage (Lead Captured, Webinar *, Counseling Call Done, Agent Change Call Scheduled) | Should not occur on a counselor's book in practice, since ownership starts at Payment Done. If it ever does (data cleanup, one-off), it behaves like User Acquired above: visible in the flat filter, left out of the 6 groups. |
+| `calculated_lead_status_change_log` has no earlier status for a dead/dropped-off lead (edge case in the data) | Treat it as Pre ISL Drop Off (it never reached College Shortlisted, by definition, if there's no earlier status at all). |
 | Resignations already in progress at launch | Finished the old manual way. The tool is used for new resignations only. |
 | TL resigns | Same flow. The SM approves and the SM assigns. |
 | App opened on a mobile browser | Cards stack to one column. Screen 6 table scrolls sideways. All actions still work. |
@@ -482,25 +490,25 @@ Those were placeholder values from the first draft of this PRD, not real CRM fie
 ## Reference: Field Values
 
 ### Reference: Stage Groups
-The 5 groups shown on Screens 1, 5 and 6, and which Bofu Status stages fall into each one. Order below is funnel order (roughly early → late).
+The 6 official BOFU groups shown on Screens 1, 5 and 6, and which Bofu Status stages fall into each one. This is the authoritative bucketing confirmed by the team that owns the Bofu Status funnel. Groups 1–4 are funnel order; groups 5–6 sit outside the linear funnel (a lead can drop off at any point, not only at the end).
 
-**Open App (Prior to STI Stage)** — everything before the application reaches the institute, including the leaver's own Paid Service payment:
-`LS_LEAD_CAPTURED`, `LS_WEBINAR_SCHEDULED`, `LS_WEBINAR_ATTENDED`, `LS_WEBINAR_CANCELLED`, `LS_COUNSELING_CALL_DONE`, `LS_AGENT_CHANGE_CALL_SCHEDULED`, `LS_COLLEGE_SHORTLISTED`, `LS_COLLEGE_FINALIZED`, `LS_APPLICATION_PROCESS_STARTED`, `LS_APPLICATION_IN_PROCESS`, `LS_APPLICATION_PROCESS_ON_HOLD`, `LS_APPLICATION_SUBMITTED_TO_AGGREGATOR`, `LS_APPLICATION_ON_HOLD_BY_AGGREGATOR`, `LS_PAYMENT_DONE`.
+**1. Pre STI / Open App** — everything before the application reaches the institute. Starts at Payment Done because that's the first stage a counselor is ever assigned a lead at (see Logic and Rules), not because it's the lead's first stage overall:
+`LS_PAYMENT_DONE`, `LS_COLLEGE_SHORTLISTED`, `LS_COLLEGE_FINALIZED`, `LS_APPLICATION_PROCESS_STARTED`, `LS_APPLICATION_PROCESS_ON_HOLD`, `LS_APPLICATION_IN_PROCESS`, `LS_APPLICATION_SUBMITTED_TO_AGGREGATOR`, `LS_APPLICATION_ON_HOLD_BY_AGGREGATOR`, `LS_APPLICATION_REJECTED_BY_AGGREGATOR`.
 
-**STI Done** — the application has reached the institute; every outcome from there, admit or reject, lives here (no separate "Admit" group in v0):
-`LS_APPLICATION_SUBMITTED_TO_INSTITUTE`, `LS_APPLICATION_ON_HOLD_BY_INSTITUTE`, `LS_APPLICATION_REJECTED_BY_AGGREGATOR`, `LS_CONDITIONAL_ADMIT_RECEIVED`, `LS_UNCONDITIONAL_ADMIT_RECEIVED`, `LS_ADMIT_RECEIVED`, `LS_ADMIT_ACCEPTED`, `LS_ADMIT_DECLINED`, `LS_ADMIT_REJECTED_BY_INSTITUTE`, `LS_OFFER_REVOKED_BY_UNIVERSITY`.
+**2. STI** — the application has reached the institute; every outcome from there, admit or reject, lives here (no separate "Admit" group in v0):
+`LS_APPLICATION_SUBMITTED_TO_INSTITUTE`, `LS_APPLICATION_ON_HOLD_BY_INSTITUTE`, `LS_ADMIT_REJECTED_BY_INSTITUTE`, `LS_CONDITIONAL_ADMIT_RECEIVED`, `LS_UNCONDITIONAL_ADMIT_RECEIVED`, `LS_ADMIT_RECEIVED`, `LS_ADMIT_ACCEPTED`, `LS_ADMIT_DECLINED`, `LS_OFFER_REVOKED_BY_UNIVERSITY`.
 
-**Deposit Done**:
+**3. Deposit Done**:
 `LS_DEPOSIT_PAID`, `LS_TUITION_FEE_PAID`.
 
-**Visa** — every visa status regardless of outcome:
-`LS_VISA_FILING_STARTED`, `LS_VISA_APPLIED`, `LS_VISA_WIP`, `LS_VISA_PROCESS_ON_HOLD`, `LS_VISA_GRANTED`, `LS_VISA_REJECTED`, `LS_VISA_DROPPED`.
+**4. Visa** — every visa status regardless of outcome:
+`LS_VISA_FILING_STARTED`, `LS_VISA_WIP`, `LS_VISA_APPLIED`, `LS_VISA_PROCESS_ON_HOLD`, `LS_VISA_GRANTED`, `LS_VISA_REJECTED`, `LS_VISA_DROPPED`.
 
-**Dropped Off** — split into Pre ISL / Post ISL by lead history, not by stage code (see Logic and Rules):
-`LS_DEAD_LEAD`, `LS_LEAD_DROP_OFF`, `LS_LEAD_CLOSED_AFTER_SALES_CALL`.
+**5. Pre ISL Drop Off** and **6. Post ISL Drop Off** — the same two stage codes, split per lead by history, not by stage code (see Logic and Rules):
+`LS_LEAD_DROP_OFF`, `LS_DEAD_LEAD`.
 
-**Not in any group**:
-`LS_USER_ACQUIRED`.
+**Not in any of the 6 groups** — either a pre-payment stage (never on a counselor's book, since ownership starts at Payment Done) or a code the funnel bucketing doesn't cover:
+`LS_LEAD_CAPTURED`, `LS_WEBINAR_SCHEDULED`, `LS_WEBINAR_ATTENDED`, `LS_WEBINAR_CANCELLED`, `LS_COUNSELING_CALL_DONE`, `LS_AGENT_CHANGE_CALL_SCHEDULED`, `LS_USER_ACQUIRED`, `LS_LEAD_CLOSED_AFTER_SALES_CALL`.
 
 ### Lead stage (CRM field: Bofu Status)
 The full set of values this field can hold today, taken from a CRM export (`docs/lead-stage-values.csv`). All of these are selectable in the Screen 6 Stage filter; only the ones a given leaver actually has leads in are shown as rows on Screens 1 and 5.
@@ -571,5 +579,6 @@ A lead with a blank/missing Bofu Status (498 such leads org-wide in the export u
 7. Confirm the exact field names in the CRM's database/API for Bofu Status, Servicing type and Program (the names above are the values seen in exports and product conversations, not confirmed schema/column names).
 8. Are Servicing type and Program always set on every lead, or can they be blank? If they can be blank, the Stage filter's "blank still shows under All" behaviour (see Reference section) should apply to them too.
 9. Is the CSV export used to build the Stage reference list (`docs/lead-stage-values.csv`) the full, current list of Bofu Status values, or does the CRM's schema allow values that hadn't been used yet at export time?
-10. Does the CRM keep a history of stage changes per lead? The Dropped Off group's Pre ISL / Post ISL split depends on knowing whether a now-dead/dropped-off lead was ever shortlisted (`LS_COLLEGE_SHORTLISTED`) at some point in the past — the current Stage value alone can't answer that. If no history is available, we need a fallback rule (for example, default every dropped-off lead to Pre ISL, or add a one-off boolean flag on the lead) before this can ship as specified.
-11. Confirm the 5 stage groups and their stage membership (Open App, STI Done, Deposit Done, Visa, Dropped Off — see [Reference: Stage Groups](#reference-stage-groups)) with whoever owns the Bofu Status funnel. In particular: should Application Rejected By Aggregator really sit under STI Done rather than Dropped Off, given the application never reached the institute? And should Payment Done really count as an early "Open App" event rather than a later payment milestone? Both were confirmed as intended during PRD review, but are worth a second look given they read against the stage names.
+10. ~~Does the CRM keep a history of stage changes per lead?~~ **Resolved during PRD review:** yes — `calculated_lead_status_change_log` is the source for a lead's last non-drop status, which is what decides Pre ISL Drop Off vs Post ISL Drop Off (see Logic and Rules). Confirm with engineering exactly how this log is queried (table/API) before build.
+11. ~~Confirm the stage groups and their membership~~ **Resolved during PRD review:** the 6-group bucketing in [Reference: Stage Groups](#reference-stage-groups) (Pre STI / Open App, STI, Deposit Done, Visa, Pre ISL Drop Off, Post ISL Drop Off) is confirmed authoritative by the team that owns the Bofu Status funnel, including Application Rejected By Aggregator sitting under Pre STI / Open App (not a drop-off) and Payment Done opening that same group as the start of BOFU.
+12. The 8 Bofu Status codes outside the 6 official groups (`LS_LEAD_CAPTURED`, the three `LS_WEBINAR_*` codes, `LS_COUNSELING_CALL_DONE`, `LS_AGENT_CHANGE_CALL_SCHEDULED`, `LS_USER_ACQUIRED`, `LS_LEAD_CLOSED_AFTER_SALES_CALL`) should never appear on a counselor's book in practice, since ownership starts at Payment Done — confirm this is actually enforced by the CRM (i.e. a lead is only ever assigned to a counselor once it reaches Payment Done), rather than something this tool needs to defend against with its own logic.

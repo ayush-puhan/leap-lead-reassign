@@ -225,9 +225,11 @@ var STAGES = ["LS_LEAD_CAPTURED","LS_WEBINAR_SCHEDULED","LS_WEBINAR_ATTENDED","L
   "LS_LEAD_CLOSED_AFTER_SALES_CALL","LS_LEAD_DROP_OFF","LS_DEAD_LEAD"];
 /* Demo book for the leaver: a curated, representative slice across the funnel (325 leads total,
    matching the figure used elsewhere in the mockup/PRD). Every value above is still selectable
-   in the stage filters even when this leaver has 0 leads in it. */
+   in the stage filters even when this leaver has 0 leads in it. A counselor is only ever assigned
+   a lead starting at LS_PAYMENT_DONE (the start of BOFU), so no pre-payment stage (Lead Captured,
+   Webinar *, Counseling Call Done, Agent Change Call Scheduled) appears in a leaver's book. */
 var STAGE_N = {
-  LS_LEAD_CAPTURED:40, LS_COLLEGE_SHORTLISTED:70, LS_APPLICATION_SUBMITTED_TO_INSTITUTE:45,
+  LS_COLLEGE_SHORTLISTED:110, LS_APPLICATION_SUBMITTED_TO_INSTITUTE:45,
   LS_CONDITIONAL_ADMIT_RECEIVED:30, LS_UNCONDITIONAL_ADMIT_RECEIVED:15, LS_ADMIT_ACCEPTED:10,
   LS_PAYMENT_DONE:12, LS_VISA_GRANTED:8, LS_ADMIT_DECLINED:35, LS_APPLICATION_REJECTED_BY_AGGREGATOR:20,
   LS_DEAD_LEAD:25, LS_LEAD_DROP_OFF:15
@@ -239,24 +241,33 @@ var PROGRAM_TYPES = ["MASTERS","UNDER_GRADUATION"];
 function prettyEnum(code){ return String(code).replace(/^LS_/,"").split("_").map(function(w){return w[0]+w.slice(1).toLowerCase();}).join(" "); }
 var STAGE_LABEL = {}; STAGES.forEach(function(s){ STAGE_LABEL[s]=prettyEnum(s); });
 
-/* Stage groups: the funnel view the business thinks in, layered on top of the raw Bofu Status codes.
-   Every stage belongs to exactly one group. "Dropped off" is further split into Pre ISL / Post ISL —
-   ISL = Institute Shortlisted (the LS_COLLEGE_SHORTLISTED milestone) — based on whether the lead had
-   already been shortlisted before it went dead/dropped off (see DROPOFF_SPLIT below). */
-var GROUP_LABEL = {open_app:"Open App (Prior to STI Stage)", sti_done:"STI Done", deposit_done:"Deposit Done", visa:"Visa", dropped_off:"Dropped Off", ungrouped:"Other"};
-var GROUP_ORDER = ["open_app","sti_done","deposit_done","visa","dropped_off","ungrouped"];
+/* BOFU stage groups — the authoritative bucketing given by the business, layered on top of the raw
+   Bofu Status codes. Funnel order is 1-4 (Pre STI / Open App -> STI -> Deposit Done -> Visa); the two
+   drop-off buckets (5/6) sit outside the linear funnel. A counselor is assigned starting at
+   LS_PAYMENT_DONE, which is why that code opens group 1 rather than the true start of the lead's life.
+   LS_LEAD_DROP_OFF and LS_DEAD_LEAD don't map to a single group — see leadGroup() below, which splits
+   them into Pre ISL / Post ISL Drop Off based on the lead's last non-drop status (ISL = Institute
+   Shortlisted, i.e. whether LS_COLLEGE_SHORTLISTED or later was ever reached before the drop). Codes
+   not covered by any of the 6 official buckets (pre-payment stages, User Acquired, Lead Closed After
+   Sales Call) fall into "Other" and are only shown if actually present. */
+var GROUP_LABEL = {pre_sti:"Pre STI / Open App", sti:"STI", deposit_done:"Deposit Done", visa:"Visa", dropoff_pre_isl:"Pre ISL Drop Off", dropoff_post_isl:"Post ISL Drop Off", ungrouped:"Other"};
+var GROUP_ORDER = ["pre_sti","sti","deposit_done","visa","dropoff_pre_isl","dropoff_post_isl","ungrouped"];
 var STAGE_GROUP = {};
 [
-  ["open_app",["LS_LEAD_CAPTURED","LS_WEBINAR_SCHEDULED","LS_WEBINAR_ATTENDED","LS_WEBINAR_CANCELLED","LS_COUNSELING_CALL_DONE","LS_AGENT_CHANGE_CALL_SCHEDULED","LS_COLLEGE_SHORTLISTED","LS_COLLEGE_FINALIZED","LS_APPLICATION_PROCESS_STARTED","LS_APPLICATION_IN_PROCESS","LS_APPLICATION_PROCESS_ON_HOLD","LS_APPLICATION_SUBMITTED_TO_AGGREGATOR","LS_APPLICATION_ON_HOLD_BY_AGGREGATOR","LS_PAYMENT_DONE"]],
-  ["sti_done",["LS_APPLICATION_SUBMITTED_TO_INSTITUTE","LS_APPLICATION_ON_HOLD_BY_INSTITUTE","LS_APPLICATION_REJECTED_BY_AGGREGATOR","LS_CONDITIONAL_ADMIT_RECEIVED","LS_UNCONDITIONAL_ADMIT_RECEIVED","LS_ADMIT_RECEIVED","LS_ADMIT_ACCEPTED","LS_ADMIT_DECLINED","LS_ADMIT_REJECTED_BY_INSTITUTE","LS_OFFER_REVOKED_BY_UNIVERSITY"]],
+  ["pre_sti",["LS_PAYMENT_DONE","LS_COLLEGE_SHORTLISTED","LS_COLLEGE_FINALIZED","LS_APPLICATION_PROCESS_STARTED","LS_APPLICATION_PROCESS_ON_HOLD","LS_APPLICATION_IN_PROCESS","LS_APPLICATION_SUBMITTED_TO_AGGREGATOR","LS_APPLICATION_ON_HOLD_BY_AGGREGATOR","LS_APPLICATION_REJECTED_BY_AGGREGATOR"]],
+  ["sti",["LS_APPLICATION_SUBMITTED_TO_INSTITUTE","LS_APPLICATION_ON_HOLD_BY_INSTITUTE","LS_ADMIT_REJECTED_BY_INSTITUTE","LS_CONDITIONAL_ADMIT_RECEIVED","LS_UNCONDITIONAL_ADMIT_RECEIVED","LS_ADMIT_RECEIVED","LS_ADMIT_ACCEPTED","LS_ADMIT_DECLINED","LS_OFFER_REVOKED_BY_UNIVERSITY"]],
   ["deposit_done",["LS_DEPOSIT_PAID","LS_TUITION_FEE_PAID"]],
-  ["visa",["LS_VISA_FILING_STARTED","LS_VISA_APPLIED","LS_VISA_WIP","LS_VISA_PROCESS_ON_HOLD","LS_VISA_GRANTED","LS_VISA_REJECTED","LS_VISA_DROPPED"]],
-  ["dropped_off",["LS_DEAD_LEAD","LS_LEAD_DROP_OFF","LS_LEAD_CLOSED_AFTER_SALES_CALL"]],
-  ["ungrouped",["LS_USER_ACQUIRED"]]
+  ["visa",["LS_VISA_FILING_STARTED","LS_VISA_WIP","LS_VISA_APPLIED","LS_VISA_PROCESS_ON_HOLD","LS_VISA_GRANTED","LS_VISA_REJECTED","LS_VISA_DROPPED"]]
+  /* LS_LEAD_DROP_OFF and LS_DEAD_LEAD deliberately excluded here — see leadGroup(). */
 ].forEach(function(pair){ pair[1].forEach(function(code){ STAGE_GROUP[code]=pair[0]; }); });
-/* Demo-only: fixed pre/post ISL split for the two dropped-off codes present in this leaver's book,
-   so the mockup's numbers are deterministic and match the PRD exactly. */
-var DROPOFF_SPLIT = { LS_DEAD_LEAD:{pre:15,post:10}, LS_LEAD_DROP_OFF:{pre:10,post:5}, LS_LEAD_CLOSED_AFTER_SALES_CALL:{pre:0,post:0} };
+/* Demo-only: fixed pre/post ISL split for the two drop-off codes present in this leaver's book, so the
+   mockup's numbers are deterministic and match the PRD exactly. In production this comes from the
+   lead's last non-drop status in calculated_lead_status_change_log, not a fixed ratio. */
+var DROPOFF_SPLIT = { LS_DEAD_LEAD:{pre:15,post:10}, LS_LEAD_DROP_OFF:{pre:10,post:5} };
+function leadGroup(l){
+  if(l.stage==="LS_DEAD_LEAD"||l.stage==="LS_LEAD_DROP_OFF") return l.islPhase==="post" ? "dropoff_post_isl" : "dropoff_pre_isl";
+  return STAGE_GROUP[l.stage]||"ungrouped";
+}
 var FN = ["Aarav","Ananya","Rohan","Ishita","Kabir","Diya","Vivaan","Meher","Aditya","Saanvi","Reyansh","Kavya","Arnav","Tara","Dhruv","Riya","Yash","Nisha","Kunal","Pooja","Siddharth","Aditi","Varun","Sneha","Harsh","Tanvi","Manav","Ira","Nikhil","Zoya"];
 var LN = ["Shah","Patel","Reddy","Das","Menon","Kapoor","Bose","Pillai","Chopra","Agarwal","Bhat","Sinha","Rao","Malhotra","Jain","Saxena","Ghosh","Naidu","Kohli","Mishra"];
 var seed = 7; function rnd(){ seed = (seed*16807)%2147483647; return (seed-1)/2147483646; }
@@ -373,16 +384,10 @@ function stageGrid(){
 }
 function groupCounts(leads){
   var g={}; GROUP_ORDER.forEach(function(k){ g[k]={total:0,stages:{}}; });
-  g.dropped_off.sub={pre:{label:"Pre ISL",total:0,stages:{}},post:{label:"Post ISL",total:0,stages:{}}};
   leads.forEach(function(l){
-    var grp=STAGE_GROUP[l.stage]||"ungrouped";
+    var grp=leadGroup(l);
     g[grp].total++;
     g[grp].stages[l.stage]=(g[grp].stages[l.stage]||0)+1;
-    if(grp==="dropped_off"){
-      var ph=l.islPhase==="post"?"post":"pre";
-      g.dropped_off.sub[ph].total++;
-      g.dropped_off.sub[ph].stages[l.stage]=(g.dropped_off.sub[ph].stages[l.stage]||0)+1;
-    }
   });
   return g;
 }
@@ -396,16 +401,8 @@ function groupedStageSummary(leads,openMap){
   var g=groupCounts(leads), tot=leads.length, html="";
   GROUP_ORDER.forEach(function(k){
     if(g[k].total<=0) return;
-    var open=!!openMap[k], body="";
-    if(k==="dropped_off"){
-      ["pre","post"].forEach(function(ph){
-        var s=g.dropped_off.sub[ph]; if(s.total<=0) return;
-        body+='<div class="grpsub">'+esc(s.label)+' · <span class="num">'+s.total+'</span></div>'+stageLeafGrid(s.stages);
-      });
-    } else {
-      body=stageLeafGrid(g[k].stages);
-    }
-    html+='<div class="grprow-wrap"><button class="grprow" data-grptoggle="'+k+'" aria-expanded="'+open+'"><b>'+esc(GROUP_LABEL[k])+'</b><span class="n">'+g[k].total+'</span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="grpbody">'+body+'</div>':'')+'</div>';
+    var open=!!openMap[k];
+    html+='<div class="grprow-wrap"><button class="grprow" data-grptoggle="'+k+'" aria-expanded="'+open+'"><b>'+esc(GROUP_LABEL[k])+'</b><span class="n">'+g[k].total+'</span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="grpbody">'+stageLeafGrid(g[k].stages)+'</div>':'')+'</div>';
   });
   html+='<div class="grprow-wrap"><div class="grprow" style="background:var(--blue-soft);border-color:#c9d6ff"><b>Total</b><span class="n">'+tot+'</span></div></div>';
   return '<div class="grpwrap">'+html+'</div>';
@@ -608,25 +605,12 @@ function assignMiniTable(list,locked){
    are small enough (one leaver's book) to render in full. */
 function groupedAssignTable(rows,locked){
   var buckets={}; GROUP_ORDER.forEach(function(k){ buckets[k]=[]; });
-  var dropoffSub={pre:[],post:[]};
-  rows.forEach(function(l){
-    var grp=STAGE_GROUP[l.stage]||"ungrouped";
-    buckets[grp].push(l);
-    if(grp==="dropped_off") dropoffSub[l.islPhase==="post"?"post":"pre"].push(l);
-  });
+  rows.forEach(function(l){ buckets[leadGroup(l)].push(l); });
   var html="";
   GROUP_ORDER.forEach(function(k){
     var list=buckets[k]; if(!list.length) return;
-    var open=!!S.tl.grpOpen[k], body="";
-    if(k==="dropped_off"){
-      [["pre","Pre ISL"],["post","Post ISL"]].forEach(function(pair){
-        var sl=dropoffSub[pair[0]]; if(!sl.length) return;
-        body+='<div class="grpsub">'+esc(pair[1])+' · <span class="num">'+sl.length+'</span></div>'+assignMiniTable(sl,locked);
-      });
-    } else {
-      body=assignMiniTable(list,locked);
-    }
-    html+='<div class="grprow-wrap"><button class="grprow" data-grptoggle="'+k+'" aria-expanded="'+open+'"><b>'+esc(GROUP_LABEL[k])+'</b><span class="n">'+list.length+'</span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="grpbody">'+body+'</div>':'')+'</div>';
+    var open=!!S.tl.grpOpen[k];
+    html+='<div class="grprow-wrap"><button class="grprow" data-grptoggle="'+k+'" aria-expanded="'+open+'"><b>'+esc(GROUP_LABEL[k])+'</b><span class="n">'+list.length+'</span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="grpbody">'+assignMiniTable(list,locked)+'</div>':'')+'</div>';
   });
   return '<div class="grpwrap">'+html+'</div>';
 }
