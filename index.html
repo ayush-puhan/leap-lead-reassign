@@ -702,7 +702,11 @@ function bottomBar(){
 function bindAssign(){
   var t=S.tl;
   function on(id,ev,fn){ var e=document.getElementById(id); if(e) e[ev]=fn; }
-  on("stageBtn","onclick",function(){ t.stageMenuOpen=!t.stageMenuOpen; render(); });
+  /* Only one filter panel open at a time: opening one, or using any other filter, closes the rest. */
+  function closeMenus(){ t.stageMenuOpen=false; t.grpMenuOpen=false; }
+  /* Close without a re-render, so the click that triggered it still reaches its target. */
+  function dropMenus(){ if(!t.stageMenuOpen&&!t.grpMenuOpen) return; closeMenus(); document.querySelectorAll(".stagepick .panel").forEach(function(p){p.remove();}); }
+  on("stageBtn","onclick",function(){ var o=!t.stageMenuOpen; closeMenus(); t.stageMenuOpen=o; render(); });
   on("stageClear","onclick",function(){ t.stage=[]; t.page=0; render(); });
   on("stageAll","onchange",function(e){ t.stage=e.target.checked?STAGES.slice():[]; t.page=0; render(); });
   document.querySelectorAll("[data-stagechk]").forEach(function(c){ c.onchange=function(){
@@ -710,7 +714,7 @@ function bindAssign(){
     if(c.checked){ if(i===-1) t.stage.push(v); } else if(i!==-1) t.stage.splice(i,1);
     t.page=0; render();
   }; });
-  on("grpBtn","onclick",function(){ t.grpMenuOpen=!t.grpMenuOpen; render(); });
+  on("grpBtn","onclick",function(){ var o=!t.grpMenuOpen; closeMenus(); t.grpMenuOpen=o; render(); });
   on("grpClear","onclick",function(){ t.grp=[]; t.page=0; render(); });
   on("grpAll","onchange",function(e){ t.grp=e.target.checked?GROUP_ORDER.slice():[]; t.page=0; render(); });
   document.querySelectorAll("[data-grpchk]").forEach(function(c){ c.onchange=function(){
@@ -718,9 +722,11 @@ function bindAssign(){
     if(c.checked){ if(i===-1) t.grp.push(v); } else if(i!==-1) t.grp.splice(i,1);
     t.page=0; render();
   }; });
-  on("fServicing","onchange",function(e){ t.servicing=e.target.value; t.page=0; render(); });
-  on("fProg","onchange",function(e){ t.program=e.target.value; t.page=0; render(); });
-  document.querySelectorAll("[data-show]").forEach(function(b){ b.onclick=function(){ t.show=b.dataset.show; t.page=0; render(); }; });
+  on("fServicing","onchange",function(e){ closeMenus(); t.servicing=e.target.value; t.page=0; render(); });
+  on("fProg","onchange",function(e){ closeMenus(); t.program=e.target.value; t.page=0; render(); });
+  document.querySelectorAll("[data-show]").forEach(function(b){ b.onclick=function(){ closeMenus(); t.show=b.dataset.show; t.page=0; render(); }; });
+  /* Clicking anywhere outside an open panel closes it. */
+  document.onmousedown=function(e){ if(S.route==="assign" && !e.target.closest(".stagepick")) dropMenus(); };
   document.querySelectorAll("[data-sort]").forEach(function(h){ h.onclick=function(){ var k=h.dataset.sort; if(t.sort===k) t.dir=-t.dir; else { t.sort=k; t.dir=1; } render(); }; });
   document.querySelectorAll("[data-sel]").forEach(function(c){ c.onchange=function(){ if(c.checked) t.sel[c.dataset.sel]=1; else delete t.sel[c.dataset.sel]; render(); }; });
   function toggleAll(){ var rows=filtered(); var all=rows.every(function(l){return t.sel[l.id];}); if(all) t.sel={}; else rows.forEach(function(l){t.sel[l.id]=1;}); render(); }

@@ -328,6 +328,8 @@ All users log in to the existing CRM with their own account. No new login is nee
 | Servicing type | Dropdown (single-select) | No (defaults to All) | Options: All, Free Service (`FREE_SERVICE`), Paid Service (`PAID_SERVICE`). |
 | Program | Dropdown (single-select) | No (defaults to All) | Options: All, Masters (`MASTERS`), Under Graduation (`UNDER_GRADUATION`). |
 
+Only one filter panel (Stage or Group) is open at a time. Opening one closes the other, and clicking anywhere outside an open panel or using another filter closes it. Ticking boxes inside an open panel keeps it open.
+
 ---
 
 ## Message Templates (fixed in v0)
