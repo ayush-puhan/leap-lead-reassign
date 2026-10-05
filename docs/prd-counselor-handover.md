@@ -323,8 +323,8 @@ All users log in to the existing CRM with their own account. No new login is nee
 
 | Field | Type | Required | Notes / Validation |
 |-------|------|----------|--------------------|
-| Stage | Multi-select checklist (button opens a panel) | No (defaults to no stages checked, i.e. "All stages") | Options: every Bofu Status value — see [Reference: Field Values](#reference-field-values). Any number can be checked at once (OR); a **Clear** action in the panel resets to "All stages". |
-| Group | Multi-select checklist (button opens a panel) | No (defaults to no groups checked, i.e. "All groups") | Options: the 6 BOFU stage groups — see [Reference: Stage Groups](#reference-stage-groups). Any number can be checked at once (OR); a **Clear** action resets to "All groups". Applies together with Stage (AND) when both have selections. |
+| Stage | Multi-select checklist (button opens a panel) | No (defaults to no stages checked, i.e. "All stages") | Options: every Bofu Status value — see [Reference: Field Values](#reference-field-values). A **Select all** checkbox at the top of the list checks every stage (unchecking it clears them). Any number can be checked at once (OR); a **Clear** action in the panel resets to "All stages". With every stage checked the button reads "All stages". |
+| Group | Multi-select checklist (button opens a panel) | No (defaults to no groups checked, i.e. "All groups") | Options: the 6 BOFU stage groups — see [Reference: Stage Groups](#reference-stage-groups). A **Select all** checkbox at the top of the list checks every group (unchecking it clears them). Any number can be checked at once (OR); a **Clear** action resets to "All groups". With every group checked the button reads "All groups". Applies together with Stage (AND) when both have selections. |
 | Servicing type | Dropdown (single-select) | No (defaults to All) | Options: All, Free Service (`FREE_SERVICE`), Paid Service (`PAID_SERVICE`). |
 | Program | Dropdown (single-select) | No (defaults to All) | Options: All, Masters (`MASTERS`), Under Graduation (`UNDER_GRADUATION`). |
 

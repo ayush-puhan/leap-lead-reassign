@@ -80,6 +80,7 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .stagegrid b{font-size:18px}
 .stagegrid .tot{background:var(--blue-soft);border-color:#c9d6ff}
 .stagepick{position:relative}
+.stagepick .panel label.all{font-weight:600;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:4px}
 .stagepick .panel{position:absolute;top:100%;left:0;margin-top:4px;z-index:25;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 30px rgba(15,23,42,.18);padding:8px;max-height:300px;overflow:auto;min-width:280px;display:flex;flex-direction:column;gap:1px}
 .stagepick .hdr{display:flex;justify-content:space-between;align-items:center;padding:2px 6px 8px;margin-bottom:4px;border-bottom:1px solid var(--line-soft);font-size:12px;font-weight:700}
 .stagepick label{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:4px;font-size:13px;font-weight:400;cursor:pointer}
@@ -659,15 +660,17 @@ function assignPage(){
     slice.map(function(l){ return assignRowHtml(l,locked); }).join("")+
     '</tbody></table></div><div class="pag"><span class="num">'+(t.page*per+1)+'–'+(t.page*per+slice.length)+' of '+rows.length+'</span><button class="btn sm" id="pPrev"'+(t.page?"":" disabled")+'>Previous</button><button class="btn sm" id="pNext"'+(t.page<pages-1?"":" disabled")+'>Next</button></div>'
     : '<div class="note">No leads match these filters.</div>';
-  var stageLabel = !t.stage.length ? "All stages" : (t.stage.length===1 ? prettyEnum(t.stage[0]) : t.stage.length+" stages selected");
+  var stageLabel = (!t.stage.length || t.stage.length===STAGES.length) ? "All stages" : (t.stage.length===1 ? prettyEnum(t.stage[0]) : t.stage.length+" stages selected");
   var stagePicker = '<div class="f"><span>Stage</span><div class="stagepick"><button type="button" class="btn sm" id="stageBtn">'+esc(stageLabel)+' &#8964;</button>'+
     (t.stageMenuOpen ? '<div class="panel"><div class="hdr"><span>Stage (select any number)</span><button type="button" class="btn sm" id="stageClear">Clear</button></div>'+
+      '<label class="all"><input type="checkbox" id="stageAll"'+(t.stage.length===STAGES.length?" checked":"")+'> Select all</label>'+
       STAGES.map(function(s){return '<label><input type="checkbox" data-stagechk="'+s+'"'+(t.stage.indexOf(s)!==-1?" checked":"")+'> '+esc(prettyEnum(s))+'</label>';}).join("")+
       '</div>' : '')+
     '</div></div>';
-  var grpLabel = !t.grp.length ? "All groups" : (t.grp.length===1 ? GROUP_LABEL[t.grp[0]] : t.grp.length+" groups selected");
+  var grpLabel = (!t.grp.length || t.grp.length===GROUP_ORDER.length) ? "All groups" : (t.grp.length===1 ? GROUP_LABEL[t.grp[0]] : t.grp.length+" groups selected");
   var groupPicker = '<div class="f"><span>Group</span><div class="stagepick"><button type="button" class="btn sm" id="grpBtn">'+esc(grpLabel)+' &#8964;</button>'+
     (t.grpMenuOpen ? '<div class="panel"><div class="hdr"><span>Group (select any number)</span><button type="button" class="btn sm" id="grpClear">Clear</button></div>'+
+      '<label class="all"><input type="checkbox" id="grpAll"'+(t.grp.length===GROUP_ORDER.length?" checked":"")+'> Select all</label>'+
       GROUP_ORDER.map(function(k){return '<label><input type="checkbox" data-grpchk="'+k+'"'+(t.grp.indexOf(k)!==-1?" checked":"")+'> '+esc(GROUP_LABEL[k])+'</label>';}).join("")+
       '</div>' : '')+
     '</div></div>';
@@ -701,6 +704,7 @@ function bindAssign(){
   function on(id,ev,fn){ var e=document.getElementById(id); if(e) e[ev]=fn; }
   on("stageBtn","onclick",function(){ t.stageMenuOpen=!t.stageMenuOpen; render(); });
   on("stageClear","onclick",function(){ t.stage=[]; t.page=0; render(); });
+  on("stageAll","onchange",function(e){ t.stage=e.target.checked?STAGES.slice():[]; t.page=0; render(); });
   document.querySelectorAll("[data-stagechk]").forEach(function(c){ c.onchange=function(){
     var v=c.dataset.stagechk, i=t.stage.indexOf(v);
     if(c.checked){ if(i===-1) t.stage.push(v); } else if(i!==-1) t.stage.splice(i,1);
@@ -708,6 +712,7 @@ function bindAssign(){
   }; });
   on("grpBtn","onclick",function(){ t.grpMenuOpen=!t.grpMenuOpen; render(); });
   on("grpClear","onclick",function(){ t.grp=[]; t.page=0; render(); });
+  on("grpAll","onchange",function(e){ t.grp=e.target.checked?GROUP_ORDER.slice():[]; t.page=0; render(); });
   document.querySelectorAll("[data-grpchk]").forEach(function(c){ c.onchange=function(){
     var v=c.dataset.grpchk, i=t.grp.indexOf(v);
     if(c.checked){ if(i===-1) t.grp.push(v); } else if(i!==-1) t.grp.splice(i,1);
