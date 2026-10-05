@@ -185,7 +185,6 @@ tr.sel td{background:#f2f6ff}
 .hist li{padding:8px 0 8px 16px;border-left:2px solid var(--line);position:relative;font-size:13px}
 .hist li:before{content:"";position:absolute;left:-5px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--blue)}
 .hist li small{color:var(--faint);display:block;font-size:11px}
-.kpis{display:flex;gap:6px;flex-wrap:wrap}
 
 .modal{position:fixed;inset:0;background:rgba(11,18,32,.5);display:grid;place-items:center;padding:16px;z-index:40}
 .mbox{background:#fff;border-radius:10px;max-width:460px;width:100%;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
@@ -462,10 +461,10 @@ function tracker(r){
 function resignationCard(){
   var r=S.req, body="";
   var open=S.resOpen;
-  if(!r || r.status==="cancelled" || r.status==="rejected"){
+  if(!r || r.status==="cancelled" || (r.status==="rejected" && r.reopened)){
     var min=iso(addDays(TODAY,1));
     body = (r&&r.status==="cancelled"?'<div class="note"><span class="badge b-grey">Cancelled by '+esc(PEOPLE.vikram.name)+'</span> on '+esc(r.tCan)+'. You can submit a new request below.</div>':'')+
-      (r&&r.status==="rejected"?'<div class="note" style="background:var(--red-soft)">'+statusBadge("rejected")+' Your request for '+fmt(r.lwd)+' was rejected by '+esc(PEOPLE.vikram.name)+' on '+esc(r.tRej)+'.<br><b>Reason:</b> '+esc(r.reason)+'<br>Pick a new last working day below to apply again.</div>':'')+
+      (r&&r.status==="rejected"?'<div class="note" style="background:var(--red-soft)">'+statusBadge("rejected")+' Your last request ('+fmt(r.lwd)+') was rejected by '+esc(PEOPLE.vikram.name)+' on '+esc(r.tRej)+'.<br><b>Reason:</b> '+esc(r.reason)+'<br>Reopened by '+esc(PEOPLE.vikram.name)+' on '+esc(r.tReo)+'. Pick a new last working day below to apply again.</div>':'')+
       '<div class="note">Your leads will move to new counselors automatically at 8 PM on your last working day. Students will be informed by email and WhatsApp.</div>'+
       '<div><div style="font-size:12px;font-weight:600;color:#39445a;margin-bottom:6px">Your leads</div>'+groupedStageSummary(S.leads)+'</div>'+
       '<label class="f">Last working day<input type="date" id="lwd" min="'+min+'" value="'+esc(S.draftDate)+'"></label>'+
@@ -474,7 +473,9 @@ function resignationCard(){
   } else {
     var lwdTxt = fmt(r.lwd)+(r.changedFrom?' <span style="color:var(--muted);font-weight:400">(changed by '+esc(PEOPLE.vikram.name)+' from '+fmt(r.changedFrom)+')</span>':'');
     body = '<div class="meta"><div><small>Last working day</small><b>'+lwdTxt+'</b></div><div><small>Status</small>'+statusBadge(r.status)+'</div></div>';
-    body += tracker(r);
+    if(r.status==="rejected"){
+      body += '<div class="note" style="background:var(--red-soft)"><b>Reason from your SM:</b> '+esc(r.reason)+'<br>Please speak to your SM. Once they reopen your request you can pick a new date and apply again.</div>';
+    } else body += tracker(r);
     if(r.status==="approved") body += '<div class="note">New leads are no longer assigned to you.</div>';
     if(r.status==="pending") body += '<div class="note">Waiting for '+esc(PEOPLE.vikram.name)+' to approve. You can\'t withdraw this request; talk to your SM if you need to cancel it.</div>';
   }
@@ -558,6 +559,17 @@ function assignCTA(showCancel){
   var buttons = '<button class="btn '+(complete?"":"p")+'" data-assign>'+label+'</button>'+(showCancel?'<button class="btn d" id="aCancel">Cancel handover</button>':'');
   return {note:note, buttons:buttons, badge:badge, asg:asg, tot:tot};
 }
+/* Who the leaver's leads are going to: one row per receiving counselor, plus an Unassigned row before transfer. */
+function reassignTable(done){
+  var by={}, un=[];
+  S.leads.forEach(function(l){ var k=S.assign[l.id]; if(k){ (by[k]=by[k]||[]).push(l); } else un.push(l); });
+  var keys=Object.keys(by).sort(function(a,b){return by[b].length-by[a].length;});
+  function grp(ls){ var g=groupCounts(ls); return GROUP_ORDER.filter(function(k){return g[k].total>0;}).map(function(k){return GROUP_LABEL[k]+' '+g[k].total;}).join(' · '); }
+  if(!keys.length && !done) return '<div class="note">No leads assigned yet. Anything left unassigned at 8 PM on '+fmt(S.req.lwd)+' will be split evenly across '+esc(PEOPLE.ankit.name)+'\'s team.</div>';
+  var rows=keys.map(function(k){ var p=PEOPLE[k]; return '<tr><td><b>'+esc(p.name)+'</b></td><td>'+esc(PEOPLE[p.tl].name)+'</td><td class="num">'+by[k].length+'</td><td style="color:var(--muted)">'+grp(by[k])+'</td></tr>'; }).join("");
+  if(un.length && !done) rows+='<tr><td><span class="badge b-amber">Unassigned</span></td><td>—</td><td class="num">'+un.length+'</td><td style="color:var(--muted)">Split evenly across '+esc(PEOPLE.ankit.name)+'\'s team at 8 PM</td></tr>';
+  return '<div class="tw"><table><thead><tr><th>Counselor</th><th>TL</th><th>Leads</th><th>By stage group</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
 function detailPage(){
   var r=S.req; var isSM=S.view==="vikram";
   if(!r) return '<button class="back" data-home>&larr; Back</button><div class="note">No request to show.</div>';
@@ -565,17 +577,15 @@ function detailPage(){
   if(isSM){
     if(r.status==="pending") acts='<button class="btn p" id="aApprove">Approve</button><button class="btn" id="aChange">Change date &amp; approve</button><button class="btn d" id="aReject">Reject</button>';
     if(r.status==="approved"){ var ab=assignCTA(true); noteHtml=ab.note; acts=ab.buttons; }
+    if(r.status==="rejected" && !r.reopened) acts='<button class="btn" id="aReopen">Reopen for counselor</button>';
   } else if(r.status==="approved"){ var ab2=assignCTA(false); noteHtml=ab2.note; acts=ab2.buttons; }
-  var failed=[];
-  if(r.msgs){ S.leads.forEach(function(l){ var m=r.msgs[l.id]; ["email","wa"].forEach(function(ch){ if(m[ch].s==="Failed") failed.push({l:l,ch:ch==="email"?"Email":"WhatsApp",why:m[ch].why,at:m[ch].at}); }); }); }
-  var failBlock = r.msgs ? (failed.length?'<div class="tw"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Channel</th><th>Reason</th><th>Last tried</th></tr></thead><tbody>'+failed.map(function(f){return '<tr><td>'+esc(f.l.name)+'</td><td>'+f.l.id+'</td><td>'+f.ch+'</td><td>'+esc(f.why)+'</td><td>'+esc(f.at)+'</td></tr>';}).join("")+'</tbody></table></div>':'<div class="note">No failed messages'+(S.phase==="retrying"?" yet. Some sends are still retrying.":".")+'</div>') : '<div class="note">Messages are sent at 8 PM on the last working day.</div>';
-  var kp = r.msgs ? '<div class="kpis"><span class="badge b-green">Email sent '+msgCounts("email").Sent+'</span><span class="badge b-red">Email failed '+msgCounts("email").Failed+'</span><span class="badge b-amber">Email retrying '+msgCounts("email").Pending+'</span><span class="badge b-green">WhatsApp sent '+msgCounts("wa").Sent+'</span><span class="badge b-red">WhatsApp failed '+msgCounts("wa").Failed+'</span><span class="badge b-amber">WhatsApp retrying '+msgCounts("wa").Pending+'</span></div>' : "";
+  var reBlock = (r.status==="approved"||r.status==="transferred") ? '<div class="card"><div class="cbody" style="border:0"><b>'+(r.status==="transferred"?"Leads transferred to":"Leads reassigned to")+'</b>'+reassignTable(r.status==="transferred")+'</div></div>' : '';
   return '<div class="page"><button class="back" data-home>&larr; Back to Learning &amp; Development</button>'+
    '<div class="ph"><div><h1>'+esc(LEAVER.name)+'\'s leads handover</h1><p>Counselor · TL '+esc(PEOPLE.ankit.name)+' · SM '+esc(PEOPLE.vikram.name)+'</p></div>'+statusBadge(r.status)+'</div>'+
    '<div class="card"><div class="cbody" style="border:0"><div class="meta"><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>Last working day</small><b>'+fmt(r.lwd)+'</b></div><div><small>Transfer</small><b>8 PM, '+fmtShort(r.lwd)+'</b></div><div><small>Assigned</small><b class="num">'+assignedCount()+' / '+S.leads.length+'</b></div></div>'+groupedStageSummary(S.leads)+
-   (r.status==="rejected"?'<div class="note" style="background:var(--red-soft)"><b>Rejection reason:</b> '+esc(r.reason)+'<br>'+esc(LEAVER.name)+' can pick a new last working day and apply again.</div>':'')+
+   (r.status==="rejected"?'<div class="note" style="background:var(--red-soft)"><b>Rejection reason:</b> '+esc(r.reason)+(r.reopened?'<br>Reopened for the counselor on '+esc(r.tReo)+'. They can pick a new last working day and apply again.':'')+'</div>':'')+
    noteHtml+(acts?'<div class="row">'+acts+'</div>':(isSM?'':'<div style="font-size:12px;color:var(--muted)">Approval actions are for the SM only.</div>'))+'</div></div>'+
-   '<div class="card"><div class="cbody" style="border:0"><b>Student messages</b>'+kp+failBlock+'</div></div>'+
+   reBlock+
    '<div class="card"><div class="cbody" style="border:0"><b>History</b> <small style="color:var(--muted)">(latest request only)</small><ul class="hist">'+r.history.map(function(h){return '<li>'+esc(h.text)+' · '+esc(h.by)+'<small>'+esc(h.at)+'</small></li>';}).join("")+'</ul></div></div></div>';
 }
 function approve(newDate){
@@ -595,8 +605,9 @@ function bindDetail(){
   };
   if(g("aReject")) g("aReject").onclick=function(){
     showModal('<h3>Reject handover</h3><label class="f">Reason<textarea id="rr" maxlength="500" placeholder="For example: last working day doesn\'t match HR records"></textarea></label><div class="err" id="rrErr"></div><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Go back</button><button class="btn d" id="rrSave">Reject</button></div>');
-    g("rrSave").onclick=function(){ var v=g("rr").value.trim(); if(!v){ g("rrErr").textContent="Add a reason."; return; } S.req.status="rejected"; S.req.reason=v; S.req.tRej=now(); hist("Rejected: "+v,PEOPLE.vikram.name); notify("priya","Your leads handover was rejected. Reason: "+v+" — you can pick a new date and apply again."); closeModal(); render(); toast("Rejected. Priya Rao has been told"); };
+    g("rrSave").onclick=function(){ var v=g("rr").value.trim(); if(!v){ g("rrErr").textContent="Add a reason."; return; } S.req.status="rejected"; S.req.reason=v; S.req.tRej=now(); hist("Rejected: "+v,PEOPLE.vikram.name); notify("priya","Your leads handover was rejected. Reason: "+v); closeModal(); render(); toast("Rejected. Priya Rao has been told"); };
   };
+  if(g("aReopen")) g("aReopen").onclick=function(){ S.req.reopened=true; S.req.tReo=now(); hist("Reopened for counselor",PEOPLE.vikram.name); notify("priya","Your SM reopened your leads handover. Rejection reason: "+S.req.reason+". You can pick a new date and apply again."); render(); toast("Reopened. Priya Rao can apply again"); };
   if(g("aCancel")) g("aCancel").onclick=function(){
     showModal('<h3>Cancel '+esc(LEAVER.name)+'\'s leads handover?</h3><p>All lead assignments will be cleared and they will start getting new leads again.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Keep it</button><button class="btn d" id="cc">Cancel handover</button></div>');
     g("cc").onclick=function(){ S.req.status="cancelled"; S.req.tCan=now(); S.assign={}; hist("Cancelled. Assignments cleared and lead allocation restored",PEOPLE.vikram.name); notify("priya","Your leads handover was cancelled by "+PEOPLE.vikram.name+"."); notify("ankit",LEAVER.name+"'s leads handover was cancelled. Assignments were cleared."); closeModal(); render(); toast("Handover cancelled"); };
@@ -904,14 +915,14 @@ function runTransfer(){
   r.status="transferred"; r.tTr=now();
   hist(LEAVER.name+"'s CRM login deactivated","System");
   S.phase="retrying"; S.tl.sel={};
-  render(); toast("Transfer done. Check the SM view for delivery");
+  render(); toast("Transfer done");
 }
 function finishRetries(){
   if(S.phase!=="retrying") return;
   S.clock=fmt(S.req.lwd)+", 9:00 PM";
   var i=0;
   Object.keys(S.req.msgs).forEach(function(k){ var m=S.req.msgs[k]; ["email","wa"].forEach(function(ch){ if(m[ch].s==="Pending"){ i++; m[ch]= (i%2) ? {s:"Failed",why: ch==="email"?"Mailbox unavailable (550)":"Number not on WhatsApp",at:now()} : {s:"Sent",at:now()}; } }); });
-  hist("Retries finished. Remaining failures listed for SM","System");
+  hist("Retries finished. Final Sent / Failed counts updated on the Handovers card","System");
   S.phase="done"; render(); toast("Retries finished");
 }
 

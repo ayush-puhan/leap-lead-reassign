@@ -54,7 +54,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 - SM sees all requests from counselors and TLs under them on a **Handovers** card.
 - SM actions on a Pending request: **Approve**, **Change date and approve**, **Reject** (reason required).
 - SM action on an Approved request: **Cancel** (any time before the 8 PM transfer). Cancelling drops all TL assignments.
-- No SM action on a Rejected request. The counselor sees the reason and can pick a new last working day and apply again straight from their card.
+- SM action on a Rejected request: **Reopen for counselor**. This lets the counselor pick a new last working day and apply again. The rejection reason stays visible to the counselor after reopening.
 - Only the latest request is kept on screen: when a counselor applies again, the Handovers card and History show the new request only.
 
 ### 3. Lead assignment (TL, or SM)
@@ -85,22 +85,22 @@ All users log in to the existing CRM with their own account. No new login is nee
   - To: the student's email on the lead.
   - Reply-To: the new counselor's email.
   - CC: new counselor, TL/POD, SM, debasish.sahoo@leapfinance.com.
-  - Body: one fixed template with names and contact details filled in (wording by Swapnil).
+  - Body: one fixed template with names and contact details filled in.
 - **WhatsApp DM**
   - From: the company WhatsApp Business number.
   - To: the student's phone on the lead.
-  - Uses one Meta-approved template (wording by Swapnil) with new counselor, TL and SM names and phone numbers.
+  - Uses one Meta-approved template with new counselor, TL and SM names and phone numbers. Swapnil builds the WhatsApp and LGC templates in Meta.
 - **Leap group chat (LGC)**
   - v0 does not post automatically.
   - Each new counselor gets one CRM task per student: "Join [Student name]'s Leap group chat and post your intro". The task holds a ready message to copy.
 - All students get messages, including students whose lead is in a closed-out stage (Dead Lead, Lead Drop Off, Admit Declined, and so on).
 - Changing the wording needs a developer. There is no template editor in v0.
-- Email and WhatsApp templates are not shown anywhere in the CRM UI in v0 — no preview, no editor. Swapnil owns the wording.
+- Email and WhatsApp templates are not shown anywhere in the CRM UI in v0 — no preview, no editor.
 
 ### 7. Delivery tracking and retries
 - Each student has a delivery status per channel: Pending, Sent, Failed. LGC tracks the task instead: Open or Done.
 - A failed email or WhatsApp is retried 3 times: 20, 40 and 60 minutes after the first attempt.
-- After the 3rd failed retry it is marked Failed and shown on the SM's card.
+- After the 3rd failed retry it is marked Failed and counted on the SM's Handovers card. There is no per-student message list in the UI.
 
 ### 8. Action history
 - Every action on a request is recorded with time, the person who did it, and details.
@@ -168,11 +168,12 @@ All users log in to the existing CRM with their own account. No new login is nee
 - Last working day (the SM-changed date if changed, with the note "Changed by [SM name]").
 - A 4-step tracker: **Submitted** → **SM approved** → **TL assigning** → **Leads transferred**. Done steps are ticked, the current step is highlighted, and each done step shows its date and time.
 - After approval: "New leads are no longer assigned to you."
-- If rejected: a red badge "Rejected", the rejected date, who rejected it and the SM's reason, followed by the Screen 1 form (Your leads summary, Last working day picker) with the button **Apply again**. Text: "Pick a new last working day below to apply again." Applying again goes through the same Confirm modal and creates a new request (Pending SM approval).
+- If rejected: a red badge "Rejected", the rejected date, who rejected it and the SM's reason, and the text "Please speak to your SM. Once they reopen your request you can pick a new date and apply again." No buttons.
+- If rejected and the SM has reopened it: the card shows the last rejection — date, who rejected it, the reason, and when it was reopened — followed by the Screen 1 form (Your leads summary, Last working day picker) with the button **Apply again**. Applying again goes through the same Confirm modal and creates a new request (Pending SM approval). The rejection reason stays visible until the new request is submitted, so a counselor whose request was rejected and reopened straight away still knows why.
 - If cancelled: a grey badge "Cancelled by [SM name]" with the date and time. The card goes back to Screen 1 so a new request can be submitted.
 - After transfer: "All [N] leads were transferred on [date]." The user's login is deactivated shortly after, so they will rarely see this.
 
-**What the user can do:** Nothing while Pending, Approved or Transferred — the card is read only. When Rejected, pick a new date and **Apply again**.
+**What the user can do:** Nothing while Pending, Approved or Transferred — the card is read only. When Rejected and reopened by the SM, pick a new date and **Apply again**.
 
 **Empty state:** Not applicable.
 **Error state:** "Couldn't load your request. Refresh the page."
@@ -182,7 +183,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 
 **What the user sees:**
 - A card on the SM's Learning & Development page titled "Handovers", with the count of pending requests as a badge.
-- A table, newest first, with one row per leaver showing their latest request only (an older rejected request is replaced when they apply again). Columns: Name, Role (Counselor / TL), TL, Last working day, Status, Leads (total), Assigned (for example "180 / 325"), Email (Sent / Failed / Pending), WhatsApp (Sent / Failed / Pending), LGC tasks (Done / Open).
+- A table, newest first, with one row per leaver showing their latest request only (a rejected request is replaced once the leaver applies again after a reopen). Columns: Name, Role (Counselor / TL), TL, Last working day, Status, Leads (total), Assigned (for example "180 / 325"), Email (Sent / Failed / Pending), WhatsApp (Sent / Failed / Pending), LGC tasks (Done / Open).
 - Status values shown as coloured badges: Pending SM approval (amber), Approved, TL assigning (blue), Transferred (green), Rejected (red), Cancelled (grey).
 - A status filter dropdown: All, Pending SM approval, Approved TL assigning, Transferred, Rejected, Cancelled. Default: All.
 
@@ -195,7 +196,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 **Error state:** "Couldn't load handovers. Refresh the page."
 
 ### Screen 5: Request detail (SM, and TL read-only for approval actions)
-**Purpose:** Approve, reject, change the date, cancel, reach the assignment screen, see failed messages and history.
+**Purpose:** Approve, reject, change the date, cancel, reach the assignment screen, see who the leads are going to, and history.
 
 **What the user sees:**
 - Header: leaver name, role, TL, SM, submitted date, last working day, status badge.
@@ -203,7 +204,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 - Action buttons depend on status (SM only):
   - Pending SM approval: **Approve**, **Change date & approve**, **Reject**.
   - Approved, TL assigning: an assignment button (opens Screen 6) plus **Cancel handover**. The button's label and an accompanying note change with progress, so the SM never sees a plain "Assign leads" button when work has already been done (see below).
-  - Rejected: no buttons. The reason is shown with the note "[Name] can pick a new last working day and apply again."
+  - Rejected: **Reopen for counselor**. The reason stays on screen; after reopening it adds "Reopened for the counselor on [date]. They can pick a new last working day and apply again."
   - Transferred, Cancelled: no buttons.
 - The TL sees only the assignment button (when Approved) and no approval buttons.
 - **Assignment progress note and button**, shown whenever the status is Approved, TL assigning (to both the SM here and the TL on their own Learning & Development card):
@@ -211,14 +212,16 @@ All users log in to the existing CRM with their own account. No new login is nee
   - Some but not all assigned: a note "[Assigned] of [Total] leads assigned so far.", button reads **Continue assigning** (primary/blue).
   - All leads assigned: a green note "All [Total] leads have already been assigned. Open below to review or change any of them before the 8 PM transfer.", button reads **Review assignments** (secondary/outline, not primary — so it doesn't read as a fresh, un-done task).
   - This is what stops the TL and the SM from duplicating each other's work: whoever looks second sees the true state instead of a button that looks identical whether 0 or 325 leads are done.
-- **Failed messages** section, shown after transfer when there are any. A table with Student name, Lead ID, Channel (Email / WhatsApp), Reason (the provider's error text), and Last tried (time).
+- **Leads reassigned to** section, shown while Approved, TL assigning (titled **Leads transferred to** after transfer). One row per receiving counselor: Counselor, TL, Leads, By stage group (for example "Pre STI / Open App 47 · STI 45 · Visa 3"). Before transfer, an **Unassigned** row shows leads not yet assigned ("Split evenly across [TL name]'s team at 8 PM"). If nothing is assigned yet: "No leads assigned yet. Anything left unassigned at 8 PM on [date] will be split evenly across [TL name]'s team."
+- No per-student message list. Email and WhatsApp delivery shows only as Sent / Failed / Pending counts on the Handovers card (Screen 4).
 - **History** section: a timeline of every action on the latest request, newest first. Examples: "Submitted by Priya R · 12 Oct 10:42", "Last working day changed from 30 Oct to 25 Oct by Ankit S".
 
 **What the user can do:**
 - **Approve**: sets the status to Approved, TL assigning, stops new leads, and sends bells to the TL and the leaver.
 - **Change date & approve**: opens a date picker (tomorrow or later). **Save & approve** does the same as Approve with the new date.
-- **Reject**: opens a textbox "Reason" (required, max 500 characters). **Reject** sets the status to Rejected and sends a bell to the leaver with the reason and a prompt to apply again with a new date.
+- **Reject**: opens a textbox "Reason" (required, max 500 characters). **Reject** sets the status to Rejected and sends a bell to the leaver with the reason.
 - **Cancel handover**: opens a confirm modal: "Cancel [Name]'s leads handover? All lead assignments will be cleared and they will start getting new leads again." Buttons **Keep it** and **Cancel handover**.
+- **Reopen for counselor**: the counselor's card shows the last rejection reason plus the form to pick a new date and apply again. Bell to the leaver with the reason. The rejected request stays in the list until they apply again.
 - **Assign leads / Continue assigning / Review assignments**: opens Screen 6, whichever label is currently showing.
 
 **Empty state:** History always has at least the "Submitted" entry.
@@ -329,7 +332,7 @@ All users log in to the existing CRM with their own account. No new login is nee
 
 ## Message Templates (fixed in v0)
 
-Wording is owned by Swapnil and fixed in code. The copy below is the current draft for build reference only — it is **not shown in the CRM UI** (no message preview on Request Detail, no editor).
+Wording is fixed in code. Swapnil builds the WhatsApp and LGC templates in Meta. The copy below is the current draft for build reference only — it is **not shown in the CRM UI** (no message preview on Request Detail, no editor).
 
 **Email**
 - Subject: `Your new Leap counselor: {{new_counselor_name}}`
@@ -371,7 +374,7 @@ The variables in order are: student first name, leaver name, new counselor name,
 - Pending SM approval → Rejected (SM rejects)
 - Approved, TL assigning → Cancelled (SM cancels, before 8 PM on the last working day)
 - Approved, TL assigning → Transferred (the 8 PM job completes)
-- Rejected → the counselor can pick a new last working day and apply again from their card. This creates a new request; only the latest request is shown on the Handovers card and in History.
+- Rejected → the counselor can apply again only after the SM clicks Reopen for counselor; they then pick a new last working day on their card and see the last rejection reason. This creates a new request; only the latest request is shown on the Handovers card and in History.
 - Transferred, Rejected and Cancelled are final. Statuses never go backwards.
 
 **Who sees the Handover your Leads card**
@@ -495,7 +498,7 @@ The SM can open the same assignment screen. If nobody assigns anything, every le
 They can't withdraw it themselves. They talk to their SM, who can cancel any time before 8 PM on the last working day. All assignments are cleared and they start getting new leads again.
 
 **What if the SM rejects by mistake?**
-The counselor picks a new (or the same) last working day and applies again. The SM sees it as a new pending request.
+The SM clicks Reopen for counselor. The counselor still sees the rejection reason, picks a new (or the same) last working day and applies again. The SM sees it as a new pending request.
 
 **Why email from the leaver's account when their login is deactivated right after?**
 The email is a personal goodbye, so it comes from them. Reply-To is set to the new counselor, so any reply goes to the right person. The CRM login is deactivated only after the first send attempt, and retries use the CRM's stored email connection. Whether the mailbox itself is closed is up to HR or IT, not this tool.
@@ -513,12 +516,13 @@ Those were placeholder values from the first draft of this PRD, not real CRM fie
 
 ## What v0 Does NOT Include
 - **Auto-joining the new counselor to the Leap group chat with a system message.** This depends on whether the group chat tool has an API. It is planned for v1, and v0 uses a CRM task instead.
-- **Template editor or preview for email or WhatsApp.** Wording rarely changes, WhatsApp changes need Meta approval anyway, and Swapnil owns the copy — so the UI shows no template section at all.
+- **Template editor or preview for email or WhatsApp.** Wording rarely changes, WhatsApp changes need Meta approval anyway, and Swapnil builds the WhatsApp and LGC templates in Meta — so the UI shows no template section at all.
 - **CSV export of transfers.** Removing exports is part of the goal. The CRM already shows each lead's owner and previous counselor.
 - **Automatic rule-based reassignment (by capacity, stage, servicing type or program).** TLs assign by hand. The only automatic rule is the even split of leftover leads at 8 PM.
 - **Editing a lead's Stage, Servicing type or Program from inside this tool.** Those fields are owned by the rest of the CRM; this tool only reads and filters on them.
 - **Email or WhatsApp alerts to staff.** All staff alerts are CRM bell notifications.
-- **Counselor withdrawal.** The SM controls cancel. (A counselor can apply again after a rejection — see Logic and Rules.)
+- **Counselor withdrawal or resubmission without the SM.** The SM controls cancel and reopen.
+- **Per-student message list.** Only Sent / Failed / Pending counts are shown; Request Detail shows who the leads went to instead.
 - **Showing older requests.** Only the latest request per leaver is shown; earlier rejected requests and their history are not shown in v0.
 - **Backfilling resignations already in progress at launch.** These finish the old way.
 - **HR or payroll integration.** Resignation acceptance and the notice period stay with HR.
