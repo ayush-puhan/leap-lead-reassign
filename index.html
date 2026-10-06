@@ -88,8 +88,8 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 
 /* Tasks & Performance — visual language borrowed from the counselor CRM's own tab: red "boost"
    cards for Action Required output metrics, green for volume/quality input metrics, and per-task
-   cards with a "How to close" explainer for pipeline drawers. Only Boost STI / Boost Deposit and
-   the Connect with Reassigned Leads cards are real in this mockup — the rest is static dressing. */
+   cards with a "How to close" explainer for pipeline drawers. Only Boost STI / Boost Deposit
+   are real in this mockup — the rest is static dressing. */
 .boosthead{display:flex;align-items:center;gap:10px;margin:18px 0 2px;font-size:12px;font-weight:800;letter-spacing:.4px;color:#4b566b;text-transform:uppercase}
 .boosthead .bar{width:4px;height:16px;background:var(--blue);border-radius:2px;display:inline-block}
 .boosthead .pill{margin-left:auto;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:none;letter-spacing:.2px}
@@ -120,6 +120,12 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .htc .htcchip{align-self:flex-start;background:var(--blue-soft);color:var(--blue);font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px}
 .htc p{margin:0;font-size:12px;color:#39445a;line-height:1.5}
 .taskcard .tcbtns{display:flex;gap:8px}
+.taskcard .tcbadges{display:flex;gap:6px;flex-wrap:wrap}
+.taskcard .tcbadge.re{background:var(--blue-soft);color:var(--blue)}
+.dchips{display:flex;gap:6px}
+.dchips .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;color:#39445a}
+.dchips .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.boostcard .bre{align-self:flex-start;background:rgba(255,255,255,.75);color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
 label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a}
 input[type=date],select.in,textarea{border:1px solid #c8d1de;border-radius:6px;padding:8px 10px;font:inherit;color:var(--ink);background:#fff;max-width:100%}
 textarea{min-height:80px;resize:vertical;width:100%}
@@ -754,52 +760,65 @@ function tlHome(){
 /* Per-task cards styled after the counselor CRM's own "Boost STI" pipeline drawer (student header,
    a task-type badge, a "How to close" explainer, View student/View Task actions) rather than the
    plain table this used to be. */
-/* Leads behind the "Connect with Reassigned Leads" task, for the person currently viewing (Rahul
-   sees his own; Ankit sees his whole team's, for oversight). scope narrows to one bucket ("sti" or
-   "deposit") when opened from that Boost card specifically, or "all" for the summary card. */
+/* Reassigned leads in one Boost bucket ("sti" or "deposit") for the person currently viewing (Rahul
+   sees his own; Ankit sees his whole team's, for oversight). These carry the Connect with Reassigned
+   Leads task and show inside the existing Boost STI / Boost Deposit drawers with a Reassigned badge. */
 function drawerLeads(scope){
   if(!S.req || S.req.status!=="transferred") return [];
   var v=S.view, forId = v==="rahul" ? "rahul" : null, oversight = v==="ankit";
-  var TASK_GROUPS = scope==="sti" ? ["sti"] : scope==="deposit" ? ["deposit_done"] : ["sti","deposit_done"];
+  var TASK_GROUPS = scope==="sti" ? ["sti"] : ["deposit_done"];
   return S.leads.filter(function(l){
     var owner=S.assign[l.id];
     if(!owner || TASK_GROUPS.indexOf(leadGroup(l))===-1) return false;
     return oversight ? PEOPLE[owner].tl===LEAVER.tl : owner===forId;
   });
 }
+/* A few of the counselor's own (not reassigned) Boost students, so the drawer reads like the real
+   mixed pipeline and the Reassigned filter has something to filter out. Static display only. */
+var OWN_BOOST = {
+  sti:[["Aarav Mehta","LD-31842","rahul"],["Isha Kapoor","LD-31907","rahul"],["Vivaan Rao","LD-32011","sneha"],["Diya Menon","LD-32054","karan"]],
+  deposit:[["Kabir Shah","LD-30766","rahul"],["Myra Pillai","LD-30812","sneha"],["Reyansh Gupta","LD-30901","karan"]]
+};
+function ownBoostRows(scope){
+  var v=S.view, oversight=v==="ankit";
+  return OWN_BOOST[scope].filter(function(r){ return oversight || r[2]===v; });
+}
+function ownCardHtml(r,scope){
+  var oversight=S.view==="ankit";
+  return '<div class="taskcard"><div class="tchead"><b>'+esc(r[0])+'</b><small>'+r[1]+(oversight?' · Assigned to '+esc(PEOPLE[r[2]].name):'')+'</small></div>'+
+    '<span class="tcbadge">'+(scope==="sti"?"Boost STI":"Boost Deposit")+'</span>'+
+    '<div class="note" style="margin:0">Existing Boost task — not modeled in this mockup.</div>'+
+    '<div class="tcbtns"><button class="btn sm" data-viewstudent="'+r[1]+'">View student</button><button class="btn sm" data-viewtask="'+r[1]+'">View Task</button></div>'+
+  '</div>';
+}
 function taskCardHtml(l){
   var grp=leadGroup(l), badgeLbl = grp==="sti"?"Boost STI":"Boost Deposit";
   var owner=PEOPLE[S.assign[l.id]], oversight=S.view==="ankit";
   var sub = l.id+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(oversight?' · Assigned to '+esc(owner.name):'');
   return '<div class="taskcard"><div class="tchead"><b>'+esc(l.name)+'</b><small>'+sub+'</small></div>'+
-    '<span class="tcbadge">'+badgeLbl+'</span>'+
+    '<div class="tcbadges"><span class="tcbadge">'+badgeLbl+'</span><span class="tcbadge re">Reassigned from '+esc(LEAVER.name)+'</span></div>'+
     '<div class="htc"><span class="htclabel">How to close</span><span class="htcchip">Connect with Reassigned Lead</span><p>Book and join a meeting with '+esc(l.first)+', or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.</p></div>'+
     '<div class="tcbtns"><button class="btn sm" data-viewstudent="'+l.id+'">View student</button><button class="btn sm" data-viewtask="'+l.id+'">View Task</button></div>'+
   '</div>';
 }
-/* Summary card that sits on the Tasks & Performance page below Add a Reminder for Yourself — the
-   full task list itself now lives in the slide-out drawer (see renderTaskDrawer), matching how the
-   real CRM's Boost cards open a side panel rather than expanding inline. */
-function connectTasksCard(){
-  var n = drawerLeads("all").length;
-  var body = n
-    ? '<div class="row" style="justify-content:space-between;align-items:center"><span style="font-size:15px;font-weight:700" class="num">'+n+' open task'+(n===1?"":"s")+'</span><button class="btn p" id="openTasksBtn">View tasks</button></div><div class="note">Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student.</div>'
-    : '<div class="note">No open tasks right now.</div>';
-  return '<div class="card open"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Connect with Reassigned Leads<span class="new">NEW</span></b><small>Reach out to students you\'ve just taken over in Boost STI or Boost Deposit</small></span></div><div class="cbody">'+body+'</div></div>';
-}
-function openTaskDrawer(scope){ S.drawerOpen={scope:scope,search:""}; render(); }
-function drawerTitle(scope){ return scope==="sti"?"Boost STI":scope==="deposit"?"Boost Deposit":"Connect with Reassigned Leads"; }
+function openTaskDrawer(scope){ S.drawerOpen={scope:scope,search:"",onlyRe:false}; render(); }
+function drawerTitle(scope){ return scope==="sti"?"Boost STI":"Boost Deposit"; }
 function renderTaskDrawer(){
   var d=S.drawerOpen; if(!d) return "";
-  var rows=drawerLeads(d.scope);
+  var re=drawerLeads(d.scope), own=ownBoostRows(d.scope);
   var q=(d.search||"").trim().toLowerCase();
-  if(q) rows=rows.filter(function(l){return l.name.toLowerCase().indexOf(q)!==-1 || l.id.toLowerCase().indexOf(q)!==-1;});
-  var list = rows.length ? rows.map(taskCardHtml).join("") : '<div class="note">No students match.</div>';
+  function hit(name,id){ return !q || name.toLowerCase().indexOf(q)!==-1 || id.toLowerCase().indexOf(q)!==-1; }
+  var reShown=re.filter(function(l){return hit(l.name,l.id);});
+  var ownShown=d.onlyRe ? [] : own.filter(function(r){return hit(r[0],r[1]);});
+  var total=reShown.length+ownShown.length;
+  var list = total ? reShown.map(taskCardHtml).join("")+ownShown.map(function(r){return ownCardHtml(r,d.scope);}).join("") : '<div class="note">No students match.</div>';
+  var chips='<div class="dchips"><button class="chip'+(d.onlyRe?"":" on")+'" data-onlyre="0">All <span class="num">'+(re.length+own.length)+'</span></button><button class="chip'+(d.onlyRe?" on":"")+'" data-onlyre="1">Reassigned <span class="num">'+re.length+'</span></button></div>';
   return '<div class="drawerbg" id="drawerBg"></div>'+
     '<div class="drawer" role="dialog" aria-modal="true"><div class="dhead"><button id="drawerBack" aria-label="Back">&larr;</button><b>'+esc(drawerTitle(d.scope))+'</b><button id="drawerRefresh" aria-label="Refresh">&#8635;</button><button id="drawerClose" aria-label="Close">&times;</button></div>'+
     '<div class="dbody"><input class="dsearch" id="drawerSearch" placeholder="Search by name or ID…" value="'+esc(d.search||"")+'">'+
-    '<div class="note">Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student. (Mocked here — this CRM has no call/meeting-event tracking to hook into yet, so nothing actually closes these.)</div>'+
-    '<div class="dcount">Connect with Reassigned Leads <span class="n">'+rows.length+' total</span></div>'+
+    chips+
+    (re.length?'<div class="note">Reassigned students carry a Connect with Reassigned Lead task. It closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student. (Mocked here — this CRM has no call/meeting-event tracking to hook into yet, so nothing actually closes these.)</div>':'')+
+    '<div class="dcount">'+esc(drawerTitle(d.scope))+' <span class="n">'+total+' total</span></div>'+
     list+'</div></div>';
 }
 function bindTaskDrawer(){
@@ -811,14 +830,16 @@ function bindTaskDrawer(){
   var rf=document.getElementById("drawerRefresh"); if(rf) rf.onclick=function(){ toast("Refreshed"); };
   var s=document.getElementById("drawerSearch");
   if(s){ s.oninput=function(){ d.search=s.value; render(); var ns=document.getElementById("drawerSearch"); if(ns){ ns.focus(); ns.setSelectionRange(ns.value.length,ns.value.length); } }; }
+  document.querySelectorAll("[data-onlyre]").forEach(function(b){ b.onclick=function(){ d.onlyRe=b.dataset.onlyre==="1"; render(); }; });
   document.querySelectorAll("[data-viewstudent],[data-viewtask]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
 }
 /* Static "boost" metric card — icon/title/number/subtitle/due-today, matching the CRM's Boost
-   Output & Boost Input rows. Only "sti" and "deposit" are wired (they jump down to the real
-   Connect with Reassigned Leads card); every other key is decorative, per the request to copy the
-   page's look without rebuilding its unrelated metrics. */
+   Output & Boost Input rows. Only "sti" and "deposit" are wired (they open the pipeline drawer,
+   where reassigned students sit with a Reassigned badge); every other key is decorative, per the
+   request to copy the page's look without rebuilding its unrelated metrics. */
 function boostCard(cls,icon,title,num,sub,due,key){
-  return '<div class="boostcard '+cls+'" data-boost="'+key+'"><div class="bhead"><span>'+icon+' '+esc(title.toUpperCase())+'</span><span>&#8635;</span></div><div class="bnum num">'+num+'</div><div class="bsub">'+esc(sub)+'</div>'+(due?'<div class="bdue">'+esc(due)+'</div>':'')+'<div class="blink">View Pipeline &rarr;</div></div>';
+  var re = (key==="sti"||key==="deposit") ? drawerLeads(key).length : 0;
+  return '<div class="boostcard '+cls+'" data-boost="'+key+'"><div class="bhead"><span>'+icon+' '+esc(title.toUpperCase())+'</span><span>&#8635;</span></div><div class="bnum num">'+num+'</div><div class="bsub">'+esc(sub)+'</div>'+(due?'<div class="bdue">'+esc(due)+'</div>':'')+(re?'<div class="bre"><span class="num">'+re+'</span> reassigned</div>':'')+'<div class="blink">View Pipeline &rarr;</div></div>';
 }
 function boostInputCards(){
   var isl='<div class="boostcard green" data-boost="isl"><div class="bhead"><span>&#11088; ISL FEEDBACK RATING</span></div><div class="bnum num">3.9<small style="font-size:14px;font-weight:600"> / 5</small></div><div class="bsub">Based on recent surveys</div><div class="blink">View details &rarr;</div></div>';
@@ -851,7 +872,7 @@ function reminderCard(){
 }
 function tasksPerfPage(){
   var v=S.view;
-  var head='<div class="ph"><div><h1>Tasks &amp; Performance</h1><p>Layout borrowed from the counselor CRM\'s own Tasks &amp; Performance tab. Only Boost STI, Boost Deposit and Connect with Reassigned Leads are backed by real (mock) data here — the rest is static dressing.</p></div></div>';
+  var head='<div class="ph"><div><h1>Tasks &amp; Performance</h1><p>Layout borrowed from the counselor CRM\'s own Tasks &amp; Performance tab. Only Boost STI and Boost Deposit are backed by real (mock) data here — reassigned students show inside them with a Reassigned badge. The rest is static dressing.</p></div></div>';
   if(v!=="rahul" && v!=="ankit") return '<div class="page">'+head+'<div class="note">No handover-related tasks for this role.</div></div>';
   var body =
     '<div class="boosthead"><span class="bar"></span>Boost Output<span class="pill pill-red">Action Required</span></div>'+
@@ -865,8 +886,7 @@ function tasksPerfPage(){
     '<div class="boostgrid">'+boostInputCards()+'</div>'+
     staticCollapsible("&#10024;","Top Performers")+
     staticCollapsible("&#128202;","Performance Summary","Scorecard · Targets vs Actuals")+
-    reminderCard()+
-    connectTasksCard();
+    reminderCard();
   return '<div class="page">'+head+body+'</div>';
 }
 function bindTasksPerf(){
@@ -878,7 +898,6 @@ function bindTasksPerf(){
   document.querySelectorAll("[data-sctoggle]").forEach(function(b){ b.onclick=function(){ var k=b.dataset.sctoggle; S.boostOpen[k]=!S.boostOpen[k]; render(); }; });
   var rh=document.getElementById("remHead"); if(rh) rh.onclick=function(){ S.remOpen=!S.remOpen; render(); };
   var sr=document.getElementById("saveReminderMock"); if(sr) sr.onclick=function(){ toast("Reminder saved (not modeled in this mockup)"); };
-  var ot=document.getElementById("openTasksBtn"); if(ot) ot.onclick=function(){ openTaskDrawer("all"); };
 }
 
 /* ---------- new counselor ---------- */

@@ -25,4 +25,4 @@ npx serve .
 
 ## Trying the flow
 
-Use the yellow "Mockup controls" bar at the top to switch between roles (Counselor/leaver, SM, TL, new counselor) and to fast-forward the clock through the 8 PM transfer job. After the transfer, switch to the new counselor's or TL's view and open the **Tasks & Performance** tab to see the "Connect with Reassigned Leads" task (styled after the counselor CRM's own Tasks & Performance tab, shown here as static mock data).
+Use the yellow "Mockup controls" bar at the top to switch between roles (Counselor/leaver, SM, TL, new counselor) and to fast-forward the clock through the 8 PM transfer job. After the transfer, switch to the new counselor's or TL's view and open the **Tasks & Performance** tab. Reassigned students show inside the existing **Boost STI** and **Boost Deposit** pipelines with a "Reassigned" badge and a Reassigned filter (styled after the counselor CRM's own Tasks & Performance tab, shown here as static mock data).
