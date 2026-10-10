@@ -728,7 +728,7 @@ function smRequestsCard(){
     rows.map(function(r){
       return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td>'+statusBadge(r.status)+(r.tApp?'<small class="sub">Approved '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>';
-  return '<p class="tmsub">Counselors and TLs in your teams who have entered a last working day'+(pend.length?' · <span class="badge b-amber">'+pend.length+' pending</span>':'')+'. Records drop off once the counselor\'s login is deactivated.</p>'+
+  return '<p class="tmsub">Counselors in your teams who have entered a last working day'+(pend.length?' · <span class="badge b-amber">'+pend.length+' pending</span>':'')+'. Records drop off once the counselor\'s login is deactivated.</p>'+
    pills+(rows.length?table:'<div class="note">No last working day requests.</div>');
 }
 function bindSmHome(){
@@ -998,7 +998,8 @@ function bindAssign(){
 
 /* ---------- TL home ---------- */
 function tlHome(){
-  return '<div class="page">'+profileCard()+staticCard(ICON.res,"Last Working Day","Enter your own last working day")+'</div>';
+  /* The Last Working Day flow is for counselors only (TLs own no leads), so the TL profile has no card. */
+  return '<div class="page">'+profileCard()+'</div>';
 }
 
 /* ---------- Important Business Tasks (TL / SM, Tasks & Performance) ----------
