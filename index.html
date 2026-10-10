@@ -437,12 +437,12 @@ function makeLeads(stageN,split,idStart){
 
 /* ---------- state ---------- */
 /* Each leaver has their own book, assignments and request. S.cur points at the leaver the current
-   screen is about; S.req / S.leads / S.assign / S.lgcDone / S.phase read and write that leaver. Priya
+   screen is about; S.req / S.leads / S.assign / S.phase read and write that leaver. Priya
    is the live, fully clickable flow; Karan (Ankit's team, already approved) and Neha (Meera's team,
    pending) exist so the SM list and the TL's per-leaver accordions show more than one person. */
 var OVERLAP_DAYS = 7; /* leads move this many days before LWD; config value, DS may change to 14 */
 var S;
-function leaver(id,stageN,split,idStart,req){ return {id:id,leads:makeLeads(stageN,split,idStart),assign:{},req:req,lgcDone:{},phase:"before"}; }
+function leaver(id,stageN,split,idStart,req){ return {id:id,leads:makeLeads(stageN,split,idStart),assign:{},req:req,phase:"before"}; }
 function reset(){
   seed=7;
   S={view:"priya",route:"profile",resOpen:true,notes:{},cur:"priya",focus:"priya",
@@ -457,7 +457,7 @@ function reset(){
   S.lv.karan.leads.slice(0,30).forEach(function(l){ S.lv.karan.assign[l.id]="sneha"; });
   S.lv.karan.req.history=[{text:"Scheduled 30 leads for Sneha Kulkarni",by:"Ankit Sharma",at:"24 Sep 2026, 12:15 PM"},{text:"Approved. New lead allocation to Karan Gill stopped",by:"Vikram Mehta",at:"23 Sep 2026, 10:30 AM"},{text:"Last working day 09 Oct 2026 submitted",by:"Karan Gill",at:"22 Sep 2026, 4:05 PM"}];
   S.lv.neha.req.history=[{text:"Last working day 12 Oct 2026 submitted",by:"Neha Joshi",at:"24 Sep 2026, 6:20 PM"}];
-  ["req","leads","assign","lgcDone","phase"].forEach(function(k){
+  ["req","leads","assign","phase"].forEach(function(k){
     Object.defineProperty(S,k,{get:function(){return S.lv[S.cur][k];},set:function(v){S.lv[S.cur][k]=v;}});
   });
   ["priya","vikram","ankit","meera","rahul","sneha","karan","arjun","neha"].forEach(function(k){S.notes[k]=[];});
@@ -1222,7 +1222,11 @@ function runTransfer(){
   // 4. tasks + bells
   var per={}; S.leads.forEach(function(l){ per[S.assign[l.id]]=(per[S.assign[l.id]]||0)+1; });
   Object.keys(per).forEach(function(k){ notify(k,"You received "+per[k]+" leads from "+LV().name+"."); });
-  hist("Created "+S.leads.length+" Leap group chat intro tasks for new counselors","System");
+  var conn=S.leads.filter(function(l){ var g=leadGroup(l); return g==="sti"||g==="deposit_done"; }).length;
+  hist("Created "+conn+" Connect with Reassigned Leads tasks (Boost STI / Boost Deposit)","System");
+  /* Leap group chats are handled outside the CRM: each new counselor gets a WhatsApp "Join this group"
+     notification for every student's group, and the student message posts once they join. */
+  hist("Leap group chat: new counselors notified on WhatsApp to join "+S.leads.length+" student groups (outside CRM)","System");
   r.status="transferred"; r.tTr=now();
   hist(LV().name+" stays active in the students' Leap group chats until "+fmt(r.lwd),"System");
   notify("priya","Your "+S.leads.length+" leads moved to new counselors. You stay in your students' Leap group chats until "+fmt(r.lwd)+".");
