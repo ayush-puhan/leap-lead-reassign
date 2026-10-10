@@ -283,7 +283,16 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .ibt .ibl{font-size:12px;color:#39445a;flex:1}
 .lp{font-size:10px;font-weight:800;letter-spacing:.4px;border-radius:999px;padding:2px 8px}
 .lp.clear{background:var(--green-soft);color:var(--green)}.lp.mod{background:var(--amber-soft);color:var(--amber)}.lp.high{background:var(--red-soft);color:var(--red)}
-button@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+button.tmodal{position:fixed;inset:0;background:rgba(11,18,32,.5);display:grid;place-items:center;padding:16px;z-index:50}
+.tmbox{background:var(--bg);border-radius:12px;width:min(1040px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.3);overflow:hidden}
+.tmhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}
+.tmhead b{font-size:17px}
+.tmhead button{background:none;border:0;font-size:22px;color:var(--muted);line-height:1;padding:2px 6px}
+.tmbody{overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.tmfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:12px 16px;background:var(--nav);color:#fff}
+.tmfoot select{min-width:260px}
+.tmsub{margin:0;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
@@ -303,6 +312,7 @@ button@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 <div class="filters"><span>PL: All</span><span>TL: All</span><span>CL: All</span></div>
 <main id="main"></main>
 <div id="bottom"></div>
+<div id="taskModal"></div>
 <div id="modal"></div>
 <div id="taskDrawer"></div>
 <div id="toast"></div>
@@ -433,7 +443,7 @@ function reset(){
   S={view:"priya",route:"profile",resOpen:true,notes:{},cur:"priya",focus:"priya",
      clock:"25 Sep 2026, 11:10 AM",
      tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
-     draftDate:"",formErr:"",activeTab:"ld",boostOpen:{},remOpen:false,drawerOpen:null,lv:{}};
+     draftDate:"",formErr:"",activeTab:"ld",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,lv:{}};
   S.lv.priya=leaver("priya",null,null,40210,null);
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
     {status:"approved",lwd:new Date(2026,9,9),tSub:"22 Sep 2026, 4:05 PM",tApp:"23 Sep 2026, 10:30 AM",appDay:new Date(2026,8,23),history:[],reason:"",changedFrom:null,msgs:null});
@@ -487,7 +497,7 @@ function renderDemo(){
     '<button id="skipBtn"'+(canSkip?"":" disabled")+'>Skip ahead 1 hour (retries)</button>'+
     '<button id="lwdBtn"'+(canLwd?"":" disabled")+' title="Priya leaves the Leap group chats and her login is deactivated">Jump to last working day</button>'+
     '<span class="sp"></span><button id="resetBtn">Reset</button>';
-  document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; if(S.route==="detail"){ S.route="home"; S.activeTab="tasks"; } S.tl.sel={}; closeBell(); closeWho(); render(); };
+  document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; if(S.route==="detail"){ S.route="home"; S.activeTab="tasks"; } S.tm=null; S.focus=null; S.tl.sel={}; closeBell(); closeWho(); render(); };
   document.getElementById("runBtn").onclick=runTransfer;
   document.getElementById("skipBtn").onclick=finishRetries;
   document.getElementById("lwdBtn").onclick=jumpToLwd;
@@ -534,7 +544,7 @@ document.getElementById("bellBtn").onclick=function(){
   }).join(""):'<div class="empty">No notifications.</div>');
   list.forEach(function(n){n.read=true;});
   panel.hidden=false; renderTop();
-  panel.querySelectorAll("[data-na]").forEach(function(b){ b.onclick=function(){ var a=list[+b.dataset.na].action; closeBell(); if(a.focus) S.focus=a.focus; if(a.tab) S.activeTab=a.tab; S.route=a.route; render(); var sec=document.getElementById(a.focus?"acc-"+a.focus:"sec-lwd"); if(sec) sec.scrollIntoView({block:"start"}); else window.scrollTo(0,0); }; });
+  panel.querySelectorAll("[data-na]").forEach(function(b){ b.onclick=function(){ var a=list[+b.dataset.na].action; closeBell(); if(a.focus) S.focus=a.focus; if(a.tab) S.activeTab=a.tab; if(a.tm) S.tm=a.tm; S.route=a.route; render(); var sec=a.focus&&document.getElementById("acc-"+a.focus); if(sec) sec.scrollIntoView({block:"start"}); }; });
 };
 
 /* ---------- common blocks ---------- */
@@ -648,7 +658,7 @@ function bindResignation(){
       var again=S.req&&S.req.status==="rejected";
       S.req={status:"pending",lwd:dt,tSub:now(),history:[],reason:"",changedFrom:null,msgs:null};
       hist((again?"Applied again with last working day ":"Last working day submitted: ")+fmt(dt),LV().name);
-      notify("vikram",LV().name+" submitted their last working day: "+fmt(dt)+".",{label:"Review",route:"home",tab:"tasks"});
+      notify("vikram",LV().name+" submitted their last working day: "+fmt(dt)+".",{label:"Review",route:"home",tab:"tasks",tm:"lwd"});
       S.draftDate=""; closeModal(); render(); toast("Last working day submitted");
     };
   };
@@ -714,18 +724,18 @@ function smRequestsCard(){
     rows.map(function(r){
       return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td>'+statusBadge(r.status)+(r.tApp?'<small class="sub">Approved '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>';
-  return '<div class="card open" id="sec-lwd"><div class="chead"><span class="ic">'+ICON.list+'</span><span class="t"><b>Last Working Day requests '+(pend.length?'<span class="badge b-amber">'+pend.length+' pending</span>':'')+'</b><small>Counselors and TLs in your teams who have entered a last working day. Records drop off once the counselor\'s login is deactivated.</small></span></div>'+
-   '<div class="cbody">'+pills+(rows.length?table:'<div class="note">No last working day requests.</div>')+'</div></div>';
+  return '<p class="tmsub">Counselors and TLs in your teams who have entered a last working day'+(pend.length?' · <span class="badge b-amber">'+pend.length+' pending</span>':'')+'. Records drop off once the counselor\'s login is deactivated.</p>'+
+   pills+(rows.length?table:'<div class="note">No last working day requests.</div>');
 }
 function bindSmHome(){
-  document.querySelectorAll("#main [data-review]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); smReview(b.dataset.review); }; });
-  document.querySelectorAll("#main [data-reopen]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); reopen(b.dataset.reopen); }; });
+  document.querySelectorAll("#taskModal [data-review]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); smReview(b.dataset.review); }; });
+  document.querySelectorAll("#taskModal [data-reopen]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); reopen(b.dataset.reopen); }; });
   document.querySelectorAll("[data-sample]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); toast("Sample history row — not clickable in this mockup"); }; });
   document.querySelectorAll("tr[data-row]").forEach(function(tr){ tr.onclick=function(){ openRequest(tr.dataset.row); }; tr.onkeydown=function(e){ if(e.key==="Enter") openRequest(tr.dataset.row); }; });
 }
 /* Opens the right agreed screen for a request: Review modal (pending), scheduling (approved),
    detail page (rejected / transferred). */
-function openRequest(id){ var r=S.lv[id].req; if(r.status==="pending") smReview(id); else if(r.status==="approved") openSchedule(id); else { S.focus=id; S.route="detail"; render(); window.scrollTo(0,0); } }
+function openRequest(id){ var r=S.lv[id].req; if(r.status==="pending") smReview(id); else if(r.status==="approved") openSchedule(id); else { S.tm=null; S.focus=id; S.route="detail"; render(); window.scrollTo(0,0); } }
 /* Review opens in a modal (not a new page) so the SM can work through several requests quickly. */
 function smReview(id){
   withLeaver(id,function(){
@@ -820,11 +830,11 @@ function approve(newDate){
   r.status="approved"; r.tApp=now(); r.appDay=TODAY;
   var tr=transferDate(r);
   hist("Approved. New lead allocation to "+LV().name+" stopped. Leads transfer "+fmt(tr)+", 8 PM",PEOPLE.vikram.name);
-  notify(tl.id,"Schedule "+LV().name+"'s "+S.leads.length+" leads before "+fmt(tr)+", 8 PM.",{label:"Schedule leads",route:"home",tab:"tasks",focus:S.cur});
+  notify(tl.id,"Schedule "+LV().name+"'s "+S.leads.length+" leads before "+fmt(tr)+", 8 PM.",{label:"Schedule leads",route:"home",tab:"tasks",tm:"sched",focus:S.cur});
   notify(S.cur,"Your last working day ("+fmt(r.lwd)+") was approved. Your leads transfer on "+fmt(tr)+", 8 PM.");
 }
 function bindDetail(){
-  document.querySelectorAll("#main [data-review]").forEach(function(b){ b.onclick=function(){ smReview(b.dataset.review); }; });
+  document.querySelectorAll("#taskModal [data-review]").forEach(function(b){ b.onclick=function(){ smReview(b.dataset.review); }; });
   document.querySelectorAll("#main [data-reopen]").forEach(function(b){ b.onclick=function(){ reopen(b.dataset.reopen); }; });
   var c=document.getElementById("aCancel"); if(c) c.onclick=function(){
     var id=S.cur;
@@ -919,15 +929,16 @@ function scheduleCard(){
     });
   }).join("");
   var waiting=pend.map(function(id){ var r=S.lv[id].req; return '<div class="lrow"><div><b>'+esc(PEOPLE[id].name)+'</b> '+statusBadge("pending")+'<br><small>LWD '+fmt(r.lwd)+' · you can schedule once the SM approves</small></div></div>'; }).join("");
-  return '<div class="card open" id="sec-sched"><div class="chead"><span class="ic">'+ICON.list+'</span><span class="t"><b>Leads to schedule</b><small>Open a counselor to schedule who gets each lead. Leads only move at 8 PM on their transfer date.</small></span></div>'+
-    '<div class="cbody">'+(acc||waiting?acc+waiting:'<div class="note">No leads to schedule right now.</div>')+'</div></div>';
+  return '<p class="tmsub">Open a counselor to schedule who gets each lead. Leads only move at 8 PM on their transfer date.</p>'+
+    (acc||waiting?acc+(waiting?'<div class="card"><div class="cbody" style="border:0;padding:4px 16px">'+waiting+'</div></div>':''):'<div class="note">No leads to schedule right now.</div>');
 }
-function openSchedule(id){ S.focus=id; S.tl.sel={}; S.tl.page=0; S.route="home"; S.activeTab="tasks"; render(); var el=document.getElementById("acc-"+id); if(el) el.scrollIntoView({block:"start",behavior:"smooth"}); }
+function openSchedule(id){ S.focus=id; S.tl.sel={}; S.tl.page=0; S.route="home"; S.activeTab="tasks"; S.tm="sched"; render(); var el=document.getElementById("acc-"+id); if(el) el.scrollIntoView({block:"start"}); }
 function bottomBar(){
-  var el=document.getElementById("bottom");
+  var el=document.getElementById("tmFoot");
   var n=Object.keys(S.tl.sel).length;
-  if(S.route!=="home"||S.activeTab!=="tasks"||!S.focus||S.cur!==S.focus||!n||!S.req||S.req.status!=="approved"){ el.innerHTML=""; return; }
-  el.innerHTML='<div class="bottom"><b class="num">'+n+' selected</b><select class="in" id="asgTo"><option value="">Schedule for…</option>'+eligible().map(function(p){ var tl=PEOPLE[p.tl].name; var cur=p.open+Object.keys(S.assign).filter(function(k){return S.assign[k]===p.id;}).length; return '<option value="'+p.id+'">'+esc(p.name)+' · '+esc(tl)+' · '+cur+' existing open leads</option>'; }).join("")+'</select><button class="btn p" id="asgGo" disabled>Schedule assignment</button></div>';
+  if(!el) return;
+  if(S.tm!=="sched"||!S.focus||S.cur!==S.focus||!n||!S.req||S.req.status!=="approved"){ el.innerHTML=""; return; }
+  el.innerHTML='<div class="tmfoot"><b class="num">'+n+' selected</b><select class="in" id="asgTo"><option value="">Schedule for…</option>'+eligible().map(function(p){ var tl=PEOPLE[p.tl].name; var cur=p.open+Object.keys(S.assign).filter(function(k){return S.assign[k]===p.id;}).length; return '<option value="'+p.id+'">'+esc(p.name)+' · '+esc(tl)+' · '+cur+' existing open leads</option>'; }).join("")+'</select><button class="btn p" id="asgGo" disabled>Schedule assignment</button></div>';
   var s=document.getElementById("asgTo"), g=document.getElementById("asgGo");
   s.onchange=function(){ g.disabled=!s.value; };
   g.onclick=function(){
@@ -1006,16 +1017,28 @@ function ibtSection(){
   if(v==="vikram") tiles.push(ibtTile("lwd","&#128197;","Last Working Day Approval",lwdPendingIds().length,true));
   tiles.push(ibtTile("sched","&#128101;","Schedule Reassigned Leads",scheduleTaskIds().length,true));
   IBT_STATIC[v].forEach(function(x){ tiles.push(ibtTile("static","<span>"+x[0]+"</span>",x[1],x[2],false)); });
-  return '<div class="card"><div class="cbody" style="border:0"><b>&#128203; Important Business Tasks'+(v==="vikram"?" — TL &amp; POD rollup":"")+'</b><div class="ibtgrid">'+tiles.join("")+'</div></div></div>'+
-    (v==="vikram"?smRequestsCard():"")+scheduleCard();
+  return '<div class="card"><div class="cbody" style="border:0"><b>&#128203; Important Business Tasks'+(v==="vikram"?" — TL &amp; POD rollup":"")+'</b><div class="ibtgrid">'+tiles.join("")+'</div></div></div>';
 }
-/* Tiles are entry points only: the two Last Working Day tiles scroll to their sections below. */
+/* Tiles open the flow in a large task modal (S.tm): "lwd" = Last Working Day requests, "sched" =
+   Schedule Reassigned Leads. Review / approval / schedule confirms open on top of it. */
 function bindIbt(){
   document.querySelectorAll("[data-ibt]").forEach(function(b){ b.onclick=function(){
-    var k=b.dataset.ibt, el=document.getElementById(k==="lwd"?"sec-lwd":k==="sched"?"sec-sched":"none");
-    if(el) el.scrollIntoView({block:"start",behavior:"smooth"}); else toast("Not modeled in this mockup");
+    var k=b.dataset.ibt;
+    if(k==="lwd"||k==="sched"){ S.tm=k; S.tl.sel={}; render(); } else toast("Not modeled in this mockup");
   }; });
 }
+function renderTaskModal(){
+  var el=document.getElementById("taskModal"), k=S.tm;
+  if(!k || S.route!=="home" || S.activeTab!=="tasks"){ el.innerHTML=""; return; }
+  var prev=el.querySelector(".tmbody"), keep=prev?prev.scrollTop:0;
+  var title = k==="lwd" ? "Last Working Day Approval" : "Schedule Reassigned Leads";
+  var body = k==="lwd" ? smRequestsCard() : scheduleCard();
+  el.innerHTML='<div class="tmodal" id="tmBg"><div class="tmbox" role="dialog" aria-modal="true"><div class="tmhead"><b>'+title+'</b><button id="tmClose" aria-label="Close">&times;</button></div><div class="tmbody">'+body+'</div><div id="tmFoot"></div></div></div>';
+  el.querySelector(".tmbody").scrollTop=keep;
+  document.getElementById("tmClose").onclick=closeTaskModal;
+  document.getElementById("tmBg").onclick=function(e){ if(e.target.id==="tmBg") closeTaskModal(); };
+}
+function closeTaskModal(){ S.tm=null; S.focus=null; S.tl.sel={}; render(); }
 
 /* ---------- Tasks & Performance (visual style borrowed from the counselor CRM's own Tasks &
    Performance tab — its "Add a Reminder for Yourself" section — but not rebuilt here; this mockup
@@ -1239,7 +1262,7 @@ function jumpToLwd(){
 /* ---------- modal ---------- */
 function showModal(html,cls){ var m=document.getElementById("modal"); m.innerHTML='<div class="modal" role="dialog" aria-modal="true"><div class="mbox'+(cls?" "+cls:"")+'">'+html+'</div></div>'; m.querySelectorAll('[data-m="close"]').forEach(function(b){b.onclick=closeModal;}); var f=m.querySelector("input,textarea,button.p"); if(f) f.focus(); }
 function closeModal(){ document.getElementById("modal").innerHTML=""; }
-document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ closeModal(); closeBell(); closeWho(); if(S.drawerOpen){ S.drawerOpen=null; render(); } } });
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ if(document.querySelector("#modal .modal")){ closeModal(); return; } closeBell(); closeWho(); if(S.drawerOpen){ S.drawerOpen=null; render(); } else if(S.tm){ closeTaskModal(); } } });
 
 /* ---------- render ---------- */
 function render(){
@@ -1253,16 +1276,18 @@ function render(){
   else { S.route="home"; S.cur="priya"; html = S.activeTab==="tasks" ? tasksPerfPage() : ldPage(); }
   m.innerHTML=html;
   /* After building, bindings for the open scheduling accordion (TL/SM on Tasks & Performance) act on S.focus. */
-  var schedOpen = S.route==="home" && S.activeTab==="tasks" && lead && S.focus && S.lv[S.focus];
+  if(!(S.route==="home"&&S.activeTab==="tasks")) S.tm=null;
+  withLeaver("priya",renderTaskModal);
+  var schedOpen = S.tm==="sched" && lead && S.focus && S.lv[S.focus];
   S.cur = (S.route==="detail"||schedOpen) && S.focus && S.lv[S.focus] ? S.focus : "priya";
   m.querySelectorAll("[data-ld]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.activeTab="ld"; render(); window.scrollTo(0,0); }; });
   m.querySelectorAll("[data-tasks]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.activeTab="tasks"; S.tl.sel={}; render(); window.scrollTo(0,0); }; });
-  if(S.route==="home"&&S.activeTab==="tasks"){ bindTasksPerf(); bindIbt(); if(v==="vikram") bindSmHome(); if(lead) bindAssign(); }
+  if(S.route==="home"&&S.activeTab==="tasks"){ bindTasksPerf(); bindIbt(); if(S.tm==="lwd") bindSmHome(); if(S.tm==="sched") bindAssign(); }
   if(S.route==="profile"&&v==="priya") bindResignation();
   if(S.route==="detail") bindDetail();
   if(v==="rahul"&&S.route==="home") bindRahul();
-  m.querySelectorAll("[data-assignfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); openSchedule(b.dataset.assignfor); }; });
-  m.querySelectorAll("[data-detailfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); S.focus=b.dataset.detailfor; S.route="detail"; render(); window.scrollTo(0,0); }; });
+  document.querySelectorAll("#main [data-assignfor], #taskModal [data-assignfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); openSchedule(b.dataset.assignfor); }; });
+  document.querySelectorAll("#main [data-detailfor], #taskModal [data-detailfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); S.tm=null; S.focus=b.dataset.detailfor; S.route="detail"; render(); window.scrollTo(0,0); }; });
   bindBreakdowns();
   bottomBar();
   document.getElementById("taskDrawer").innerHTML = S.route==="home"&&S.activeTab==="tasks" ? withLeaver("priya",renderTaskDrawer) : "";
