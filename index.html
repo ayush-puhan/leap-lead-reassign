@@ -283,12 +283,17 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .ibt .ibl{font-size:12px;color:#39445a;flex:1}
 .lp{font-size:10px;font-weight:800;letter-spacing:.4px;border-radius:999px;padding:2px 8px}
 .lp.clear{background:var(--green-soft);color:var(--green)}.lp.mod{background:var(--amber-soft);color:var(--amber)}.lp.high{background:var(--red-soft);color:var(--red)}
-button.tmodal{position:fixed;inset:0;background:rgba(11,18,32,.5);display:grid;place-items:center;padding:16px;z-index:50}
-.tmbox{background:var(--bg);border-radius:12px;width:min(1040px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.3);overflow:hidden}
-.tmhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}
-.tmhead b{font-size:17px}
+/* Full-page modal for the SM / TL flows: covers the whole screen, scrolls inside, footer pinned. */
+.tmodal{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex}
+.tmbox{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.tmbody{max-width:1100px;width:100%;margin:0 auto}
+.tmhead{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#fff;border-bottom:1px solid var(--line);flex:none}
+.tmhead b{font-size:17px;flex:1;text-align:center}
+.tmhead .back{font-size:14px;color:var(--blue);font-weight:600;padding:0}
 .tmhead button{background:none;border:0;font-size:22px;color:var(--muted);line-height:1;padding:2px 6px}
-.tmbody{overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.tmscroll{flex:1;overflow:auto}
+.tmbody{padding:20px 16px 24px;display:flex;flex-direction:column;gap:12px}
+#tmFoot{flex:none}
 .tmfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:12px 16px;background:var(--nav);color:#fff}
 .tmfoot select{min-width:260px}
 .tmsub{margin:0;font-size:13px;color:var(--muted)}
@@ -674,8 +679,7 @@ function profileCard(){
     '<div class="ptiles"><div><small>Joining date</small><b>'+e[1]+'</b></div><div><small>Team</small><b>'+esc(p.tl?PEOPLE[p.tl].name:p.name)+'</b></div><div><small>Manager</small><b>'+esc(p.sm?PEOPLE[p.sm].name:"—")+'</b></div></div></div>';
 }
 function ldPage(){
-  var extra = S.view==="rahul" ? rahulLgcCard() : "";
-  return ticketsBlock()+staticCard(ICON.book,"IMP Sheet","Important links &amp; resources")+staticCard(ICON.cap,"Training Modules","Videos, documents &amp; platform access")+extra;
+  return ticketsBlock()+staticCard(ICON.book,"IMP Sheet","Important links &amp; resources")+staticCard(ICON.cap,"Training Modules","Videos, documents &amp; platform access");
 }
 function counselorHome(){
   if(S.req && S.req.status==="deactivated"){
@@ -932,7 +936,7 @@ function scheduleCard(){
   return '<p class="tmsub">Open a counselor to schedule who gets each lead. Leads only move at 8 PM on their transfer date.</p>'+
     (acc||waiting?acc+(waiting?'<div class="card"><div class="cbody" style="border:0;padding:4px 16px">'+waiting+'</div></div>':''):'<div class="note">No leads to schedule right now.</div>');
 }
-function openSchedule(id){ S.focus=id; S.tl.sel={}; S.tl.page=0; S.route="home"; S.activeTab="tasks"; S.tm="sched"; render(); var el=document.getElementById("acc-"+id); if(el) el.scrollIntoView({block:"start"}); }
+function openSchedule(id){ S.focus=id; S.tl.sel={}; S.tl.page=0; S.route="home"; S.activeTab="tasks"; S.tm="sched"; render(); var el=document.getElementById("acc-"+id), sc=document.querySelector(".tmscroll"); if(el&&sc) sc.scrollTop+=el.getBoundingClientRect().top-sc.getBoundingClientRect().top-12; }
 function bottomBar(){
   var el=document.getElementById("tmFoot");
   var n=Object.keys(S.tl.sel).length;
@@ -1030,15 +1034,16 @@ function bindIbt(){
 function renderTaskModal(){
   var el=document.getElementById("taskModal"), k=S.tm;
   if(!k || S.route!=="home" || S.activeTab!=="tasks"){ el.innerHTML=""; return; }
-  var prev=el.querySelector(".tmbody"), keep=prev?prev.scrollTop:0;
+  var prev=el.querySelector(".tmscroll"), keep=prev?prev.scrollTop:0;
   var title = k==="lwd" ? "Last Working Day Approval" : "Schedule Reassigned Leads";
   var body = k==="lwd" ? smRequestsCard() : scheduleCard();
-  el.innerHTML='<div class="tmodal" id="tmBg"><div class="tmbox" role="dialog" aria-modal="true"><div class="tmhead"><b>'+title+'</b><button id="tmClose" aria-label="Close">&times;</button></div><div class="tmbody">'+body+'</div><div id="tmFoot"></div></div></div>';
-  el.querySelector(".tmbody").scrollTop=keep;
+  el.innerHTML='<div class="tmodal" id="tmBg"><div class="tmbox" role="dialog" aria-modal="true"><div class="tmhead"><button class="back" id="tmBack">&larr; Back to Tasks &amp; Performance</button><b>'+title+'</b><button id="tmClose" aria-label="Close">&times;</button></div><div class="tmscroll"><div class="tmbody">'+body+'</div></div><div id="tmFoot"></div></div></div>';
+  el.querySelector(".tmscroll").scrollTop=keep;
   document.getElementById("tmClose").onclick=closeTaskModal;
-  document.getElementById("tmBg").onclick=function(e){ if(e.target.id==="tmBg") closeTaskModal(); };
+  document.getElementById("tmBack").onclick=closeTaskModal;
 }
 function closeTaskModal(){ S.tm=null; S.focus=null; S.tl.sel={}; render(); }
+function lockScroll(){ document.body.style.overflow = S.tm ? "hidden" : ""; }
 
 /* ---------- Tasks & Performance (visual style borrowed from the counselor CRM's own Tasks &
    Performance tab — its "Add a Reminder for Yourself" section — but not rebuilt here; this mockup
@@ -1189,23 +1194,8 @@ function bindTasksPerf(){
 }
 
 /* ---------- new counselor ---------- */
-function rahulLgcCard(){
-  S.cur="priya";
-  var mine=moved(S.req) ? S.leads.filter(function(l){return S.assign[l.id]==="rahul";}) : [];
-  var tasks = mine.length ? '<div class="tw"><table><thead><tr><th>Task</th><th>Due</th><th>Ready message</th><th></th></tr></thead><tbody>'+mine.slice(0,8).map(function(l){
-      var m='Hi '+l.first+', I\'m Rahul Verma, your new counselor at Leap, taking over from '+LV().name+'. Looking forward to helping you. Message me here anytime.';
-      var done=S.lgcDone[l.id];
-      return '<tr><td>Post intro in '+esc(l.name)+'\'s Leap group chat</td><td>'+fmtShort(addDays(transferDate(S.req),1))+', 12 PM</td><td style="white-space:normal;min-width:260px;font-size:12px;color:#39445a">'+esc(m)+'</td><td>'+(done?'<span class="badge b-green">Done</span>':'<div class="row"><button class="btn sm" data-copy="'+esc(m)+'">Copy</button><button class="btn sm p" data-done="'+l.id+'">Mark done</button></div>')+'</td></tr>';
-    }).join("")+'</tbody></table></div><div style="font-size:12px;color:var(--muted)">Showing 8 of '+mine.length+' tasks.</div>'
-    : '<div class="note">No handover tasks. When a teammate\'s leads are transferred to you, a task appears here for each student\'s Leap group chat.</div>';
-  return '<div class="card open"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Leap group chat intros</b><small>'+(mine.length?"You received "+mine.length+" leads from "+LV().name:"Tasks from handovers")+'</small></span></div><div class="cbody">'+tasks+'</div></div>';
-}
 function rahulProfile(){
   return '<div class="page">'+profileCard()+staticCard(ICON.res,"Last Working Day","Enter your last working day — the rest happens automatically")+'</div>';
-}
-function bindRahul(){
-  document.querySelectorAll("[data-copy]").forEach(function(b){ b.onclick=function(){ var t=b.dataset.copy; try{ navigator.clipboard.writeText(t).then(function(){toast("Message copied");},function(){toast("Copy blocked. Select the text instead");}); }catch(e){ toast("Copy blocked. Select the text instead"); } }; });
-  document.querySelectorAll("[data-done]").forEach(function(b){ b.onclick=function(){ S.lgcDone[b.dataset.done]=1; render(); }; });
 }
 
 /* ---------- 8 PM transfer ---------- */
@@ -1277,7 +1267,7 @@ function render(){
   m.innerHTML=html;
   /* After building, bindings for the open scheduling accordion (TL/SM on Tasks & Performance) act on S.focus. */
   if(!(S.route==="home"&&S.activeTab==="tasks")) S.tm=null;
-  withLeaver("priya",renderTaskModal);
+  withLeaver("priya",renderTaskModal); lockScroll();
   var schedOpen = S.tm==="sched" && lead && S.focus && S.lv[S.focus];
   S.cur = (S.route==="detail"||schedOpen) && S.focus && S.lv[S.focus] ? S.focus : "priya";
   m.querySelectorAll("[data-ld]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.activeTab="ld"; render(); window.scrollTo(0,0); }; });
@@ -1285,7 +1275,6 @@ function render(){
   if(S.route==="home"&&S.activeTab==="tasks"){ bindTasksPerf(); bindIbt(); if(S.tm==="lwd") bindSmHome(); if(S.tm==="sched") bindAssign(); }
   if(S.route==="profile"&&v==="priya") bindResignation();
   if(S.route==="detail") bindDetail();
-  if(v==="rahul"&&S.route==="home") bindRahul();
   document.querySelectorAll("#main [data-assignfor], #taskModal [data-assignfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); openSchedule(b.dataset.assignfor); }; });
   document.querySelectorAll("#main [data-detailfor], #taskModal [data-detailfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); S.tm=null; S.focus=b.dataset.detailfor; S.route="detail"; render(); window.scrollTo(0,0); }; });
   bindBreakdowns();
