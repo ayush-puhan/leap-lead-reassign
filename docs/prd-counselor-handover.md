@@ -1,642 +1,807 @@
-# Counselor Handover — v0 Plan
+# Lead Handover — PRD (final)
+
+Mirrors the Word/Google Doc PRD: an Overview tab and a Detailed tab.
+
+---
+
+# Overview
+
+
+## Lead Handover — PRD
+
+
+[Vercel Link](https://leap-lead-reassign.vercel.app/)
+
+
+### Goal
+
+
+Create a self-serve handover flow in the Counsellor CRM so that when a counsellor resigns, every lead moves to a new counsellor, every student is told who their new counsellor is, and nothing is done by hand.
+
+
+### Objective
+
+
+Zero leads left with a counsellor who has left, and every student told who their new counsellor is 7 days before the old counsellor leaves.
+
+
+### Principles
+
+- No lead should ever be left without an owner
+- The leaver, TL and SM should always know where the request stands without asking anyone
+- The TL stays in control of who gets which lead
+- The old and new counsellor overlap for at least 7 days before the old counsellor leaves
+
+## Requirements
+
+
+#### Counsellor — Last Working Day (View Profile)
+
+- As a counsellor or TL, I open View Profile from my avatar (top right) and see a Last Working Day card below my profile
+- I only enter my last working day (tomorrow or later) — the rest happens automatically
+  - I see my total leads (e.g. 325) with the stage-group breakdown in small text; clicking it shows the actual leads, read only
+  - Before submitting I see when my leads will transfer: 8 PM, 7 days before my last working day
+- On Submit I see a red confirm: my name, last working day, total leads and "[TL] will transfer your leads by [date], 8 PM"
+- I cannot withdraw after submitting — only my SM can cancel
+- After submitting, the card shows the transfer date and a tracker: LWD submitted → SM approval → TL schedules leads → Leads transfer → Last working day
+  - If rejected, I see the SM's reason. Once the SM reopens it, I can pick a new date and apply again — the reason stays visible
+
+#### SM — Last Working Day Approval (Tasks & Performance)
+
+- As an SM, I see a Last Working Day Approval tile in Important Business Tasks with the pending count
+- Clicking it opens a full-page modal: names of pending counsellors as pills, and a table of every request (latest per leaver)
+  - Columns: Counsellor name, TL name, Last working day, Leads, Status, Take action
+  - Sorted: Pending (nearest LWD first), Rejected, Approved, Transferred. Records drop off once the login is deactivated
+- Review opens a modal with the counsellor, TL, LWD, leads and scheduled transfer. I can
+  - Approve — with a confirm step
+  - Change last working day
+  - Reject (reason mandatory)
+- On an approved request I can Cancel any time before the transfer — all scheduled assignments get cleared
+- On a rejected request I can Reopen, so the counsellor can apply again
+- Once approved, new leads stop being allocated to the leaver
+
+#### TL — Schedule Reassigned Leads (Tasks & Performance)
+
+- As a TL, once the SM approves I get a bell alert and a Schedule Reassigned Leads tile in Important Business Tasks
+  - SM sees the same tile for every team (and only the SM schedules if the leaver is a TL or has no TL)
+- Clicking it opens a full-page modal with one accordion per leaving counsellor; one opens at a time
+- Inside, I filter (Stage, Group, Servicing type, Program, Show) and click rows to select leads
+  - Stage and Group each have Select all; only one filter list is open at a time
+- I pick a counsellor and click Schedule assignment, then confirm — nothing moves until the transfer
+  - Only active counsellors under the same SM appear, with their existing open leads
+  - I can change any assignment until the transfer runs
+
+#### Transfer (automatic, 8 PM, 7 days before LWD)
+
+- At 8 PM, 7 days before the last working day (or 8 PM the day after approval on short notice), the CRM will
+  - Split any unscheduled leads evenly across the TL's team
+  - Move every lead with its open tasks, follow-ups, calls and notes
+  - Send every student an email (from the leaver's account) and a WhatsApp (company number) with new counsellor, TL and SM details
+  - Create Connect with Reassigned Leads tasks (Boost STI / Boost Deposit) and a bell alert for each new counsellor
+- Failed messages retry 3 times over 1 hour
+- The old counsellor stays active, and in the Leap group chats, until their last working day
+
+#### Last Working Day (automatic)
+
+- On the last working day the old counsellor is removed from the Leap group chats and their CRM login is deactivated; the record drops off the SM's list
+
+#### New Counsellor — Tasks
+
+- Connect with Reassigned Leads task for leads in Boost STI or Boost Deposit
+  - Shows inside the existing Boost STI and Boost Deposit pipelines with a "Reassigned from [leaver]" badge, a Reassigned filter, and a reassigned count on the card
+  - Closes when a meeting is booked and joined, or a call connects
+  - Same tasks roll up into the TL's view
+- No Leap group chat task in the CRM
+
+#### Leap Group Chat (outside the CRM)
+
+- After the 8 PM transfer, each new counsellor gets a WhatsApp notification to join each student's Leap group chat ("Join this group")
+- Once they join, the LGC message is posted in the group from the LS number (Meta template built by Swapnil)
+  - Carries student name, old counsellor (ID, email, name, LWD), new counsellor (ID, email, name) and SM (ID, email, name)
+- If the student hasn't joined the LGC, they get a WhatsApp DM asking them to join — logic to be discussed with Swarnim
+
+### Edge cases
+
+- TL hasn't scheduled all leads by the transfer → leftover leads are split evenly across the TL's team
+- Scheduled counsellor leaves before transfer → those leads go back to Unscheduled and the TL gets a bell alert
+- LWD less than 7 days away → leads transfer at 8 PM the day after SM approval (short-notice warning shown)
+- TL resigns, or a counsellor has no TL → same flow, SM approves and SM schedules
+
+### Not in v0
+
+- Template editor or preview for email or WhatsApp
+- Per-student message list in the CRM
+- Leap group chat tasks in the CRM (handled on WhatsApp)
+- Reassigning leads between active counsellors
+- HR and payroll integration
+
+To be confirmed/Pending (Ayush Puhan):
+
+- Done: existing lead reassignment tasks — new tasks are created based on Boost STI and Boost Deposit.
+- Done: Leap group chat intros moved out of the CRM — new counsellors get a WhatsApp "Join this group" notification after the transfer.
+- Not in scope of the current release: reassigning leads between active counsellors. This happens rarely, for 2–3 counsellors, and is communicated by POD or Counsellor Support.
+- Open: overlap duration — 7 days in this design (a config value); confirm 7 vs 14 days with DS.
+- Open: show incoming leads to the receiving counsellor after SM approval? Not built in v0 because of the risk of gossip about who is leaving.
+- Open: logic for the join-LGC DM to students (when it is sent, reminders, how "not joined" is detected, join link) — with Swarnim.
+- Open: Meta templates — student WhatsApp, LGC message and the new-counsellor join notification — to be built by Swapnil.
+
+---
+
+# Detailed
+
+
+Lead Handover — Final PRD
+
 
 ## Objective
-A self-serve resignation and lead handover flow built inside the existing counselor CRM. A resigning counselor submits their last working day, the SM approves it, the TL assigns the leads, and on the last working day the CRM moves every lead, messages every student, and deactivates the leaver's login on its own. It replaces today's process of exporting leads, sending them to the SM pod for reassignment, and emailing students by hand.
-
-## The Problem
-Today when a counselor resigns:
-- The counselor is asked to export all their leads and hand the file over.
-- The SM pod reassigns the leads by hand.
-- The pod or the SM emails students one by one to tell them who their new counselor is.
-
-This depends on the pod and the SM being available and having access. With 3 to 5 resignations a month and 200 to 500 leads per leaver, that is roughly 600 to 2,500 leads a month moved by hand. Leads get missed, follow-ups stay with someone who has left, students are not told who to contact, and there is no single record of who got what.
-
-## Who Uses This
-All users log in to the existing CRM with their own account. No new login is needed. What each person sees depends on their existing CRM role.
-
-- **Counselor (leaver).** Submits their resignation with a last working day and tracks progress. Uses it once.
-- **TL (Team Lead) of the leaver.** Assigns the leaver's leads to counselors. Uses it 3 to 5 times a month across the org, less for any single TL.
-- **SM (Senior Manager).** Approves, rejects, changes the date, or cancels requests. Watches message delivery. Can also assign leads (when the TL is away, or when a TL resigns).
-- **New counselor (receiver).** Does not use the flow. Gets a bell alert when leads arrive and a CRM task to post in the student's Leap group chat.
-- **Students.** Not CRM users. Receive an email and a WhatsApp message.
-
-## High Level Flow
-1. Counselor opens Learning & Development → sees a **Handover your Leads** card below IMP Sheet and Training Modules.
-2. Counselor picks their last working day → sees their lead counts by stage → clicks **Submit** → sees a confirm screen → clicks **Confirm**.
-3. Request status becomes **Pending SM approval**. The SM gets a bell alert.
-4. SM opens the request from the bell or the **Handovers** card → approves, rejects with a reason, or changes the last working day and approves.
-5. On approval: status becomes **Approved, TL assigning**. New leads stop being allocated to the leaver. The leaver's TL gets a bell alert.
-6. TL opens the assignment screen → filters by stage, servicing type and program → selects leads in bulk → assigns them to one counselor at a time → can change any assignment until the transfer runs.
-7. At 8 PM on the last working day the transfer runs:
-   - Any lead still unassigned is split evenly across the leaver's TL team.
-   - Every lead moves to its new counselor, with open tasks, follow-ups, and past calls and notes.
-   - Every student gets an email (sent from the leaver's account) and a WhatsApp message (from the company WhatsApp Business number).
-   - Each new counselor gets one bell alert and one CRM task per student to post an intro in the student's Leap group chat.
-   - The leaver's CRM login is deactivated.
-8. Status becomes **Transferred**. The SM's card shows sent, failed and pending message counts. Failed messages are retried 3 times over one hour, then marked **Failed**.
-
----
-
-## Features
-
-### 1. Handover your Leads — submission (counselor)
-- Shown as a card on the Learning & Development page, below IMP Sheet and Training Modules, with the same card style (icon, title, subtitle, expand arrow).
-- Card title: "Handover your Leads". Subtitle: "Submit your last working day and hand over your leads".
-- Visible to every user with the Counselor or TL role. Not shown to SMs.
-- One field only: Last working day.
-- Shows a read-only summary of lead counts before submitting: one small box per BOFU stage group (**Pre STI / Open App**, **STI**, **Deposit Done**, **Visa**, **Pre ISL Drop Off**, **Post ISL Drop Off** — see [Reference: Field Values](#reference-field-values) and [Reference: Stage Groups](#reference-stage-groups)) with its total, laid out in a compact row that wraps rather than one long list — this view is read-only for the counselor, so there's nothing to click into. A group with 0 leads for this leaver is left out entirely. The per-stage breakdown behind each group is only shown (and only actionable) on Screen 6.
-- Confirm screen before the request is created.
-- Once submitted, the counselor cannot withdraw. Only the SM can cancel.
-- A user can have only one request that is Pending SM approval or Approved, TL assigning at a time.
-
-### 2. SM approval
-- SM gets a bell alert for each new request.
-- SM sees all requests from counselors and TLs under them on a **Handovers** card.
-- SM actions on a Pending request: **Approve**, **Change date and approve**, **Reject** (reason required).
-- SM action on an Approved request: **Cancel** (any time before the 8 PM transfer). Cancelling drops all TL assignments.
-- SM action on a Rejected request: **Reopen for counselor**. This lets the counselor pick a new last working day and apply again. The rejection reason stays visible to the counselor after reopening.
-- Only the latest request is kept on screen: when a counselor applies again, the Handovers card and History show the new request only.
-
-### 3. Lead assignment (TL, or SM)
-- Opens as soon as the SM approves.
-- Done by the leaver's current TL. The SM can also open the same screen for any request under them.
-- If the leaver is a TL, only the SM assigns.
-- Every lead the leaver has ever owned is listed, in whatever stage it is currently in — including stages that mean the lead is no longer active, such as Dead Lead or Lead Drop Off.
-- Every lead is always listed in one flat, paginated table — there's no separate grouped/collapsed layout to switch into.
-- Bulk select with four independent filters — **Stage**, **Group**, **Servicing type**, and **Program** — then assign the selected leads to one counselor.
-- **Stage** filter: a multi-select checklist of every individual value from the CRM's Bofu Status field (see [Reference: Field Values](#reference-field-values)); any number can be checked, or none for "All stages".
-- **Group** filter: a multi-select checklist of the 6 BOFU stage groups (see [Reference: Stage Groups](#reference-stage-groups)) — **Pre STI / Open App**, **STI**, **Deposit Done**, **Visa**, **Pre ISL Drop Off**, **Post ISL Drop Off**, plus **Other** for anything outside those 6. Checking a group shows every lead whose stage falls in it, without needing to know or pick the individual stage codes — this is the fast way to work a whole funnel stage (e.g. "just Visa") at once. Stage and Group both apply at the same time (AND) when both have selections.
-- **Servicing type** filter: `FREE_SERVICE`, `PAID_SERVICE`, or "All".
-- **Program** filter: `MASTERS`, `UNDER_GRADUATION`, or "All".
-- The counselor dropdown lists every active counselor under the same SM, across all TLs, excluding the leaver.
-- Assignments can be changed until the transfer runs.
-
-### 4. Stop new leads to the leaver
-- Once the SM approves, the CRM's lead allocation skips the leaver.
-- If the SM cancels, the leaver is added back to allocation.
-
-### 5. Automatic transfer at 8 PM on the last working day
-- Auto split for unassigned leads, then ownership change, then messages, then tasks and alerts, then login deactivation. Order is set out under Logic and Rules.
-- Moves with each lead: owner, all open tasks and follow-ups, and access to past calls and notes.
-
-### 6. Student messages
-- **Email**
-  - From: the leaver's email account, sent through the CRM's existing email connection for that counselor.
-  - To: the student's email on the lead.
-  - Reply-To: the new counselor's email.
-  - CC: new counselor, TL/POD, SM, debasish.sahoo@leapfinance.com.
-  - Body: one fixed template with names and contact details filled in.
-- **WhatsApp DM**
-  - From: the company WhatsApp Business number.
-  - To: the student's phone on the lead.
-  - Uses one Meta-approved template with new counselor, TL and SM names and phone numbers. Swapnil builds the WhatsApp and LGC templates in Meta.
-- **Leap group chat (LGC)**
-  - v0 does not post automatically.
-  - Each new counselor gets one CRM task per student: "Join [Student name]'s Leap group chat and post your intro". The task holds a ready message to copy.
-- All students get messages, including students whose lead is in a closed-out stage (Dead Lead, Lead Drop Off, Admit Declined, and so on).
-- Changing the wording needs a developer. There is no template editor in v0.
-- Email and WhatsApp templates are not shown anywhere in the CRM UI in v0 — no preview, no editor.
-
-### 7. Delivery tracking and retries
-- Each student has a delivery status per channel: Pending, Sent, Failed. LGC tracks the task instead: Open or Done.
-- A failed email or WhatsApp is retried 3 times: 20, 40 and 60 minutes after the first attempt.
-- After the 3rd failed retry it is marked Failed and counted on the SM's Handovers card. There is no per-student message list in the UI.
-
-### 8. Action history
-- Every action on a request is recorded with time, the person who did it, and details.
-- Visible to the SM and the leaver's TL on the request detail screen.
-- Shows the latest request only. If a rejected counselor applies again, History starts fresh from the new submission.
-
-### 9. Notifications (CRM bell only)
-- SM: new request submitted.
-- TL: request approved, assign leads now.
-- TL: a counselor you assigned leads to is no longer active, and those leads are unassigned again.
-- Counselor (leaver): request approved (with final last working day), request rejected (with reason), request cancelled.
-- New counselor: "You received [N] leads from [Leaver name]" at transfer.
-
-### 10. "Connect with Reassigned Leads" task
-- At transfer, for every reassigned lead whose stage falls in the CRM's existing **Boost STI** or **Boost Deposit** action-required buckets (the two most time-sensitive parts of the funnel — see [Reference: Stage Groups](#reference-stage-groups) for how our stage groups map onto these bucket names), the CRM creates a **Connect with Reassigned Leads** task.
-- One task is created for the **new counselor** (per lead), and the **same leads roll up into their TL's view** for oversight — the TL doesn't have to separately track down who has what.
-- Task shows up in the **Tasks & Performance** tab, directly below **Add a Reminder for Yourself** — the same tab and general card style as the counselor's existing reminders/task list, not a new tab or a separate app.
-- Task auto-closes when either of these happens, whichever comes first:
-  - A meeting is booked **and** joined by the new counselor, or
-  - A call connects with the student.
-- Leads outside Boost STI / Boost Deposit (Pre STI/Open App, Deposit Done, Visa, both Drop Off groups) do **not** get this task — those stages aren't the time-sensitive ones this task exists to protect.
-- This task is separate from, and in addition to, the existing Leap group chat intro task (Feature 6) — a lead in Boost STI or Boost Deposit gets both.
-
----
-
-## Screens
-
-### Screen 1: Handover your Leads card — Not submitted (counselor or TL)
-**Purpose:** Let the user submit their leads handover.
-
-**What the user sees:**
-- A card below Training Modules on Learning & Development. Title "Handover your Leads", subtitle "Submit your last working day and hand over your leads", and an expand arrow.
-- When expanded:
-  - Text: "Your leads will move to new counselors automatically at 8 PM on your last working day. Students will be informed by email and WhatsApp."
-  - A **Your leads** summary: one small box per stage group that has at least one lead, plus a Total box, wrapping onto as many lines as needed rather than stacking one group per row. For example, in a single compact row: "Pre STI / Open App 142 · STI 135 · Visa 8 · Pre ISL Drop Off 25 · Post ISL Drop Off 15 · Total 325" (Deposit Done is left out here because this leaver has 0 leads in it). This summary is not clickable — it's read-only information for the counselor. The per-individual-stage breakdown behind each group (see [Reference: Stage Groups](#reference-stage-groups)) is only shown, and only actionable, on Screen 6, where the TL/SM is the one deciding what to do with those leads.
-  - A **Last working day** date picker.
-  - A **Submit** button, disabled until a valid date is picked.
-
-**What the user can do:**
-- Pick a date.
-- Click **Submit** to open the confirm screen (Screen 2).
-
-**Empty state:** If the user owns 0 leads, the summary shows "You have no leads. Nothing will be transferred." Submit still works.
-**Error state:** If lead counts fail to load, the summary shows "Couldn't load your lead counts. Refresh the page." Submit stays disabled.
-
-### Screen 2: Confirm leads handover (modal)
-**Purpose:** Stop accidental submissions.
-
-**What the user sees:**
-- Title: "Confirm your leads handover".
-- Text: "Last working day: [DD MMM YYYY]. [Total] leads will be handed over ([group breakdown, e.g. 142 Pre STI / Open App, 135 STI, 8 Visa, 25 Pre ISL Drop Off, 15 Post ISL Drop Off]). You can't withdraw this after submitting. Only your SM can cancel it."
-- Buttons: **Go back** and **Confirm**.
-
-**What the user can do:**
-- Click **Go back** to close the modal and return to Screen 1 with the date kept.
-- Click **Confirm** to create the request. The card changes to Screen 3 and the SM gets a bell alert.
-
-**Empty state:** Not applicable.
-**Error state:** If saving fails, show red text in the modal: "Couldn't submit. Check your connection and try again." The modal stays open.
-
-### Screen 3: Handover your Leads card — Status tracker (counselor or TL)
-**Purpose:** Show the leaver where their request is without asking anyone.
-
-**What the user sees:**
-- Last working day (the SM-changed date if changed, with the note "Changed by [SM name]").
-- A 4-step tracker: **Submitted** → **SM approved** → **TL assigning** → **Leads transferred**. Done steps are ticked, the current step is highlighted, and each done step shows its date and time.
-- After approval: "New leads are no longer assigned to you."
-- If rejected: a red badge "Rejected", the rejected date, who rejected it and the SM's reason, and the text "Please speak to your SM. Once they reopen your request you can pick a new date and apply again." No buttons.
-- If rejected and the SM has reopened it: the card shows the last rejection — date, who rejected it, the reason, and when it was reopened — followed by the Screen 1 form (Your leads summary, Last working day picker) with the button **Apply again**. Applying again goes through the same Confirm modal and creates a new request (Pending SM approval). The rejection reason stays visible until the new request is submitted, so a counselor whose request was rejected and reopened straight away still knows why.
-- If cancelled: a grey badge "Cancelled by [SM name]" with the date and time. The card goes back to Screen 1 so a new request can be submitted.
-- After transfer: "All [N] leads were transferred on [date]." The user's login is deactivated shortly after, so they will rarely see this.
-
-**What the user can do:** Nothing while Pending, Approved or Transferred — the card is read only. When Rejected and reopened by the SM, pick a new date and **Apply again**.
-
-**Empty state:** Not applicable.
-**Error state:** "Couldn't load your request. Refresh the page."
-
-### Screen 4: Handovers card (SM)
-**Purpose:** One place for the SM to see and act on every request under them.
-
-**What the user sees:**
-- A card on the SM's Learning & Development page titled "Handovers", with the count of pending requests as a badge.
-- A table, newest first, with one row per leaver showing their latest request only (a rejected request is replaced once the leaver applies again after a reopen). Columns: Name, Role (Counselor / TL), TL, Last working day, Status, Leads (total), Assigned (for example "180 / 325"), Email (Sent / Failed / Pending), WhatsApp (Sent / Failed / Pending), LGC tasks (Done / Open).
-- Status values shown as coloured badges: Pending SM approval (amber), Approved, TL assigning (blue), Transferred (green), Rejected (red), Cancelled (grey).
-- A status filter dropdown: All, Pending SM approval, Approved TL assigning, Transferred, Rejected, Cancelled. Default: All.
-
-**What the user can do:**
-- Click a row to open Screen 5.
-- Change the status filter.
-
-**Empty state:** "No handovers yet."
-**Filter returns nothing:** "No requests with this status."
-**Error state:** "Couldn't load handovers. Refresh the page."
-
-### Screen 5: Request detail (SM, and TL read-only for approval actions)
-**Purpose:** Approve, reject, change the date, cancel, reach the assignment screen, see who the leads are going to, and history.
-
-**What the user sees:**
-- Header: leaver name, role, TL, SM, submitted date, last working day, status badge.
-- Lead counts by stage group, the same compact read-only boxes as Screen 1.
-- Action buttons depend on status (SM only):
-  - Pending SM approval: **Approve**, **Change date & approve**, **Reject**.
-  - Approved, TL assigning: an assignment button (opens Screen 6) plus **Cancel handover**. The button's label and an accompanying note change with progress, so the SM never sees a plain "Assign leads" button when work has already been done (see below).
-  - Rejected: **Reopen for counselor**. The reason stays on screen; after reopening it adds "Reopened for the counselor on [date]. They can pick a new last working day and apply again."
-  - Transferred, Cancelled: no buttons.
-- The TL sees only the assignment button (when Approved) and no approval buttons.
-- **Assignment progress note and button**, shown whenever the status is Approved, TL assigning (to both the SM here and the TL on their own Learning & Development card):
-  - 0 leads assigned yet: no note, button reads **Assign leads** (primary/blue).
-  - Some but not all assigned: a note "[Assigned] of [Total] leads assigned so far.", button reads **Continue assigning** (primary/blue).
-  - All leads assigned: a green note "All [Total] leads have already been assigned. Open below to review or change any of them before the 8 PM transfer.", button reads **Review assignments** (secondary/outline, not primary — so it doesn't read as a fresh, un-done task).
-  - This is what stops the TL and the SM from duplicating each other's work: whoever looks second sees the true state instead of a button that looks identical whether 0 or 325 leads are done.
-- **Leads reassigned to** section, shown while Approved, TL assigning (titled **Leads transferred to** after transfer). One row per receiving counselor: Counselor, TL, Leads, By stage group (for example "Pre STI / Open App 47 · STI 45 · Visa 3"). Before transfer, an **Unassigned** row shows leads not yet assigned ("Split evenly across [TL name]'s team at 8 PM"). If nothing is assigned yet: "No leads assigned yet. Anything left unassigned at 8 PM on [date] will be split evenly across [TL name]'s team."
-- No per-student message list. Email and WhatsApp delivery shows only as Sent / Failed / Pending counts on the Handovers card (Screen 4).
-- **History** section: a timeline of every action on the latest request, newest first. Examples: "Submitted by Priya R · 12 Oct 10:42", "Last working day changed from 30 Oct to 25 Oct by Ankit S".
-
-**What the user can do:**
-- **Approve**: sets the status to Approved, TL assigning, stops new leads, and sends bells to the TL and the leaver.
-- **Change date & approve**: opens a date picker (tomorrow or later). **Save & approve** does the same as Approve with the new date.
-- **Reject**: opens a textbox "Reason" (required, max 500 characters). **Reject** sets the status to Rejected and sends a bell to the leaver with the reason.
-- **Cancel handover**: opens a confirm modal: "Cancel [Name]'s leads handover? All lead assignments will be cleared and they will start getting new leads again." Buttons **Keep it** and **Cancel handover**.
-- **Reopen for counselor**: the counselor's card shows the last rejection reason plus the form to pick a new date and apply again. Bell to the leaver with the reason. The rejected request stays in the list until they apply again.
-- **Assign leads / Continue assigning / Review assignments**: opens Screen 6, whichever label is currently showing.
-
-**Empty state:** History always has at least the "Submitted" entry.
-**Error state:** If an action fails: red text under the buttons, "Couldn't save. Try again." Status does not change.
-
-### Screen 6: Assign leads (TL, or SM)
-**Purpose:** Choose the new counselor for each of the leaver's leads.
-
-**What the user sees:**
-- Header: "Assign [Leaver name]'s leads · Transfer at 8 PM on [date]". Progress: "[Assigned] of [Total] assigned".
-- One flat, paginated table (50 rows per page) — every lead the leaver owns, always shown; there's no separate grouped/collapsed layout to switch into.
-- Four filters, all applying together (AND):
-  - **Stage** — a multi-select dropdown: a button (labelled "All stages", the one selected stage's name, or "[N] stages selected") opens a checklist panel listing every individual value in the CRM's Bofu Status field (see [Reference: Field Values](#reference-field-values)), each with its own checkbox, plus a **Clear** action that resets to "All stages". Any number of stages can be checked at once (OR within this filter — a lead matching any checked stage is shown).
-  - **Group** — the same kind of multi-select checklist, sitting right next to Stage, but listing the 6 BOFU stage groups (see [Reference: Stage Groups](#reference-stage-groups)) instead of individual stages: **Pre STI / Open App**, **STI**, **Deposit Done**, **Visa**, **Pre ISL Drop Off**, **Post ISL Drop Off**, plus **Other**. Checking "Visa", for example, shows every lead in any Visa-related stage without having to know or check each individual Visa stage code one by one.
-  - **Servicing type** — single-select: `Free Service` (`FREE_SERVICE`), `Paid Service` (`PAID_SERVICE`), or All.
-  - **Program** — single-select: `Masters` (`MASTERS`), `Under Graduation` (`UNDER_GRADUATION`), or All.
-- A **Show** toggle: All / Unassigned / Assigned.
-- Table columns: checkbox, Student name, Lead ID, Stage, Servicing type, Program, Last contacted (date), Next follow-up (date), Assigned to (counselor name or "Unassigned").
-- Default sort: Next follow-up, soonest first, with empty dates last. Columns can be sorted by clicking the header.
-- A **Select all [N] shown** checkbox in the table's header, and a **Select all [N] shown** button above the table — both select every row matching the current filters, across all pages. This is the way to "select all leads of a stage/group at once": check the stage(s) or group(s) wanted in the Stage/Group filters, then Select all shown.
-- A bottom bar that appears when rows are selected: "[N] selected", an **Assign to** counselor dropdown, and an **Assign** button.
-- Text under the header changes with progress: "Anything left unassigned at 8 PM on [date] will be split evenly across [TL name]'s team." while incomplete, or a green "All [Total] leads are assigned. They'll transfer automatically at 8 PM on [date] — you can still change any assignment until then." once every lead has an assignee.
-- A **Back to Learning & Development** button below the table, always present (not just the small breadcrumb-style back link above the header) — so there is always an obvious, reachable way to leave this screen after selecting or assigning. Once every lead is assigned, it reads **Done — back to Learning & Development** instead, as a clear closing confirmation.
-
-**What the user can do:**
-- Filter by any combination of Stage (any number checked), Group (any number checked), Servicing type and Program, and switch Show.
-- Sort and page.
-- Tick rows, or Select all shown (spans every page, not just the one on screen).
-- Pick a counselor and click **Assign**. The selected rows update to that counselor, the progress count updates, and the selection clears. A confirming toast names the counselor and count ("[N] leads assigned to [Name]"). Assigning rows that already have a counselor replaces the old choice.
-- Search the counselor dropdown by name. It lists active counselors under the same SM, excluding the leaver, as "Name · TL name · current open leads".
-- Click **Back to Learning & Development** (or **Done — back to Learning & Development** once complete) at any time — nothing is lost, since every assignment saves immediately when made.
-
-**Empty state:** If the leaver has 0 leads: "No leads to assign."
-**Filter returns nothing:** "No leads match these filters."
-**Error state:** If Assign fails: a red toast, "Couldn't assign. Try again." Rows are unchanged.
-**Locked state:** After transfer, or if cancelled: the table is read only with the banner "Transfer complete" or "Handover cancelled". The bottom bar is hidden. Filters still work for browsing.
-
-### Screen 7: Tasks & Performance — Connect with Reassigned Leads (new counselor, and TL for oversight)
-**Purpose:** Prompt the new counselor to proactively reach out to reassigned students in the two most time-sensitive stage buckets, and let their TL see that it's happening.
-
-**What the user sees:**
-- A summary card on the existing **Tasks & Performance** tab (not Learning & Development), directly below the existing **Add a Reminder for Yourself** section — same tab that already has the Boost Output row (Boost Referrals, Boost STI, Boost Deposit, Boost Revenue) and Boost Input row above it.
-- Card title: "Connect with Reassigned Leads". Subtitle: "Reach out to students you've just taken over in Boost STI or Boost Deposit". Body: "[N] open tasks" and a **View tasks** button.
-- Clicking **View tasks**, or **View Pipeline →** on the existing **Boost STI** or **Boost Deposit** card, opens the actual task list in a **slide-out side panel** from the right — the same panel pattern the CRM already uses for its Boost pipeline drawers (e.g. the existing Boost STI drawer), not something new. Opening from the summary card shows both buckets together, titled "Connect with Reassigned Leads"; opening from a specific Boost card shows only that bucket, titled "Boost STI" or "Boost Deposit".
-- The side panel has: a back arrow and a close (×) — either dismisses it — a title, a refresh icon, a search box (filters the list live by student name or Lead ID), a note ("Closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student."), a running count ("[N] total"), then one card per qualifying lead.
-- Each lead's card is styled like the counselor CRM's existing pipeline task cards (e.g. the "Clear Application Hold" cards inside its own Boost STI drawer):
-  - Student name, with Lead ID · Program · Servicing type underneath.
-  - A stage-bucket badge: **Boost STI** or **Boost Deposit**.
-  - A **How to close** box: a "Connect with Reassigned Lead" chip, plus the same explanatory copy style as the CRM's other pipeline tasks ("Book and join a meeting with [student], or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.").
-  - **View student** and **View Task** buttons.
-- The TL's version adds "· Assigned to [counselor name]" to every card's subtitle line, rolling up the same tasks across everyone on their team, not just one counselor.
-
-**What the user can do:** Open the side panel from either entry point, search within it, close it (back arrow, ×, clicking the backdrop, or Esc), and open a lead's student record or task detail from its card (**View student** / **View Task**) — see the Open Question on closure detection below for what closes a card. Nothing else acts on this list in v0.
-
-**Empty state:** Summary card shows "No open tasks right now" when the counselor (or, for the TL, their whole team) has no reassigned leads currently sitting in Boost STI or Boost Deposit. Inside the panel, an empty search result shows "No students match."
-**Error state:** Not applicable in v0 — this list is read from existing lead/assignment data, not a separate save action.
-
----
-
-## Forms
-
-### Handover your Leads form (Screen 1)
-
-| Field | Type | Required | Notes / Validation |
-|-------|------|----------|--------------------|
-| Last working day | Date picker | Yes | Must be tomorrow or later. Dates before that are greyed out. |
-
-**On submit:** Opens the confirm modal (Screen 2). On **Confirm**: a request is created with status "Pending SM approval", a bell goes to the SM, and the card shows Screen 3.
-**Validation errors:** No date → Submit stays disabled. If the date is no longer valid at submit (for example, the page was left open overnight): red text under the field, "Pick a date from tomorrow onwards."
-
-### Change date & approve (Screen 5)
-
-| Field | Type | Required | Notes / Validation |
-|-------|------|----------|--------------------|
-| Last working day | Date picker | Yes | Tomorrow or later. Pre-filled with the counselor's date. |
-
-**On submit:** Saves the new date, approves the request, and records "Last working day changed from X to Y" in History.
-**Validation errors:** Red text "Pick a date from tomorrow onwards."
-
-### Reject (Screen 5)
-
-| Field | Type | Required | Notes / Validation |
-|-------|------|----------|--------------------|
-| Reason | Textarea | Yes | 1 to 500 characters. |
-
-**On submit:** Status becomes Rejected, a bell goes to the leaver with the reason, and the action is recorded in History.
-**Validation errors:** Red text "Add a reason." The form does not submit.
-
-### Assign (Screen 6 bottom bar)
-
-| Field | Type | Required | Notes / Validation |
-|-------|------|----------|--------------------|
-| Assign to | Searchable dropdown | Yes | Active counselors under the same SM, leaver excluded. |
-
-**On submit:** Saves the chosen counselor on every selected lead's pending assignment. Nothing moves until 8 PM on the last working day.
-**Validation errors:** The Assign button stays disabled until a counselor is chosen and at least 1 row is selected.
-
-### Filters (Screen 6, not a submitted form — applied live)
-
-| Field | Type | Required | Notes / Validation |
-|-------|------|----------|--------------------|
-| Stage | Multi-select checklist (button opens a panel) | No (defaults to no stages checked, i.e. "All stages") | Options: every Bofu Status value — see [Reference: Field Values](#reference-field-values). A **Select all** checkbox at the top of the list checks every stage (unchecking it clears them). Any number can be checked at once (OR); a **Clear** action in the panel resets to "All stages". With every stage checked the button reads "All stages". |
-| Group | Multi-select checklist (button opens a panel) | No (defaults to no groups checked, i.e. "All groups") | Options: the 6 BOFU stage groups — see [Reference: Stage Groups](#reference-stage-groups). A **Select all** checkbox at the top of the list checks every group (unchecking it clears them). Any number can be checked at once (OR); a **Clear** action resets to "All groups". With every group checked the button reads "All groups". Applies together with Stage (AND) when both have selections. |
-| Servicing type | Dropdown (single-select) | No (defaults to All) | Options: All, Free Service (`FREE_SERVICE`), Paid Service (`PAID_SERVICE`). |
-| Program | Dropdown (single-select) | No (defaults to All) | Options: All, Masters (`MASTERS`), Under Graduation (`UNDER_GRADUATION`). |
-
-Only one filter panel (Stage or Group) is open at a time. Opening one closes the other, and clicking anywhere outside an open panel or using another filter closes it. Ticking boxes inside an open panel keeps it open.
-
----
-
-## Message Templates (fixed in v0)
-
-Wording is fixed in code. Swapnil builds the WhatsApp and LGC templates in Meta. The copy below is the current draft for build reference only — it is **not shown in the CRM UI** (no message preview on Request Detail, no editor).
-
-**Email**
-- Subject: `Your new Leap counselor: {{new_counselor_name}}`
-- Body:
-```
+
+
+Give every resigning counsellor a self-serve way to hand over their leads inside the Counsellor CRM. The counsellor enters their last working day, the SM approves it, the TL schedules who gets each lead, and at 8 PM, 7 days before the last working day, the CRM moves every lead and messages every student on its own. The old counsellor stays active for that week so the new counsellors overlap with them, and their login is deactivated on the last working day — with one record of who got what. This document specifies every screen, filter, piece of copy, and rule needed to build it.
+
+
+Scale: 3 to 5 resignations a month, 200 to 500 leads per leaver — roughly 600 to 2,500 leads a month that need a new owner, a student message, and a follow-up.
+
+
+## Who This Is For
+
+- Counsellor (leaver) — enters their last working day on View Profile and tracks progress. Uses it once.
+- TL (Team Lead) — the leaver's TL. Schedules who gets each lead, from Tasks & Performance.
+- SM (Senior Manager) — approves, rejects, changes the date, reopens or cancels requests, from Tasks & Performance. Can also schedule leads (when the TL is away, or when the leaver is a TL or has no TL).
+- New counsellor (receiver) — does not use the handover flow. Gets a bell alert when leads arrive, Connect tasks in Boost STI / Boost Deposit, and a WhatsApp notification to join each student's Leap group chat.
+- Students — not CRM users. Receive an email and a WhatsApp message at the transfer, and the LGC message once the new counsellor joins their group.
+
+Login: everyone uses their existing CRM login. What each person sees depends on their existing CRM role. No new login is needed.
+
+
+Reporting hierarchy: most counsellors report to one TL, and some report straight to an SM with no TL; every TL reports to one SM. "Same SM" means every counsellor under that SM.
+
+
+## End-to-End Flow
+
+
+| Step | Who | What happens | Request status after |
+|---|---|---|---|
+| 1 | Counsellor | Avatar → View Profile → Last Working Day card → picks last working day → Submit → red confirm → Yes, submit. | Pending SM approval |
+| 2 | SM | Bell alert or Tasks & Performance → Last Working Day Approval tile → Review → Approve (with confirm), Change last working day, or Reject with a reason. | Approved · TL assigning (or Rejected) |
+| 3 | CRM | On approval: stops new lead allocation to the leaver. Bell to the TL and the leaver; the TL's Schedule Reassigned Leads tile count goes up. | Approved · TL assigning |
+| 4 | TL (or SM) | Schedule Reassigned Leads tile → opens the leaver → filters → selects rows → Schedule assignment → confirm. Can change any assignment until the transfer. | Approved · TL assigning |
+| 5 | CRM, 8 PM, 7 days before LWD | Splits unscheduled leads across the TL's team → moves every lead → emails and WhatsApps every student → creates Connect tasks and bell alerts. New counsellors get a WhatsApp notification to join each student's Leap group chat. | Leads transferred |
+| 6 | Old counsellor | Stays active and in the Leap group chats for the overlap week, helping the new counsellors settle in. | Leads transferred |
+| 7 | CRM, last working day | Removes the old counsellor from the Leap group chats and deactivates their login. The record drops off the SM's list. | Deactivated |
+
+
+## Where It Lives
+
+
+| Who | Where | Entry point |
+|---|---|---|
+| Counsellor (or TL resigning) | View Profile page, below the profile card | Avatar (top right) → View Profile → Last Working Day card |
+| SM | Tasks & Performance → Important Business Tasks (TL & POD rollup) | Last Working Day Approval tile → full-page modal |
+| TL, and SM for any team | Tasks & Performance → Important Business Tasks | Schedule Reassigned Leads tile → full-page modal |
+| New counsellor | Tasks & Performance → existing Boost STI / Boost Deposit cards | View Pipeline → reassigned students with a Reassigned badge |
+
+
+The Learning & Development tab is unchanged. The two tiles sit in the existing Important Business Tasks grid next to Drop Off Approval and the other approval tasks, with the same count and load label (CLEAR at 0, MODERATE up to 20, HIGH above 20).
+
+
+## Counsellor: View Profile
+
+
+### 1. Last Working Day Card
+
+- Placed on the View Profile page (avatar menu, top right), below the profile card. Same card style as the rest of the CRM (icon, title, subtitle, expand arrow).
+- Title: "Last Working Day". Subtitle: "Enter your last working day — the rest happens automatically". No NEW badge.
+- Visible to every user with the Counsellor or TL role (a TL can resign too). Not shown to SMs.
+- A user can have only one request that is Pending SM approval, Approved · TL assigning or Leads transferred at a time.
+- Once submitted, the counsellor cannot withdraw. Only the SM can cancel.
+
+#### 1.1 Card States
+
+
+| State | When | What the user sees | Actions |
+|---|---|---|---|
+| Not submitted | No active request, or last request was Cancelled, or Rejected and reopened by the SM. | Intro text, Your leads (total + breakdown), Last working day picker, transfer-date preview, Submit button. | Pick a date, Submit |
+| Pending SM approval | After Yes, submit. | Headline "Your leads transfer on [date], 8 PM" (expected), tracker at SM approval, status, total leads. Note: "You can't withdraw this. Talk to your SM if you need to cancel it." | None |
+| Approved · TL assigning | SM approved. | Headline with the confirmed transfer date, tracker at TL schedules leads ("[x] of [y] scheduled"). Last working day, with "(changed by [SM] from [date])" if changed. Note: "New leads are no longer assigned to you." | None |
+| Rejected | SM rejected. | Red Rejected badge, the SM's reason, and "Please speak to your SM. Once they reopen your request you can pick a new date and apply again." | None until reopened |
+| Rejected, reopened | SM clicked Reopen. | The last rejection (date, SM, reason, reopened date) above the Not submitted form. The button reads Apply again. | Pick a new date, Apply again |
+| Cancelled | SM cancelled. | Grey "Cancelled by [SM name]" badge with date and time, above the Not submitted form. | Submit a new date |
+| Leads transferred | Transfer job done. | Headline "Your leads moved on [date], 8 PM" and "You stay in your students' Leap group chats until your last working day, [date], to help the new counsellors settle in." Tracker done up to Leads transfer. | None |
+| Deactivated | Last working day. | Login deactivated screen: "Your CRM login has been deactivated. Your [N] leads moved on [date], and you left your students' Leap group chats on your last working day, [date]. Thank you for your work at Leap." | None |
+
+
+#### 1.2 Submit Form
+
+
+Intro text (exact copy): "Enter your last working day — that's all you need to do. Your SM approves it, your TL schedules who gets each lead, and your leads transfer automatically at 8 PM, 7 days before your last working day. Students are told by email and WhatsApp."
+
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| Last working day | Date picker | Yes | Tomorrow or later. Earlier dates are greyed out. Submit stays disabled until a valid date is picked. |
+
+- Transfer preview, shown under the picker as soon as a date is picked: "Your leads will transfer on [Day, DD Mon YYYY], 8 PM — 7 days before your last working day, so you overlap with the new counsellors."
+- Short notice (date is less than 7 days away): amber note "Less than 7 days away. Your leads will transfer at 8 PM the day after your SM approves (if approved today: [date])."
+- On Submit: opens the Confirm modal (1.4).
+- Date no longer valid at submit (page left open overnight): red text under the field, "Pick a date from tomorrow onwards."
+- Empty state (user owns 0 leads): "You have no leads. Nothing will be transferred." Submit still works.
+- Error state (lead counts fail to load): "Couldn't load your lead counts. Refresh the page." Submit stays disabled.
+
+#### 1.3 Your Leads
+
+- The total is the headline (e.g. "325 leads"), with the stage-group breakdown in small text below it (e.g. "Pre STI / Open App 142 · STI 135 · Visa 8 · Pre ISL Drop Off 25 · Post ISL Drop Off 15"). Groups with 0 leads are left out. No boxes or tabs, so it doesn't look like leads can be picked one group at a time.
+- Clicking it ("View leads ›") opens a read-only lead list modal: title "[Name]'s leads · [N]", the note "Read only. Every lead moves at the transfer.", a search box (student name or Lead ID), and one expandable section per stage group with a table: Student, Lead ID, Stage, Program, Next follow-up.
+- The same lead list opens from the SM's Review modal ("view leads") and the request detail page.
+
+#### 1.4 Confirm Modal (red, high emphasis)
+
+
+| Element | Copy / Behaviour |
+|---|---|
+| Header (red band) | "Submit your last working day?" and "This can't be undone. Only your SM can cancel it." |
+| Details | Counsellor: [name] · Last working day: [Day, DD Mon YYYY] · Total leads: [N] |
+| Transfer note (red) | "[TL name] (your TL) will transfer your leads by [Day, DD Mon YYYY], 8 PM." On short notice it adds: "Less than 7 days' notice — this is the day after approval if your SM approves today." |
+| Go back | Closes the modal. Returns to the form with the date kept. |
+| Yes, submit (red button) | Creates the request (Pending SM approval), sends a bell to the SM, and switches the card to the tracker. |
+| Error | Red text in the modal: "Couldn't submit. Check your connection and try again." Modal stays open. |
+
+
+#### 1.5 Status Tracker
+
+- Works like a delivery tracker: a fixed start (LWD submitted) and a fixed end (Leads transfer, a known date at 8 PM), with every step and its date visible, so the counsellor can tell students exactly when their lead moves.
+- Above the tracker, the headline: "Your leads transfer on [date], 8 PM" — marked expected until the SM approves.
+
+| Step | Shows | Done when |
+|---|---|---|
+| 1. LWD submitted | Submitted date and time | Always done |
+| 2. SM approval | Approval date and time, or "Waiting for [SM name]" | SM approves |
+| 3. TL schedules leads | "[x] of [y] scheduled", or "After approval" | Transfer runs |
+| 4. Leads transfer (fixed end) | [Day, DD Mon YYYY], 8 PM — "(expected)" until approved | Transfer runs |
+| 5. Last working day | [Day, DD Mon YYYY] · leave Leap group chats | Last working day |
+
+- Read only — no buttons. Error state: "Couldn't load your request. Refresh the page."
+
+## SM: Last Working Day Approval
+
+
+### 2. Last Working Day Approval Tile and Modal
+
+- Tile in Important Business Tasks — TL & POD rollup on the SM's Tasks & Performance: "Last Working Day Approval", count of pending requests, load label.
+- Clicking it opens a full-page modal: "← Back to Tasks & Performance" at the top left, the title, and × at the top right. Esc also closes it. The page behind doesn't scroll.
+- Subtitle: "Counsellors and TLs in your teams who have entered a last working day · [N] pending. Records drop off once the counsellor's login is deactivated."
+- When more than one request is pending, their names show as pills above the table ("Pending approval: Priya Rao · LWD 06 Oct"). Clicking a pill opens Review.
+
+#### 2.1 Requests Table
+
+
+| Column | What it shows |
+|---|---|
+| Counsellor name | Leaver's name |
+| TL name | Leaver's TL |
+| Last working day | Final date (after any SM change) |
+| Leads | Total leads owned by the leaver |
+| Status | Status pill (2.2), with "Approved [date]" under it once approved |
+| Take action | Pending → Review · Approved → Assign leads · Rejected → Reopen · Transferred → View |
+
+- One row per leaver, showing their latest request only (a rejected request is replaced once the leaver applies again).
+- Sort: Pending first (nearest last working day first), then Rejected, Approved, Transferred, Cancelled.
+- Deactivated records are hidden — once a login is deactivated the row disappears, so no date filter is needed.
+- Clicking a row does the same as its Take action. Assign leads switches the modal to Schedule Reassigned Leads with that leaver open (Section 3). View opens the request detail page.
+
+| State | What shows |
+|---|---|
+| No requests | "No last working day requests." |
+| Load fails | "Couldn't load requests. Refresh the page." |
+
+
+#### 2.2 Status Pills
+
+
+| Status | Pill colour |
+|---|---|
+| Pending SM approval | Amber |
+| Approved · TL assigning | Blue |
+| Leads transferred | Green |
+| Rejected | Red |
+| Cancelled | Grey |
+| Deactivated | Grey (hidden from the list) |
+
+
+#### 2.3 Review Modal
+
+- Opens on top of the full-page modal, so the SM can work through several requests without leaving it.
+
+| Element | Copy / Behaviour |
+|---|---|
+| Title | "Review last working day" |
+| Details | Counsellor · TL · "Last working day entered by [counsellor name]" · Leads [N] with "view leads" (opens the lead list, 1.3) · Submitted · Scheduled transfer ([Day, DD Mon YYYY], 8 PM) |
+| Note | "Leads transfer 7 days before the last working day. The counsellor stays in their students' Leap group chats until [date]." On short notice (amber): "Short notice. Less than 7 days to the last working day, so leads transfer at 8 PM the day after approval." |
+| Buttons | Reject · Change last working day · Approve |
+
+
+#### 2.4 Actions
+
+
+| Action | What happens |
+|---|---|
+| Approve | Opens a confirm: "Approve [Name]'s last working day?" listing: last working day; "New leads stop going to [Name] now."; "[TL] gets a task to schedule the [N] leads."; "Leads transfer on [date], 8 PM."; "Login is deactivated on the last working day." Buttons Back / Confirm approval. On confirm: status → Approved · TL assigning, approval date recorded, leaver removed from allocation, bell to the TL and the leaver. |
+| Change last working day | Date picker (tomorrow or later, pre-filled) → Continue → the same approval confirm, showing "(changed from [X])". History records "Last working day changed from [X] to [Y]". Invalid date: "Pick a date from tomorrow onwards." |
+| Reject | "Reject [Name]'s last working day" with a Reason box (required, 1 to 500 characters) → Reject. Status → Rejected. Bell to the leaver with the reason. Empty reason: "Add a reason." |
+| Reopen | From the table on a Rejected request. The counsellor's card returns to the form with the last rejection reason still shown. Bell to the leaver with the reason. |
+| Cancel | From the request detail page on an approved request: "Cancel [Name]'s last working day? All scheduled assignments will be cleared and they will start getting new leads again." Keep it / Cancel request. On confirm: assignments cleared, status → Cancelled, leaver back in allocation, bell to the leaver and TL. Hidden once the transfer has started. |
+| Any action fails | Red text: "Couldn't save. Try again." Status does not change. |
+
+
+#### 2.5 Request Detail (View)
+
+- Opened from View in the table. Back link: "← Back to Tasks & Performance".
+- Header: name, role, TL, SM, status pill. Details: Submitted, SM approved, Last working day, Leads transfer ([date], 8 PM), Scheduled ([x] / [y]). The lead total with "View leads".
+- Leads scheduled for / Leads transferred to: one row per receiving counsellor — Counsellor, TL, Leads, By stage group — plus an Unscheduled row before the transfer ("Split evenly across [TL]'s team at transfer").
+- Student messages (after transfer): Email and WhatsApp counts — sent, failed, retrying. No per-student list.
+
+#### 2.6 History
+
+- Timeline of every action, newest first, with time, person and details. Visible to the SM and the leaver's TL.
+- Shows the latest request only — if a rejected counsellor applies again, History starts fresh from the new submission.
+- Examples: "Last working day submitted: 06 Oct 2026 · Priya Rao", "Scheduled 30 leads for Sneha Kulkarni (move 02 Oct 2026, 8 PM) · Ankit Sharma".
+
+## TL (and SM): Schedule Reassigned Leads
+
+
+### 3. Schedule Reassigned Leads Tile and Modal
+
+- Tile in Important Business Tasks for the TL (own team) and the SM (every team): "Schedule Reassigned Leads", count of approved leavers waiting for the transfer, load label.
+- Clicking it opens the same full-page modal. Subtitle: "Open a counsellor to schedule who gets each lead. Leads only move at 8 PM on their transfer date."
+- One accordion per leaving counsellor, sorted by transfer date. Only one opens at a time, so the TL works on one counsellor at a time.
+- Accordion header: initials, name, "LWD [date] · leads move [Day, DD Mon YYYY], 8 PM", "[x] / [y] scheduled" with a progress bar, status pill.
+- TL view: leavers still waiting for SM approval are listed below, not openable ("you can schedule once the SM approves").
+- Opened from the bell, or from Assign leads in the SM's requests table, the modal opens with that counsellor's accordion already open.
+
+#### 3.1 Inside an Accordion
+
+- Note: "Nothing moves until [Day, DD Mon YYYY], 8 PM. Anything left unscheduled then is split evenly across [TL name]'s team." Once everything is scheduled (green): "All [N] leads are scheduled. They move at [date], 8 PM — you can still change any of them until then."
+- Lists every lead the leaver owns, in whatever stage it is in now — including Dead Lead and Lead Drop Off. One flat table, 50 rows per page.
+
+#### 3.2 Filters
+
+
+| Filter | Type | Options | Default | Behaviour |
+|---|---|---|---|---|
+| Stage | Multi-select checklist | Every Bofu Status value (Field Values Reference) | All stages | Select all at the top checks every stage (unchecking clears them). Button reads "All stages" (none or every stage checked), the one stage's name, or "[N] stages selected". Clear resets. |
+| Group | Multi-select checklist | Pre STI / Open App, STI, Deposit Done, Visa, Pre ISL Drop Off, Post ISL Drop Off, Other | All groups | Select all at the top checks every group. Checking a group shows every lead in any of its stages. Button reads "All groups" when none or every group is checked. Clear resets. |
+| Servicing type | Single-select | All, Free Service (FREE_SERVICE), Paid Service (PAID_SERVICE) | All | — |
+| Program | Single-select | All, Masters (MASTERS), Under Graduation (UNDER_GRADUATION) | All | — |
+| Show | Toggle | All / Unscheduled / Scheduled | All | — |
+
+- All filters apply together (AND). They only change what the TL/SM sees; the transfer, student messages and tasks apply to every lead.
+- All filter controls are the same height and width. Only one filter list (Stage or Group) is open at a time: opening one closes the other, and clicking outside or using another filter closes it.
+- Stage, Servicing type and Program are read from the lead's existing CRM fields. This screen never edits them.
+
+#### 3.3 Table and Selecting
+
+
+Columns: Checkbox · Student · Lead ID · Stage · Servicing type · Program · Last contacted · Next follow-up · Scheduled for. Default sort: Next follow-up, soonest first, empty dates last. Click any column header to sort.
+
+- Scheduled for is a status pill: blue with the counsellor's name, or amber "Unscheduled".
+- The whole row is clickable to select it, not just the checkbox. The header checkbox selects every row matching the filters. There is no separate "Select all shown" button.
+- Above the table: "Click rows to select them, then pick who to schedule them for." When rows are selected it changes to "[N] selected" and a red Clear selection button.
+
+#### 3.4 Scheduling
+
+
+With rows selected, a bar is pinned to the bottom of the modal: "[N] selected", a Schedule for dropdown, and a Schedule assignment button.
+
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| Schedule for | Dropdown | Yes | Active counsellors under the same SM, leaver excluded, and anyone who has entered their own last working day excluded. Each shown as "Name · TL name · [N] existing open leads". |
+
+
+| Element | Copy / Behaviour |
+|---|---|
+| Schedule assignment | Disabled until a counsellor is picked. Opens the confirm. |
+| Confirm | "Schedule assignment?" with Schedule for: [name] · Leads: [N] of [leaver]'s · Last working day · Leads move: [date], 8 PM. Note: "Nothing moves now. [Name] becomes the owner at [date], 8 PM. You can change this any time before then." Back / Schedule. |
+| On Schedule | Rows update, progress updates, selection clears, toast "[N] leads scheduled for [Name]". Scheduling rows that already have a counsellor replaces the old choice. Every change saves immediately. |
+
+
+| State | What shows |
+|---|---|
+| Leaver has 0 leads | "No leads to schedule." |
+| Filters match nothing | "No leads match these filters." |
+| Schedule fails | Red toast: "Couldn't schedule. Try again." Rows unchanged; nothing partial is saved. |
+| Transferred | Read only, banner "Transfer complete." |
+
+
+## New Counsellor: Tasks & Performance
+
+
+### 4. Connect with Reassigned Leads (inside Boost STI / Boost Deposit)
+
+- No new card. Tasks show inside the existing Boost STI and Boost Deposit pipelines, mixed with the counsellor's own Boost students.
+- The Boost STI and Boost Deposit cards show a small "[N] reassigned" label. View Pipeline opens the existing drawer, which adds filter chips "All [N]" and "Reassigned [N]".
+- Each reassigned student's card has the bucket badge plus a "Reassigned from [leaver]" badge, the How to close box (a "Connect with Reassigned Lead" chip and the guidance below), and View student / View Task.
+- TL and SM versions cover the whole team; each card adds "· Assigned to [counsellor name]".
+
+#### 4.1 Task Logic
+
+
+| Cohort | Task Creation Logic | Task Closure Logic | Guidance shown on the card |
+|---|---|---|---|
+| Boost STI | Created at the 8 PM transfer for every reassigned lead whose stage is in the STI group. | A meeting is booked and joined by the new counsellor, or a call connects with the student — whichever comes first. | "Book and join a meeting with [student], or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student." |
+| Boost Deposit | Created at the 8 PM transfer for every reassigned lead whose stage is in the Deposit Done group. | Same as Boost STI. | Same as Boost STI. |
+
+- Leads in any other group (Pre STI / Open App, Visa, both Drop Off groups) get no task.
+- An unanswered call, or a meeting booked but not joined, leaves the task open.
+- Created at the transfer, not when the TL schedules — ownership only moves at 8 PM.
+- No Leap group chat task is created in the CRM (see Leap Group Chat).
+
+## Automatic Transfer (8 PM, 7 Days Before LWD)
+
+
+Runs daily at 8 PM for every Approved · TL assigning request whose transfer date is today. Transfer date = last working day minus 7 days. If that is earlier than the day after SM approval (short notice), the transfer date is the day after approval. The 7 days is a config value.
+
+
+| Step | What happens | Rules |
+|---|---|---|
+| 1. Split unscheduled leads | Every lead with no assignment is given a counsellor. | Leaver is a Counsellor with a TL → pool = active counsellors in the TL's team, leaver excluded.<br>Pool empty, leaver is a TL, or leaver has no TL → pool = active counsellors under the same SM.<br>Round-robin by Lead ID, starting with the counsellor with the fewest open leads.<br>Pool still empty → do not transfer, bell to SM, retry at 8 PM next day. |
+| 2. Move ownership | Owner changes to the scheduled counsellor. | Open tasks and follow-ups move. Past calls and notes stay on the lead. Old owner recorded as "Previous counsellor". |
+| 3. Queue messages | One email and one WhatsApp per lead. | No email or no phone on the lead → that channel marked Failed (no retry). |
+| 4. Create tasks | Connect with Reassigned Leads task for Boost STI / Boost Deposit leads. | See Section 4. |
+| 5. Bell new counsellors | One bell per receiving counsellor. | "You received [N] leads from [Leaver name]." |
+| 6. Leap group chat | WhatsApp notification to each new counsellor to join each student's Leap group chat. | Outside the CRM. See Leap Group Chat. |
+| 7. Update status | Request status → Leads transferred. Bell to the leaver. | The leaver stays active until the last working day. |
+
+
+### Last Working Day Job
+
+- Runs on the last working day for every Leads transferred request.
+- Removes the old counsellor from every student's Leap group chat, then deactivates their CRM login.
+- Status → Deactivated. The record drops off the SM's requests table.
+
+## Student Communication
+
+
+| Channel | From | To | When |
+|---|---|---|---|
+| Email | Leaver's email account, through the CRM's existing email connection. Reply-To: new counsellor. CC: new counsellor, TL/POD, SM, debasish.sahoo@leapfinance.com. | Student's email on the lead | At the transfer |
+| WhatsApp | Company WhatsApp Business number, one Meta-approved template | Student's phone on the lead | At the transfer |
+| Leap group chat | LS number, Meta template built by Swapnil | Student's Leap group chat | When the new counsellor joins the group |
+
+- Every student gets messages, including leads in closed-out stages (Dead Lead, Lead Drop Off, Admit Declined, and so on).
+- Wording is fixed in code; there is no template editor. Templates are not shown anywhere in the CRM UI — no preview and no editor.
+- No TL: if the new counsellor has no TL, the email drops the Team Lead line and WhatsApp uses its no-TL template. A blank TL is never sent.
+
+#### Email Template (draft for build, not shown in UI)
+
+
+Subject: Your new Leap counsellor: {{new_counsellor_name}}
+
+
 Hi {{student_first_name}},
+
 
 I'm moving on from Leap, and my last day is {{last_working_day}}. It's been great working with you.
 
-From now on, {{new_counselor_name}} will be your counselor and will take things forward from where we left off.
 
-Your new counselor: {{new_counselor_name}} · {{new_counselor_phone}} · {{new_counselor_email}}
+From now on, {{new_counsellor_name}} will be your counsellor and will take things forward from where we left off.
+
+
+Your new counsellor: {{new_counsellor_name}} · {{new_counsellor_phone}} · {{new_counsellor_email}}
+
+
 Team Lead: {{tl_name}} · {{tl_phone}} · {{tl_email}}
+
+
 Senior Manager: {{sm_name}} · {{sm_phone}} · {{sm_email}}
 
-Just reply to this email to reach {{new_counselor_name}} directly.
+
+Just reply to this email to reach {{new_counsellor_name}} directly.
+
 
 All the best,
+
+
 {{leaver_name}}
-```
 
-**WhatsApp (to be submitted to Meta for approval)**
-```
-Hi {{1}}, your Leap counselor {{2}} has moved on. Your new counselor is {{3}} ({{4}}). You can also reach Team Lead {{5}} ({{6}}) or Senior Manager {{7}} ({{8}}). Reply here anytime.
-```
-The variables in order are: student first name, leaver name, new counselor name, new counselor phone, TL name, TL phone, SM name, SM phone.
 
-**LGC task (CRM task for the new counselor)**
-- Title: `Post intro in {{student_name}}'s Leap group chat`
-- Due: the next day at 12 PM
-- Ready message: `Hi {{student_first_name}}, I'm {{new_counselor_name}}, your new counselor at Leap, taking over from {{leaver_name}}. Looking forward to helping you. Message me here anytime.`
+#### WhatsApp Template (built in Meta by Swapnil, not shown in UI)
 
----
 
-## Logic and Rules
+Hi {{1}}, your Leap counsellor {{2}} has moved on. Your new counsellor is {{3}} ({{4}}). You can also reach Team Lead {{5}} ({{6}}) or Senior Manager {{7}} ({{8}}). Reply here anytime.
 
-**Request statuses**
-- Pending SM approval → Approved, TL assigning (SM approves)
-- Pending SM approval → Rejected (SM rejects)
-- Approved, TL assigning → Cancelled (SM cancels, before 8 PM on the last working day)
-- Approved, TL assigning → Transferred (the 8 PM job completes)
-- Rejected → the counselor can apply again only after the SM clicks Reopen for counselor; they then pick a new last working day on their card and see the last rejection reason. This creates a new request; only the latest request is shown on the Handovers card and in History.
-- Transferred, Rejected and Cancelled are final. Statuses never go backwards.
 
-**Who sees the Handover your Leads card**
-- If the role is Counselor or TL → show the card.
-- If the role is SM or higher → show the Handovers card (Screen 4) instead.
+| Variable | Filled with |
+|---|---|
+| {{1}} | Student first name |
+| {{2}} | Leaver name |
+| {{3}} | New counsellor name |
+| {{4}} | New counsellor phone |
+| {{5}} | TL name |
+| {{6}} | TL phone |
+| {{7}} | SM name |
+| {{8}} | SM phone |
 
-**Who assigns**
-- If the leaver is a Counselor → their current TL and their SM can use Screen 6.
-- If the leaver is a TL → only their SM can use Screen 6.
+- No-TL version, used when the new counsellor has no TL: "Hi {{1}}, your Leap counsellor {{2}} has moved on. Your new counsellor is {{3}} ({{4}}). You can also reach Senior Manager {{5}} ({{6}}). Reply here anytime."
 
-**Who can be assigned leads**
-- If a counselor is active, reports under the same SM, and is not the leaver → they appear in the dropdown.
-- Otherwise → they do not appear.
+### Leap Group Chat (outside the CRM)
 
-**Stop new lead allocation**
-- If the request becomes Approved, TL assigning → exclude the leaver from lead allocation.
-- If the request becomes Cancelled → include the leaver again.
+- Nothing about the Leap group chat is built in the CRM.
+- After the 8 PM transfer, each new counsellor gets a WhatsApp notification for every student group: "Join this group". Once they join, they are in the group.
+- When the new counsellor joins, the LGC message is posted in the group from the LS number (Meta template built by Swapnil).
+- The old counsellor stays in the groups until their last working day, then is removed.
+- If the student hasn't joined their LGC, they get a WhatsApp DM asking them to join — logic to be discussed with Swarnim.
 
-**Assigned counselor becomes inactive before transfer**
-- If a counselor holding pending assignments is deactivated or submits their own approved resignation → set their pending assignments back to Unassigned, send a bell to the TL ("[N] leads assigned to [Name] are unassigned again because they are no longer active"), and record it in History.
+| Entity | Fields in the event | Used in the LGC message |
+|---|---|---|
+| Student | {{student_name}} | Name |
+| Old counsellor | {{old_counsellor_id}}, {{old_counsellor_email}}, {{old_counsellor_name}}, {{old_counsellor_lwd}} | Name, LWD |
+| New counsellor | {{new_counsellor_id}}, {{new_counsellor_email}}, {{new_counsellor_name}} | Name, email |
+| SM | {{sm_id}}, {{sm_email}}, {{sm_name}} | Name, email |
 
-**Stage, servicing type and program filters (Screen 6)**
-- The three filters apply together (AND, not OR). For example Stage = College Shortlisted + Servicing type = Paid Service + Program = Masters shows only leads matching all three.
-- A lead always has exactly one Stage, one Servicing type, and one Program value — these come from the lead's existing fields in the CRM, not something this tool sets.
-- The transfer, message sending and Leap group chat tasks apply to every lead regardless of Stage, Servicing type or Program — the filters only affect what the TL/SM sees while assigning, never who ends up receiving a lead.
 
-**Stage groups (Screen 1, Screen 5, Screen 6)**
-- The CRM's Bofu Status stages roll up into 6 official BOFU groups, confirmed by the team that owns the funnel. Funnel order is groups 1–4; groups 5–6 (the two drop-off groups) sit outside the linear funnel, not after Visa. The full mapping is in [Reference: Stage Groups](#reference-stage-groups):
-  1. **Pre STI / Open App**
-  2. **STI**
-  3. **Deposit Done**
-  4. **Visa**
-  5. **Pre ISL Drop Off**
-  6. **Post ISL Drop Off**
-- A counselor is only ever assigned a lead starting at `LS_PAYMENT_DONE` — that is the start of BOFU and the start of group 1, even though it isn't the lead's very first stage overall. Stages before it (Lead Captured, Webinar Scheduled/Attended/Cancelled, Counseling Call Done, Agent Change Call Scheduled) belong to an earlier, pre-sales part of the funnel that this tool never needs to touch, because a resigning counselor cannot own a lead that hasn't reached Payment Done yet.
-- If a lead's Stage is `LS_USER_ACQUIRED` or `LS_LEAD_CLOSED_AFTER_SALES_CALL` → it does not belong to any of the 6 groups (in practice this should be rare-to-never on a counselor's book). It is not hidden — it still appears normally in the Stage filter and the table, and matches "Other" in the Group filter — it is simply left out of the 6 named groups and their totals on Screens 1 and 5.
-- **Pre ISL Drop Off vs Post ISL Drop Off**: a lead whose current Stage is Dead Lead or Lead Drop Off is classified using its last non-drop status, read from `calculated_lead_status_change_log`:
-  - **Pre ISL Drop Off** if that last status was `LS_PAYMENT_DONE` or earlier (it went cold before ever being shortlisted).
-  - **Post ISL Drop Off** if that last status was `LS_COLLEGE_SHORTLISTED` or later (it had already been shortlisted, or further along, before going cold).
-  - The current Stage code alone (`LS_DEAD_LEAD` / `LS_LEAD_DROP_OFF`) cannot answer this — it always requires the status change log.
-- On Screen 6, Group is an ordinary filter, not a display mode: checking a group (or several) narrows the same flat table the same way Stage, Servicing type or Program do. It does not change how rows are laid out, and it combines with every other filter (AND). The 6-group breakdown on Screens 1 and 5 is read-only summary information; Screen 6's Group filter is the only place a group selection actually changes what's shown or selectable.
+### Delivery Tracking & Retries
 
-**8 PM transfer job (runs daily at 8 PM for every request whose last working day is today and status is Approved, TL assigning)**
-1. Auto split unassigned leads:
-   - If the leaver is a Counselor → pool = active counselors in the leaver's TL team, excluding the leaver.
-   - If that pool is empty, or the leaver is a TL → pool = active counselors under the same SM, excluding the leaver.
-   - Sort unassigned leads by Lead ID. Deal them one at a time to the pool in round-robin order, starting with the counselor with the fewest open leads.
-   - If the pool is still empty → do not transfer, keep the status as Approved, TL assigning, send a bell to the SM ("No active counselors to receive [Name]'s leads"), and retry at 8 PM the next day.
-2. For each lead: change the owner to the assigned counselor, move all open tasks and follow-ups to the new owner, and keep all past calls and notes on the lead so the new owner can see them. Record the old owner on the lead as "Previous counselor".
-3. Queue one email and one WhatsApp per lead:
-   - If the lead has no email → mark Email "Failed: no email on lead" (no retry).
-   - If the lead has no phone → mark WhatsApp "Failed: no phone on lead" (no retry).
-4. Create one LGC task per lead for the new counselor.
-5. Send one bell per new counselor: "You received [N] leads from [Leaver name]."
-6. Set the request status to Transferred.
-7. Deactivate the leaver's CRM login once every email's first send attempt has finished, whether it succeeded or failed.
 
-**Send retries**
-- If the email or WhatsApp provider returns an error → retry 20, 40 and 60 minutes after the first attempt.
-- If the 3rd retry fails → mark Failed with the provider's error text and show it on Screen 4 and Screen 5.
-- If any attempt succeeds → mark Sent.
+| Channel | Statuses tracked per student |
+|---|---|
+| Email | Pending, Sent, Failed |
+| WhatsApp | Pending, Sent, Failed |
+| Leap group chat | Tracked by the LGC system, not the CRM |
 
-**Cancellation**
-- If the SM cancels before the 8 PM job starts → clear all pending assignments, set the status to Cancelled, restore lead allocation, and send a bell to the leaver and TL.
-- If the job has already started → the Cancel button is hidden.
+- Provider returns an error → retry 20, 40 and 60 minutes after the first attempt. Any attempt succeeds → Sent.
+- 3rd retry fails → Failed with the provider's error text; counted on the request detail page (no per-student list).
+- Missing email or phone → Failed straight away, no retry. The other channel still sends.
 
-**Editing assignments**
-- If the status is Approved, TL assigning → the TL or SM can assign and reassign freely.
-- If the status is anything else → Screen 6 is read only.
+## Notifications (Bell Icon)
 
-**"Connect with Reassigned Leads" task creation**
-- Trigger: the 8 PM transfer job (step 4, alongside creating the Leap group chat intro tasks) — not the moment the TL/SM picks a counselor on Screen 6, since ownership doesn't actually move until transfer.
-- For each transferred lead: if its stage falls in the Boost STI or Boost Deposit bucket (see [Reference: Stage Groups](#reference-stage-groups)) → create one "Connect with Reassigned Leads" task for the new counselor, and make it visible to their TL for oversight. Otherwise → no task.
-- Closure: the task closes automatically when either condition is met, whichever happens first — a meeting is booked and joined by the new counselor, or a call connects with the student. Neither condition is met by anything else (e.g. an unanswered call, or a meeting booked but not joined, leaves the task open).
-- This task is independent of the Leap group chat intro task — closing one does not close the other, and a lead in Boost STI/Boost Deposit gets both.
-- **Not built in this mockup:** the closure conditions above describe intended v0 behavior for the real build. This mockup only renders the task list as static/derived data (from the existing lead/assignment state) — there is no meeting-booking or call-connect event in the mockup to actually close a task against, and no "mark done" action either. See Open Question 13.
 
----
+All staff alerts are CRM bell notifications — no email or WhatsApp to staff. Bells open the right place directly.
+
+
+| Who | When | Message (opens) |
+|---|---|---|
+| SM | Last working day submitted | "[Name] submitted their last working day: [date]." (opens Last Working Day Approval) |
+| TL | Request approved | "Schedule [Name]'s [N] leads before [date], 8 PM." (opens Schedule Reassigned Leads at that counsellor) |
+| TL | A scheduled counsellor is no longer active | "[N] leads scheduled for [Name] are unscheduled again because they are no longer active" |
+| Leaver | Request approved | "Your last working day ([date]) was approved. Your leads transfer on [date], 8 PM." |
+| Leaver | Rejected / reopened | Rejected with the SM's reason / reopened with the reason and "You can pick a new date and apply again." |
+| Leaver + TL | Request cancelled | "Your last working day request was cancelled by [SM]." / scheduled assignments cleared |
+| Leaver | Transfer done | "Your [N] leads moved to new counsellors. You stay in your students' Leap group chats until [date]." |
+| New counsellor | Transfer done | "You received [N] leads from [Leaver name]." |
+| SM | No one available to receive leads | "No active counsellors to receive [Name]'s leads" |
+
+
+## Request Status & Rules
+
+
+#### Status Changes
+
+
+| From | To | Triggered by | What also happens |
+|---|---|---|---|
+| — | Pending SM approval | Counsellor clicks Yes, submit | Bell to SM |
+| Pending SM approval | Approved · TL assigning | SM confirms approval (or changes the date and approves) | Approval date recorded; leaver removed from allocation; bell to TL and leaver |
+| Pending SM approval | Rejected | SM rejects with a reason | Bell to leaver |
+| Rejected | Pending SM approval (new request) | SM reopens, then the counsellor applies again | Only the new request and its History are shown |
+| Approved · TL assigning | Cancelled | SM cancels before the transfer starts | Assignments cleared; leaver back in allocation; bell to leaver and TL |
+| Approved · TL assigning | Leads transferred | Transfer job (8 PM, 7 days before LWD) | See Automatic Transfer |
+| Leads transferred | Deactivated | Last working day job | Removed from Leap group chats; login deactivated; row hidden from the SM list |
+
+
+Rejected and Cancelled are final for that request; Deactivated is final. Statuses never go backwards.
+
+
+#### Other Rules
+
+
+| Rule | If | Then |
+|---|---|---|
+| Stop new leads | Request becomes Approved · TL assigning | Leaver excluded from lead allocation. |
+| Stop new leads | Request becomes Cancelled | Leaver included in allocation again. |
+| Who can receive leads | Counsellor is active, under the same SM, not the leaver, and has no last working day request of their own | Appears in Schedule for. Otherwise does not. |
+| Scheduled counsellor becomes inactive before transfer | Deactivated, or their own last working day is approved | Their scheduled leads go back to Unscheduled, bell to the TL, entry in History. |
+| Editing assignments | Status is Approved · TL assigning | TL or SM can schedule and reschedule freely. |
+| Editing assignments | Any other status | Read only. |
+| Same lead scheduled at the same time | TL and SM both save | Last save wins. Both recorded in History. |
+| Lead edited by leaver after approval | Stage, Servicing type or Program changes | Allowed. The transfer uses the lead's state at 8 PM. |
+| Overlap | Between transfer and last working day | The old counsellor stays active and in the Leap group chats; they no longer own the leads. |
+
+
+## Role-Based Access
+
+
+| Role | Sees | Can do |
+|---|---|---|
+| Counsellor | Last Working Day card on View Profile (own request only); lead list | Submit one request; view the tracker; apply again after a reopen |
+| TL | Own Last Working Day card; Schedule Reassigned Leads tile and modal for their team; request detail and History | Schedule and reschedule leads for their team's leavers |
+| SM | Last Working Day Approval and Schedule Reassigned Leads tiles for everyone under them; request detail | Approve, change last working day, reject, reopen, cancel, schedule |
+| New counsellor | Bell alert; reassigned students in Boost STI / Boost Deposit | Work the Connect tasks |
+
+
+## Admin & Settings
+
+
+No admin screens in v0. Message wording is fixed in code. Transfer time (8 PM), the overlap (7 days) and retry timings are set in config by a developer. Stage, Servicing type and Program values are read from the CRM's existing lead fields — a new Bofu Status value appears in the Stage filter automatically.
+
+
+## Stage Groups Reference
+
+
+The 6 BOFU groups used on the summary boxes and the Group filter, confirmed by the team that owns the Bofu Status funnel. Groups 1 to 4 follow funnel order. Groups 5 and 6 sit outside the funnel — a lead can drop off at any point.
+
+
+| Group | Bofu Status stages | Notes |
+|---|---|---|
+| 1. Pre STI / Open App | LS_PAYMENT_DONE, LS_COLLEGE_SHORTLISTED, LS_COLLEGE_FINALIZED, LS_APPLICATION_PROCESS_STARTED, LS_APPLICATION_PROCESS_ON_HOLD, LS_APPLICATION_IN_PROCESS, LS_APPLICATION_SUBMITTED_TO_AGGREGATOR, LS_APPLICATION_ON_HOLD_BY_AGGREGATOR, LS_APPLICATION_REJECTED_BY_AGGREGATOR | Starts at Payment Done — the first stage a counsellor is assigned a lead. |
+| 2. STI | LS_APPLICATION_SUBMITTED_TO_INSTITUTE, LS_APPLICATION_ON_HOLD_BY_INSTITUTE, LS_ADMIT_REJECTED_BY_INSTITUTE, LS_CONDITIONAL_ADMIT_RECEIVED, LS_UNCONDITIONAL_ADMIT_RECEIVED, LS_ADMIT_RECEIVED, LS_ADMIT_ACCEPTED, LS_ADMIT_DECLINED, LS_OFFER_REVOKED_BY_UNIVERSITY | Every outcome after reaching the institute. Maps to the CRM's Boost STI bucket. |
+| 3. Deposit Done | LS_DEPOSIT_PAID, LS_TUITION_FEE_PAID | Maps to the CRM's Boost Deposit bucket. |
+| 4. Visa | LS_VISA_FILING_STARTED, LS_VISA_WIP, LS_VISA_APPLIED, LS_VISA_PROCESS_ON_HOLD, LS_VISA_GRANTED, LS_VISA_REJECTED, LS_VISA_DROPPED | Every visa status, any outcome. |
+| 5. Pre ISL Drop Off | LS_LEAD_DROP_OFF, LS_DEAD_LEAD | Split from group 6 by lead history (table below). |
+| 6. Post ISL Drop Off | LS_LEAD_DROP_OFF, LS_DEAD_LEAD | Split from group 5 by lead history (table below). |
+| Other (no group) | LS_LEAD_CAPTURED, LS_WEBINAR_SCHEDULED, LS_WEBINAR_ATTENDED, LS_WEBINAR_CANCELLED, LS_COUNSELING_CALL_DONE, LS_AGENT_CHANGE_CALL_SCHEDULED, LS_USER_ACQUIRED, LS_LEAD_CLOSED_AFTER_SALES_CALL | Should not appear on a counsellor's book. If one does, it shows in the table and Stage filter, matches "Other" in the Group filter, and is left out of the 6 group totals. |
+
+
+#### Pre ISL vs Post ISL Drop Off
+
+
+For a lead whose current stage is Dead Lead or Lead Drop Off, read its last non-drop status from calculated_lead_status_change_log. The current stage code alone cannot answer this.
+
+
+| Last non-drop status | Group |
+|---|---|
+| LS_PAYMENT_DONE or earlier | Pre ISL Drop Off |
+| LS_COLLEGE_SHORTLISTED or later | Post ISL Drop Off |
+| No earlier status in the log | Pre ISL Drop Off |
+
+
+## Field Values Reference
+
+
+#### Lead Stage (CRM field: Bofu Status)
+
+
+Every value this field holds today, from a CRM export. All are selectable in the Stage filter.
+
+
+| Value stored in the CRM | Shown in the UI as |
+|---|---|
+| LS_LEAD_CAPTURED | Lead Captured |
+| LS_WEBINAR_SCHEDULED | Webinar Scheduled |
+| LS_WEBINAR_ATTENDED | Webinar Attended |
+| LS_WEBINAR_CANCELLED | Webinar Cancelled |
+| LS_COUNSELING_CALL_DONE | Counseling Call Done |
+| LS_AGENT_CHANGE_CALL_SCHEDULED | Agent Change Call Scheduled |
+| LS_PAYMENT_DONE | Payment Done |
+| LS_COLLEGE_SHORTLISTED | College Shortlisted |
+| LS_COLLEGE_FINALIZED | College Finalized |
+| LS_APPLICATION_PROCESS_STARTED | Application Process Started |
+| LS_APPLICATION_IN_PROCESS | Application In Process |
+| LS_APPLICATION_PROCESS_ON_HOLD | Application Process On Hold |
+| LS_APPLICATION_SUBMITTED_TO_AGGREGATOR | Application Submitted To Aggregator |
+| LS_APPLICATION_ON_HOLD_BY_AGGREGATOR | Application On Hold By Aggregator |
+| LS_APPLICATION_REJECTED_BY_AGGREGATOR | Application Rejected By Aggregator |
+| LS_APPLICATION_SUBMITTED_TO_INSTITUTE | Application Submitted To Institute |
+| LS_APPLICATION_ON_HOLD_BY_INSTITUTE | Application On Hold By Institute |
+| LS_CONDITIONAL_ADMIT_RECEIVED | Conditional Admit Received |
+| LS_UNCONDITIONAL_ADMIT_RECEIVED | Unconditional Admit Received |
+| LS_ADMIT_RECEIVED | Admit Received |
+| LS_ADMIT_ACCEPTED | Admit Accepted |
+| LS_ADMIT_DECLINED | Admit Declined |
+| LS_ADMIT_REJECTED_BY_INSTITUTE | Admit Rejected By Institute |
+| LS_OFFER_REVOKED_BY_UNIVERSITY | Offer Revoked By University |
+| LS_DEPOSIT_PAID | Deposit Paid |
+| LS_TUITION_FEE_PAID | Tuition Fee Paid |
+| LS_VISA_FILING_STARTED | Visa Filing Started |
+| LS_VISA_WIP | Visa WIP |
+| LS_VISA_APPLIED | Visa Applied |
+| LS_VISA_PROCESS_ON_HOLD | Visa Process On Hold |
+| LS_VISA_GRANTED | Visa Granted |
+| LS_VISA_REJECTED | Visa Rejected |
+| LS_VISA_DROPPED | Visa Dropped |
+| LS_USER_ACQUIRED | User Acquired |
+| LS_LEAD_CLOSED_AFTER_SALES_CALL | Lead Closed After Sales Call |
+| LS_LEAD_DROP_OFF | Lead Drop Off |
+| LS_DEAD_LEAD | Dead Lead |
+
+
+A lead with a blank Bofu Status (498 such leads org-wide in the export) still shows in the table and can be assigned, but matches only "All stages". A value not in this list shows with its raw value and also matches only "All stages".
+
+
+#### Servicing Type and Program
+
+
+| Field | Value stored in the CRM | Shown in the UI as |
+|---|---|---|
+| Servicing type | FREE_SERVICE | Free Service |
+| Servicing type | PAID_SERVICE | Paid Service |
+| Program | MASTERS | Masters |
+| Program | UNDER_GRADUATION | Under Graduation |
+
 
 ## Edge Cases
 
-| Situation | What the app does |
-|-----------|-------------------|
-| Counselor submits with no date | Submit stays disabled. |
-| Counselor opens the page again after submitting | Shows the status tracker (Screen 3), not the form. |
-| Counselor tries to submit a second request while one is active | Not possible, because the form is replaced by the tracker. |
-| TL and SM assign the same lead at the same time | Last save wins. Both actions are recorded in History. |
-| Filters on Screen 6 match nothing (e.g. Stage = Visa Granted + Program = Under Graduation and the leaver has no such lead) | "No leads match these filters." |
-| Connection drops while assigning | Red toast "Couldn't assign. Try again." Nothing partial is saved for that click. |
-| TL hasn't assigned everything by 8 PM | Leftover leads are auto split across the TL's team (see rules). |
-| Assigned counselor leaves before transfer | Their rows go back to Unassigned and the TL gets a bell. |
-| TL has already assigned all (or some) leads, and the SM opens the request afterwards | The SM sees the true progress ("[N] of [Total] assigned" and, if complete, a green "already assigned" note) and a **Continue assigning** or **Review assignments** button instead of a plain **Assign leads** button — so the SM doesn't start reassigning leads the TL has already placed. Same the other way if the SM assigns first and the TL opens it later. |
-| SM changes the last working day to earlier than today's date | Not allowed. The picker starts from tomorrow. |
-| Student has no email or no phone | That channel is marked Failed with the reason, and the other channel still sends. |
-| Email or WhatsApp provider is down at 8 PM | Retried 3 times over 1 hour, then marked Failed on the SM's card. |
-| Leaver has 0 leads | Flow still works. The transfer only deactivates the login. |
-| A lead is edited by the leaver after SM approval (including its Stage, Servicing type or Program) | Allowed. The transfer at 8 PM uses the lead's state at that moment. |
-| A lead's Stage is a value not in the CRM's current Bofu Status list (data cleanup, one-off) | It still shows in the table with its raw value and can still be assigned; it just won't match any of the named Stage filter options, only "All". |
-| A lead's Stage is `LS_USER_ACQUIRED` or `LS_LEAD_CLOSED_AFTER_SALES_CALL` | Shows normally in the Stage filter and table on Screen 6, and matches "Other" in the Group filter. Left out of the 6 named group totals on Screens 1 and 5 — see Logic and Rules. |
-| A reassigned lead is in Boost STI or Boost Deposit but the new counselor is deactivated before ever connecting (edge case on top of the existing "assigned counselor becomes inactive" rule) | Its "Connect with Reassigned Leads" task moves with it — once the lead is reassigned again and re-transferred, the task is (re-)created for whoever the lead lands with next. |
-| A leaver's TL is also reassigned as part of the same handover, or the receiving counselor changes TL before the task closes | Out of scope for v0 — the task's oversight rollup follows the TL recorded on the lead at transfer time; it does not re-route if the TL changes afterwards. |
-| A lead's Stage is a pre-payment stage (Lead Captured, Webinar *, Counseling Call Done, Agent Change Call Scheduled) | Should not occur on a counselor's book in practice, since ownership starts at Payment Done. If it ever does (data cleanup, one-off), it behaves like User Acquired above: visible in the flat filter, left out of the 6 groups. |
-| `calculated_lead_status_change_log` has no earlier status for a dead/dropped-off lead (edge case in the data) | Treat it as Pre ISL Drop Off (it never reached College Shortlisted, by definition, if there's no earlier status at all). |
-| Resignations already in progress at launch | Finished the old manual way. The tool is used for new resignations only. |
-| TL resigns | Same flow. The SM approves and the SM assigns. |
-| App opened on a mobile browser | Cards stack to one column. Screen 6 table scrolls sideways. All actions still work. |
 
----
+| Situation | What the CRM does |
+|---|---|
+| Counsellor opens View Profile again after submitting | Shows the tracker, not the form. A second request is not possible — unless the request was rejected and the SM reopened it. |
+| Last working day is less than 7 days away (or an immediate exit) | Leads transfer at 8 PM the day after SM approval. The counsellor's preview, the confirm and the SM's Review all show a short-notice warning. |
+| TL hasn't scheduled everything by the transfer | Leftover leads are split across the TL's team (Automatic Transfer, step 1). |
+| TL is on leave and nobody schedules | SM can use the same modal. If still nothing is scheduled, every lead is split at the transfer. |
+| TL scheduled some leads, then the SM opens the same leaver | SM sees the true progress ("[x] / [y] scheduled"). Same the other way round. |
+| SM tries to set a last working day before tomorrow | Not possible — the picker starts from tomorrow. |
+| Student has no email or no phone | That channel is marked Failed. The other channel still sends. |
+| Email or WhatsApp provider is down at 8 PM | Retried 3 times over 1 hour, then marked Failed. |
+| Leaver has 0 leads | Flow still works. Nothing transfers; the login is deactivated on the last working day. |
+| TL resigns, or leaver has no TL | Same flow. The SM approves and the SM schedules; leftover leads are split across all active counsellors under the SM. |
+| New counsellor has no TL | Email drops the Team Lead line; WhatsApp uses the no-TL template. Connect tasks roll up to the SM. |
+| New counsellor doesn't join a student's Leap group chat | Handled by the LGC system (reminders), not the CRM. |
+| New counsellor of a Boost STI / Deposit lead is deactivated before connecting | Task moves with the lead. When the lead is reassigned and transferred again, the task is created for the next owner. |
+| Resignations already in progress at launch | Finished the old way. The tool is used for new resignations only. |
+| CRM opened on a mobile browser | Cards stack to one column. Tables scroll sideways. All actions still work. |
 
-## Admin and Settings
-No admin screens in v0. Message wording is fixed in code, and the transfer time (8 PM) and retry timings are set in config by a developer. The Stage, Servicing type and Program value lists are read from the CRM's existing lead fields, not configured inside this tool — if the CRM adds a new Bofu Status value, it appears automatically in the Stage filter with no code change here.
-
----
 
 ## FAQs
 
-**What if the TL is on leave and nobody assigns the leads?**
-The SM can open the same assignment screen. If nobody assigns anything, every lead is split evenly across the TL's team at 8 PM on the last working day.
 
-**What if the counselor changes their mind after submitting?**
-They can't withdraw it themselves. They talk to their SM, who can cancel any time before 8 PM on the last working day. All assignments are cleared and they start getting new leads again.
+What if the counsellor changes their mind after submitting?
 
-**What if the SM rejects by mistake?**
-The SM clicks Reopen for counselor. The counselor still sees the rejection reason, picks a new (or the same) last working day and applies again. The SM sees it as a new pending request.
 
-**Why email from the leaver's account when their login is deactivated right after?**
-The email is a personal goodbye, so it comes from them. Reply-To is set to the new counselor, so any reply goes to the right person. The CRM login is deactivated only after the first send attempt, and retries use the CRM's stored email connection. Whether the mailbox itself is closed is up to HR or IT, not this tool.
+They cannot withdraw it themselves. They speak to their SM, who can cancel any time before the transfer. All scheduled assignments are cleared and they start getting new leads again.
 
-**Will messaging students in a closed-out stage (Dead Lead, Lead Drop Off, Admit Declined, and so on) cause problems?**
-You chose to message everyone regardless of Stage. Sending WhatsApp messages to students who haven't engaged recently can lead to blocks or reports and lower the quality rating of the company number. Watch the WhatsApp number's quality rating in the first month. If it drops, limit messages to leads in active stages.
 
-**What about the Leap group chat?**
-In v0, each new counselor gets a task per student with a ready intro message to post. Auto-joining the group with a system message is planned for v1.
+What if the SM rejects by mistake?
 
-**Why did the old "Program" filter (MS in US, MBA, UG in Canada, and so on) go away?**
-Those were placeholder values from the first draft of this PRD, not real CRM fields. The CRM actually holds two separate fields on each lead — Servicing type (Free Service or Paid Service) and Program (Masters or Under Graduation) — so Screen 6 now filters on those two real fields instead of one made-up one.
 
----
+The SM clicks Reopen. The counsellor still sees the rejection reason, picks a new (or the same) last working day and applies again. The SM sees it as a new pending request.
 
-## What v0 Does NOT Include
-- **Auto-joining the new counselor to the Leap group chat with a system message.** This depends on whether the group chat tool has an API. It is planned for v1, and v0 uses a CRM task instead.
-- **Template editor or preview for email or WhatsApp.** Wording rarely changes, WhatsApp changes need Meta approval anyway, and Swapnil builds the WhatsApp and LGC templates in Meta — so the UI shows no template section at all.
-- **CSV export of transfers.** Removing exports is part of the goal. The CRM already shows each lead's owner and previous counselor.
-- **Automatic rule-based reassignment (by capacity, stage, servicing type or program).** TLs assign by hand. The only automatic rule is the even split of leftover leads at 8 PM.
-- **Editing a lead's Stage, Servicing type or Program from inside this tool.** Those fields are owned by the rest of the CRM; this tool only reads and filters on them.
-- **Email or WhatsApp alerts to staff.** All staff alerts are CRM bell notifications.
-- **Counselor withdrawal or resubmission without the SM.** The SM controls cancel and reopen.
-- **Per-student message list.** Only Sent / Failed / Pending counts are shown; Request Detail shows who the leads went to instead.
-- **Showing older requests.** Only the latest request per leaver is shown; earlier rejected requests and their history are not shown in v0.
-- **Backfilling resignations already in progress at launch.** These finish the old way.
-- **HR or payroll integration.** Resignation acceptance and the notice period stay with HR.
-- **Automatic closure of the "Connect with Reassigned Leads" task.** The CRM has no call-connect or meeting-booked/joined event tracking to close it against yet — see Open Question 13. v0 ships the task list; closing it (automatically or manually) is a follow-on decision.
 
----
+Why do leads move 7 days before the last working day?
 
-## How You'll Know It's Working
-- Zero leads are owned by deactivated counselors. Check with one CRM query each week.
+
+So the old and new counsellor overlap for a week. The old counsellor stays in the Leap group chats and can help with questions, and the counsellor can tell students the exact date their lead moves.
+
+
+Why send the email from the leaver's account?
+
+
+The email is a personal goodbye, so it comes from them. Reply-To is the new counsellor, so replies reach the right person. The leaver's login is still active for the overlap week; it is deactivated on the last working day.
+
+
+Will messaging students in closed-out stages cause problems?
+
+
+Messaging students who haven't engaged recently can lead to blocks or reports and lower the WhatsApp number's quality rating. Watch the rating in the first month. If it drops, limit messages to leads in active stages.
+
+
+What about the Leap group chat?
+
+
+It is handled outside the CRM. After the transfer, each new counsellor gets a WhatsApp "Join this group" notification for every student group; once they join, the LGC message is posted. There is no LGC task in the CRM.
+
+
+## Not Included in v0
+
+
+| Not included | Why |
+|---|---|
+| Leap group chat tasks or joining in the CRM | Handled on WhatsApp by the LGC system. |
+| Template editor or preview for email or WhatsApp | Wording rarely changes, WhatsApp changes need Meta approval anyway, and Swapnil builds the templates in Meta. |
+| Per-student message list | Clutters the UI. Delivery shows as counts on the request detail page. |
+| Showing incoming leads to the receiving counsellor before the transfer | Risk of gossip about who is leaving. Pending decision. |
+| Reassigning leads between active counsellors | Happens rarely, for 2–3 counsellors; communicated by POD or Counsellor Support. |
+| CSV export of transfers | The CRM already shows each lead's owner and previous counsellor. |
+| Rule-based reassignment (by capacity, stage, servicing type or program) | TLs schedule by hand. The only automatic rule is the even split of leftover leads. |
+| Editing Stage, Servicing type or Program from this tool | Those fields belong to the rest of the CRM. |
+| Email or WhatsApp alerts to staff | All staff alerts are bell notifications. |
+| Counsellor withdrawal or resubmission without the SM | The SM controls cancel and reopen. Only the latest request is shown. |
+| Backfilling resignations in progress at launch | These finish the old way. |
+| HR or payroll integration | Resignation acceptance and notice period stay with HR. |
+
+
+## How We'll Know It's Working
+
+- Zero leads owned by deactivated counsellors — checked with one CRM query each week.
 - The SM pod gets no export or reassignment requests for resignations after launch.
-- Each resignation's SM card shows email and WhatsApp as Sent for almost every student on the last working day, with Failed rows limited to missing contact details.
-- Leavers and TLs stop asking the SM "where is my resignation?", because the tracker answers it.
-- TLs say the Stage, Group, Servicing type and Program filters make it faster to hand similar leads to the counselor best suited for them (for example, keeping Masters leads with a counselor who already works Masters applications, or working through the Visa group in one pass).
-
----
-
-## Reference: Field Values
-
-### Reference: Stage Groups
-The 6 official BOFU groups shown on Screens 1, 5 and 6, and which Bofu Status stages fall into each one. This is the authoritative bucketing confirmed by the team that owns the Bofu Status funnel. Groups 1–4 are funnel order; groups 5–6 sit outside the linear funnel (a lead can drop off at any point, not only at the end).
-
-**Naming note:** groups 2 ("STI") and 3 ("Deposit Done") correspond to the counselor CRM's own existing "Boost STI" and "Boost Deposit" action-required buckets (the same names used on that CRM's Tasks & Performance tab for its highest-priority follow-up cards). The "Connect with Reassigned Leads" task (Feature 10, Screen 7) is scoped to exactly these two groups, using the CRM's own bucket names rather than this PRD's shorter group labels.
-
-**1. Pre STI / Open App** — everything before the application reaches the institute. Starts at Payment Done because that's the first stage a counselor is ever assigned a lead at (see Logic and Rules), not because it's the lead's first stage overall:
-`LS_PAYMENT_DONE`, `LS_COLLEGE_SHORTLISTED`, `LS_COLLEGE_FINALIZED`, `LS_APPLICATION_PROCESS_STARTED`, `LS_APPLICATION_PROCESS_ON_HOLD`, `LS_APPLICATION_IN_PROCESS`, `LS_APPLICATION_SUBMITTED_TO_AGGREGATOR`, `LS_APPLICATION_ON_HOLD_BY_AGGREGATOR`, `LS_APPLICATION_REJECTED_BY_AGGREGATOR`.
-
-**2. STI** — the application has reached the institute; every outcome from there, admit or reject, lives here (no separate "Admit" group in v0):
-`LS_APPLICATION_SUBMITTED_TO_INSTITUTE`, `LS_APPLICATION_ON_HOLD_BY_INSTITUTE`, `LS_ADMIT_REJECTED_BY_INSTITUTE`, `LS_CONDITIONAL_ADMIT_RECEIVED`, `LS_UNCONDITIONAL_ADMIT_RECEIVED`, `LS_ADMIT_RECEIVED`, `LS_ADMIT_ACCEPTED`, `LS_ADMIT_DECLINED`, `LS_OFFER_REVOKED_BY_UNIVERSITY`.
-
-**3. Deposit Done**:
-`LS_DEPOSIT_PAID`, `LS_TUITION_FEE_PAID`.
-
-**4. Visa** — every visa status regardless of outcome:
-`LS_VISA_FILING_STARTED`, `LS_VISA_WIP`, `LS_VISA_APPLIED`, `LS_VISA_PROCESS_ON_HOLD`, `LS_VISA_GRANTED`, `LS_VISA_REJECTED`, `LS_VISA_DROPPED`.
-
-**5. Pre ISL Drop Off** and **6. Post ISL Drop Off** — the same two stage codes, split per lead by history, not by stage code (see Logic and Rules):
-`LS_LEAD_DROP_OFF`, `LS_DEAD_LEAD`.
-
-**Not in any of the 6 groups** — either a pre-payment stage (never on a counselor's book, since ownership starts at Payment Done) or a code the funnel bucketing doesn't cover:
-`LS_LEAD_CAPTURED`, `LS_WEBINAR_SCHEDULED`, `LS_WEBINAR_ATTENDED`, `LS_WEBINAR_CANCELLED`, `LS_COUNSELING_CALL_DONE`, `LS_AGENT_CHANGE_CALL_SCHEDULED`, `LS_USER_ACQUIRED`, `LS_LEAD_CLOSED_AFTER_SALES_CALL`.
-
-### Lead stage (CRM field: Bofu Status)
-The full set of values this field can hold today, taken from a CRM export (`docs/lead-stage-values.csv`). All of these are selectable in the Screen 6 Stage filter; only the ones a given leaver actually has leads in are shown as rows on Screens 1 and 5.
-
-| Value stored in the CRM | Shown in the UI as |
-|---|---|
-| `LS_LEAD_CAPTURED` | Lead Captured |
-| `LS_WEBINAR_SCHEDULED` | Webinar Scheduled |
-| `LS_WEBINAR_ATTENDED` | Webinar Attended |
-| `LS_WEBINAR_CANCELLED` | Webinar Cancelled |
-| `LS_COUNSELING_CALL_DONE` | Counseling Call Done |
-| `LS_AGENT_CHANGE_CALL_SCHEDULED` | Agent Change Call Scheduled |
-| `LS_COLLEGE_SHORTLISTED` | College Shortlisted |
-| `LS_COLLEGE_FINALIZED` | College Finalized |
-| `LS_APPLICATION_PROCESS_STARTED` | Application Process Started |
-| `LS_APPLICATION_IN_PROCESS` | Application In Process |
-| `LS_APPLICATION_PROCESS_ON_HOLD` | Application Process On Hold |
-| `LS_APPLICATION_SUBMITTED_TO_AGGREGATOR` | Application Submitted To Aggregator |
-| `LS_APPLICATION_SUBMITTED_TO_INSTITUTE` | Application Submitted To Institute |
-| `LS_APPLICATION_ON_HOLD_BY_AGGREGATOR` | Application On Hold By Aggregator |
-| `LS_APPLICATION_ON_HOLD_BY_INSTITUTE` | Application On Hold By Institute |
-| `LS_APPLICATION_REJECTED_BY_AGGREGATOR` | Application Rejected By Aggregator |
-| `LS_CONDITIONAL_ADMIT_RECEIVED` | Conditional Admit Received |
-| `LS_UNCONDITIONAL_ADMIT_RECEIVED` | Unconditional Admit Received |
-| `LS_ADMIT_RECEIVED` | Admit Received |
-| `LS_ADMIT_ACCEPTED` | Admit Accepted |
-| `LS_ADMIT_DECLINED` | Admit Declined |
-| `LS_ADMIT_REJECTED_BY_INSTITUTE` | Admit Rejected By Institute |
-| `LS_OFFER_REVOKED_BY_UNIVERSITY` | Offer Revoked By University |
-| `LS_DEPOSIT_PAID` | Deposit Paid |
-| `LS_PAYMENT_DONE` | Payment Done |
-| `LS_TUITION_FEE_PAID` | Tuition Fee Paid |
-| `LS_VISA_FILING_STARTED` | Visa Filing Started |
-| `LS_VISA_APPLIED` | Visa Applied |
-| `LS_VISA_WIP` | Visa WIP |
-| `LS_VISA_PROCESS_ON_HOLD` | Visa Process On Hold |
-| `LS_VISA_GRANTED` | Visa Granted |
-| `LS_VISA_REJECTED` | Visa Rejected |
-| `LS_VISA_DROPPED` | Visa Dropped |
-| `LS_USER_ACQUIRED` | User Acquired |
-| `LS_LEAD_CLOSED_AFTER_SALES_CALL` | Lead Closed After Sales Call |
-| `LS_LEAD_DROP_OFF` | Lead Drop Off |
-| `LS_DEAD_LEAD` | Dead Lead |
-
-A lead with a blank/missing Bofu Status (498 such leads org-wide in the export used to build this list) is treated the same as any other lead — it still appears in the table and can still be assigned — but it will not match any named Stage filter, only "All".
-
-### Servicing type (new field)
-| Value stored in the CRM | Shown in the UI as |
-|---|---|
-| `FREE_SERVICE` | Free Service |
-| `PAID_SERVICE` | Paid Service |
-
-### Program (new field, replaces the placeholder program list from the first draft)
-| Value stored in the CRM | Shown in the UI as |
-|---|---|
-| `MASTERS` | Masters |
-| `UNDER_GRADUATION` | Under Graduation |
-
----
-
-## Open Questions for the Build
-1. Does the CRM already store a sending connection (for example Gmail or Outlook) for each counselor's email? If not, "from the leaver's account" needs one set up per counselor before their last day.
-2. Which WhatsApp Business provider does the company number use (for example Gupshup, Interakt or the Meta Cloud API)? The template must be submitted there for approval.
-3. Where do the Leap group chats live, and do they have an API? This decides whether v1 auto-join is possible.
-4. Confirm the CRM role field values for Counselor, TL and SM, and how "same SM" and "TL team" are stored.
-5. What phone number and email should be shown for the TL and SM in student messages: their work numbers from the CRM profile?
-6. Confirm that CC'ing debasish.sahoo@leapfinance.com on every student email is intended. At 3 to 5 exits a month with 200 to 500 leads each, that is roughly 600 to 2,500 emails a month.
-7. Confirm the exact field names in the CRM's database/API for Bofu Status, Servicing type and Program (the names above are the values seen in exports and product conversations, not confirmed schema/column names).
-8. Are Servicing type and Program always set on every lead, or can they be blank? If they can be blank, the Stage filter's "blank still shows under All" behaviour (see Reference section) should apply to them too.
-9. Is the CSV export used to build the Stage reference list (`docs/lead-stage-values.csv`) the full, current list of Bofu Status values, or does the CRM's schema allow values that hadn't been used yet at export time?
-10. ~~Does the CRM keep a history of stage changes per lead?~~ **Resolved during PRD review:** yes — `calculated_lead_status_change_log` is the source for a lead's last non-drop status, which is what decides Pre ISL Drop Off vs Post ISL Drop Off (see Logic and Rules). Confirm with engineering exactly how this log is queried (table/API) before build.
-11. ~~Confirm the stage groups and their membership~~ **Resolved during PRD review:** the 6-group bucketing in [Reference: Stage Groups](#reference-stage-groups) (Pre STI / Open App, STI, Deposit Done, Visa, Pre ISL Drop Off, Post ISL Drop Off) is confirmed authoritative by the team that owns the Bofu Status funnel, including Application Rejected By Aggregator sitting under Pre STI / Open App (not a drop-off) and Payment Done opening that same group as the start of BOFU.
-12. The 8 Bofu Status codes outside the 6 official groups (`LS_LEAD_CAPTURED`, the three `LS_WEBINAR_*` codes, `LS_COUNSELING_CALL_DONE`, `LS_AGENT_CHANGE_CALL_SCHEDULED`, `LS_USER_ACQUIRED`, `LS_LEAD_CLOSED_AFTER_SALES_CALL`) should never appear on a counselor's book in practice, since ownership starts at Payment Done — confirm this is actually enforced by the CRM (i.e. a lead is only ever assigned to a counselor once it reaches Payment Done), rather than something this tool needs to defend against with its own logic.
-13. **"Connect with Reassigned Leads" task closure has no real event to hook into yet.** The counselor CRM currently has no call-connect or meeting-booked/joined event log anywhere in the product (checked directly against its codebase) — the closure rule in Feature 10 ("a meeting is booked and joined by the new counselor, or a call connects with the student") describes intended behavior, not something buildable today without first adding that tracking. Options for the real build: (a) build call/meeting event tracking first and wire this task's closure to it, (b) ship v0 with a manual "Mark connected" action on the task instead of automatic closure, or (c) some combination. This needs a decision before engineering scopes it — this PRD and the accompanying mockup only render the task list, with no closure logic either way.
-14. Should "Connect with Reassigned Leads" tasks also be created when the SM manually reassigns a single lead outside of a full leaver handover (for example, a one-off reassignment for load balancing), or only as part of this handover flow's 8 PM transfer? This PRD only specifies the handover case.
+- Every student gets Email and WhatsApp as Sent at the transfer, 7 days before the last working day, with Failed rows limited to missing contact details.
+- Leavers and TLs stop asking the SM "where is my resignation?" because the tracker answers it.
+- Reassigned Boost STI / Boost Deposit students get a connected call or a joined meeting within the overlap week.
