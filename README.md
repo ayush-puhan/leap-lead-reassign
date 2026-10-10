@@ -25,4 +25,10 @@ npx serve .
 
 ## Trying the flow
 
-Use the yellow "Mockup controls" bar at the top to switch between roles (Counselor/leaver, SM, TL, new counselor) and to fast-forward the clock through the 8 PM transfer job. After the transfer, switch to the new counselor's or TL's view and open the **Tasks & Performance** tab. Reassigned students show inside the existing **Boost STI** and **Boost Deposit** pipelines with a "Reassigned" badge and a Reassigned filter (styled after the counselor CRM's own Tasks & Performance tab, shown here as static mock data).
+The flow lives in **Profile Settings** (tab or avatar). Use the yellow "Mockup controls" bar to switch roles and move the clock:
+
+- **Priya (counselor):** enter a last working day (LWD). A red confirm shows who will transfer the leads and when. Then an order-style tracker shows every step up to the transfer date.
+- **Vikram (SM):** pending names show as pills; **Review** opens a modal with Approve / Change date / Reject, and approval has a confirm step. Deactivated records drop off the list.
+- **Ankit (TL):** **Schedule leads** shows one accordion per leaver; pick rows, choose a counselor and **Schedule assignment**.
+- **Run 8 PM transfer** moves Priya's leads 7 days before her LWD (or the day after approval on short notice). She stays in the Leap group chats until **Jump to last working day**, when her login is deactivated.
+- **Rahul (new counselor):** reassigned students show inside the Boost STI / Boost Deposit pipelines on **Tasks & Performance**, with a "Reassigned" badge and filter.
