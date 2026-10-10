@@ -54,6 +54,27 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .filters span{border:1px solid var(--line);border-radius:4px;padding:5px 12px;font-size:12px}
 
 main{padding:20px 16px 110px;max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.rtk{align-self:flex-end;background:var(--orange);color:#fff;border:0;border-radius:4px;padding:8px 14px;font-weight:700;font-size:12px}
+h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
+.tix{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tix div{background:#fff;border:1px solid var(--line);border-radius:8px;text-align:center;padding:14px 8px}
+.tix small{font-size:11px;font-weight:600;letter-spacing:.5px;color:#3a4458}
+.tix b{display:block;font-size:34px;line-height:1.2}
+@media (max-width:560px){.tix{grid-template-columns:1fr}}
+.whomenu{position:absolute;right:16px;top:96px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(15,23,42,.18);z-index:31;min-width:180px;overflow:hidden}
+.whomenu button{display:flex;gap:10px;align-items:center;width:100%;background:#fff;border:0;padding:11px 16px;font-size:14px;color:var(--ink);text-align:left}
+.whomenu button:hover{background:#f6f8fb}
+.whomenu button+button{border-top:1px solid var(--line-soft)}
+.whomenu .out{color:var(--red)}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.pcard .top2{display:flex;gap:16px;align-items:center}
+.pav{width:60px;height:60px;border-radius:50%;background:#e8590c;color:#fff;display:grid;place-items:center;font-weight:700;font-size:20px;flex:none}
+.pcard h2{margin:0;font-size:20px}
+.pcard .r{color:var(--muted);font-size:13px}
+.ptiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.ptiles div{background:#f1f4f9;border-radius:10px;padding:12px 14px}
+.ptiles small{display:block;font-size:11px;font-weight:700;letter-spacing:.4px;color:#4b566b;text-transform:uppercase}
+.ptiles b{font-size:14px}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:8px}
 .chead{display:flex;align-items:center;gap:12px;padding:14px 16px;width:100%;background:none;border:0;text-align:left;color:inherit}
@@ -161,6 +182,10 @@ tr.sel td{background:#f2f6ff}
 .bar{height:8px;background:var(--line-soft);border-radius:5px;overflow:hidden;margin-top:5px}
 .bar span{display:block;height:100%;background:var(--blue)}
 .fbar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+/* Every filter control is the same height and width so the row reads as one set. */
+.fbar select.in,.fbar .stagepick>.btn{height:36px;width:170px;padding:0 10px;font-size:13px;font-weight:400;border:1px solid #c8d1de;border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:space-between;color:var(--ink)}
+.fbar .seg{height:36px}
+.fbar .seg button{height:34px;padding:0 14px;font-size:13px}
 .seg{display:inline-flex;border:1px solid #c8d1de;border-radius:6px;overflow:hidden}
 .seg button{border:0;background:#fff;padding:7px 12px;font-size:12px;font-weight:600;color:#39445a}
 .seg button.on{background:var(--blue);color:#fff}
@@ -178,6 +203,8 @@ tr.sel td{background:#f2f6ff}
 .modal{position:fixed;inset:0;background:rgba(11,18,32,.5);display:grid;place-items:center;padding:16px;z-index:40}
 .mbox{background:#fff;border-radius:10px;max-width:460px;width:100%;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
 .mbox h3{margin:0;font-size:17px}
+.mbox.wide{max-width:720px}
+.llist table td{white-space:normal}
 .mbox p{margin:0;color:#39445a}
 .drawerbg{position:fixed;inset:0;background:rgba(11,18,32,.35);z-index:45}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:#fff;z-index:46;box-shadow:-12px 0 30px rgba(15,23,42,.2);display:flex;flex-direction:column}
@@ -394,10 +421,10 @@ var S;
 function leaver(id,stageN,split,idStart,req){ return {id:id,leads:makeLeads(stageN,split,idStart),assign:{},req:req,lgcDone:{},phase:"before"}; }
 function reset(){
   seed=7;
-  S={view:"priya",route:"home",resOpen:true,notes:{},cur:"priya",focus:"priya",
+  S={view:"priya",route:"profile",resOpen:true,notes:{},cur:"priya",focus:"priya",
      clock:"25 Sep 2026, 11:10 AM",
      tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
-     draftDate:"",formErr:"",activeTab:"profile",boostOpen:{},remOpen:false,drawerOpen:null,lv:{}};
+     draftDate:"",formErr:"",activeTab:"ld",boostOpen:{},remOpen:false,drawerOpen:null,lv:{}};
   S.lv.priya=leaver("priya",null,null,40210,null);
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
     {status:"approved",lwd:new Date(2026,9,9),tSub:"22 Sep 2026, 4:05 PM",tApp:"23 Sep 2026, 10:30 AM",appDay:new Date(2026,8,23),history:[],reason:"",changedFrom:null,msgs:null});
@@ -451,7 +478,7 @@ function renderDemo(){
     '<button id="skipBtn"'+(canSkip?"":" disabled")+'>Skip ahead 1 hour (retries)</button>'+
     '<button id="lwdBtn"'+(canLwd?"":" disabled")+' title="Priya leaves the Leap group chats and her login is deactivated">Jump to last working day</button>'+
     '<span class="sp"></span><button id="resetBtn">Reset</button>';
-  document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; S.route="home"; S.tl.sel={}; closeBell(); render(); };
+  document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; if(S.route==="detail") S.route="profile"; S.tl.sel={}; closeBell(); closeWho(); render(); };
   document.getElementById("runBtn").onclick=runTransfer;
   document.getElementById("skipBtn").onclick=finishRetries;
   document.getElementById("lwdBtn").onclick=jumpToLwd;
@@ -467,17 +494,27 @@ function renderTop(){
   var unread=S.notes[p.id].filter(function(n){return !n.read;}).length;
   var dot=document.getElementById("bellDot"); dot.hidden=!unread; dot.textContent=unread;
 }
-/* Learning & Development now lives inside Profile Settings (opened from the tab or the avatar).
-   "Incentives & Earnings" stays an inert label. */
+/* "Incentives & Earnings" stays an inert label. The Last Working Day flow is not a tab: it sits on the
+   View Profile page, opened from the avatar menu at the top right. */
 function renderTabs(){
-  var el=document.getElementById("tabsNav");
-  el.innerHTML = '<span data-tabnav="tasks" style="cursor:pointer" class="'+(S.activeTab==="tasks"?"on":"")+'">Tasks &amp; Performance</span>'+
+  var el=document.getElementById("tabsNav"), home=S.route==="home";
+  el.innerHTML = '<span data-tabnav="tasks" style="cursor:pointer" class="'+(home&&S.activeTab==="tasks"?"on":"")+'">Tasks &amp; Performance</span>'+
     '<span>Incentives &amp; Earnings</span>'+
-    '<span data-tabnav="profile" style="cursor:pointer" class="'+(S.activeTab==="profile"?"on":"")+'">Profile Settings</span>';
+    '<span data-tabnav="ld" style="cursor:pointer" class="'+(home&&S.activeTab==="ld"?"on":"")+'">Learning &amp; Development</span>';
   el.querySelectorAll("[data-tabnav]").forEach(function(b){ b.onclick=function(){ S.activeTab=b.dataset.tabnav; S.route="home"; render(); window.scrollTo(0,0); }; });
 }
+function closeWho(){ var m=document.getElementById("whoMenu"); if(m) m.remove(); }
+function goProfile(){ closeWho(); S.route="profile"; render(); window.scrollTo(0,0); }
 document.querySelector(".who").style.cursor="pointer";
-document.querySelector(".who").onclick=function(){ S.activeTab="profile"; S.route="home"; render(); window.scrollTo(0,0); };
+document.querySelector(".who").onclick=function(e){
+  e.stopPropagation(); if(document.getElementById("whoMenu")){ closeWho(); return; } closeBell();
+  var m=document.createElement("div"); m.id="whoMenu"; m.className="whomenu";
+  m.innerHTML='<button id="wmProfile">&#128100; View Profile</button><button class="out" id="wmOut">&#8618; Log Out</button>';
+  document.body.appendChild(m);
+  document.getElementById("wmProfile").onclick=goProfile;
+  document.getElementById("wmOut").onclick=function(){ closeWho(); toast("Log out isn't modeled in this mockup"); };
+};
+document.addEventListener("click",function(e){ if(!e.target.closest("#whoMenu")&&!e.target.closest(".who")) closeWho(); });
 function closeBell(){ document.getElementById("bellPanel").hidden=true; }
 document.getElementById("bellBtn").onclick=function(){
   var panel=document.getElementById("bellPanel");
@@ -488,10 +525,14 @@ document.getElementById("bellBtn").onclick=function(){
   }).join(""):'<div class="empty">No notifications.</div>');
   list.forEach(function(n){n.read=true;});
   panel.hidden=false; renderTop();
-  panel.querySelectorAll("[data-na]").forEach(function(b){ b.onclick=function(){ var a=list[+b.dataset.na].action; closeBell(); if(a.focus) S.focus=a.focus; S.activeTab="profile"; S.route=a.route; render(); window.scrollTo(0,0); }; });
+  panel.querySelectorAll("[data-na]").forEach(function(b){ b.onclick=function(){ var a=list[+b.dataset.na].action; closeBell(); if(a.focus) S.focus=a.focus; S.route=a.route; render(); window.scrollTo(0,0); }; });
 };
 
 /* ---------- common blocks ---------- */
+function ticketsBlock(){
+  return '<button class="rtk">+ Raise New Ticket</button><h2 class="sec">MY TICKETS</h2>'+
+  '<div class="tix"><div><small>TOTAL RAISED</small><b style="color:var(--blue)">0</b></div><div><small>RESOLVED</small><b style="color:var(--green)">0</b></div><div><small>NOT RESOLVED</small><b style="color:var(--red)">0</b></div></div>';
+}
 function staticCard(icon,title,sub){
   return '<div class="card"><div class="chead"><span class="ic">'+icon+'</span><span class="t"><b>'+title+'</b><small>'+sub+'</small></span><span class="chev">&#8964;</span></div></div>';
 }
@@ -505,24 +546,29 @@ function groupCounts(leads){
   return g;
 }
 /* Total first, breakdown in small text: a row of equal boxes read like tabs you could pick from, but
-   every lead moves. Clicking opens the per-group / per-stage breakdown (leadBreakdownModal). */
+   every lead moves. Clicking opens the actual leads (leadListModal), read only. */
 function leadTotal(leads,id){
   var g=groupCounts(leads);
   var parts=GROUP_ORDER.filter(function(k){return g[k].total>0;}).map(function(k){return esc(GROUP_LABEL[k])+' <span class="num">'+g[k].total+'</span>';}).join(' · ');
-  return '<button type="button" class="ltot" data-breakdown="'+id+'"><span class="n num">'+leads.length+'</span><span class="lbl">leads</span><span class="parts">'+parts+'</span><span class="lnk">View breakdown &rsaquo;</span></button>';
+  return '<button type="button" class="ltot" data-breakdown="'+id+'"><span class="n num">'+leads.length+'</span><span class="lbl">leads</span><span class="parts">'+parts+'</span><span class="lnk">View leads &rsaquo;</span></button>';
 }
-function leadBreakdownModal(id){
+function leadListModal(id){
   withLeaver(id,function(){
-    var g=groupCounts(S.leads);
-    var body=GROUP_ORDER.filter(function(k){return g[k].total>0;}).map(function(k){
-      var st=Object.keys(g[k].stages).sort(function(a,b){return g[k].stages[b]-g[k].stages[a];});
-      return '<details class="acc"><summary><span>'+esc(GROUP_LABEL[k])+'</span><b class="num">'+g[k].total+'</b></summary>'+
-        st.map(function(c){return '<div class="accrow"><span>'+esc(STAGE_LABEL[c])+'</span><span class="num">'+g[k].stages[c]+'</span></div>';}).join("")+'</details>';
+    var g={}; S.leads.forEach(function(l){ var k=leadGroup(l); (g[k]=g[k]||[]).push(l); });
+    var body=GROUP_ORDER.filter(function(k){return g[k];}).map(function(k){
+      var rows=g[k].slice().sort(function(a,b){return a.name<b.name?-1:1;}).map(function(l){
+        return '<tr data-q="'+esc((l.name+" "+l.id).toLowerCase())+'"><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.program))+'</td><td class="num">'+fmtShort(l.next)+'</td></tr>';
+      }).join("");
+      return '<details class="acc"><summary><span>'+esc(GROUP_LABEL[k])+'</span><b class="num">'+g[k].length+'</b></summary><div class="tw" style="border:0;border-top:1px solid var(--line-soft);border-radius:0"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage</th><th>Program</th><th>Next follow-up</th></tr></thead><tbody>'+rows+'</tbody></table></div></details>';
     }).join("");
-    showModal('<h3>'+esc(LV().name)+'\'s leads · <span class="num">'+S.leads.length+'</span></h3><p style="font-size:13px">Every lead moves at the transfer. Open a group to see its stages.</p><div class="accs">'+body+'</div><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Close</button></div>');
+    showModal('<h3>'+esc(LV().name)+'\'s leads · <span class="num">'+S.leads.length+'</span></h3><p style="font-size:13px">Read only. Every lead moves at the transfer.</p>'+
+      '<input class="dsearch" id="llq" placeholder="Search by student name or Lead ID…"><div class="accs llist">'+body+'</div><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Close</button></div>',"wide");
+    var q=document.getElementById("llq");
+    q.oninput=function(){ var v=q.value.trim().toLowerCase();
+      document.querySelectorAll(".llist details").forEach(function(d){ var n=0; d.querySelectorAll("tbody tr").forEach(function(tr){ var hit=!v||tr.dataset.q.indexOf(v)!==-1; tr.style.display=hit?"":"none"; if(hit) n++; }); d.style.display=n?"":"none"; if(v) d.open=n>0; }); };
   });
 }
-function bindBreakdowns(){ document.querySelectorAll("[data-breakdown]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); leadBreakdownModal(b.dataset.breakdown); }; }); }
+function bindBreakdowns(){ document.querySelectorAll("[data-breakdown]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); leadListModal(b.dataset.breakdown); }; }); }
 /* Order-tracker style status (like a delivery tracker): fixed start (LWD submitted) and fixed end
    (leads transfer on a known date at 8 PM), with every step and its date visible, then the LWD itself. */
 function orderTracker(r){
@@ -593,24 +639,30 @@ function bindResignation(){
       var again=S.req&&S.req.status==="rejected";
       S.req={status:"pending",lwd:dt,tSub:now(),history:[],reason:"",changedFrom:null,msgs:null};
       hist((again?"Applied again with last working day ":"Last working day submitted: ")+fmt(dt),LV().name);
-      notify("vikram",LV().name+" submitted their last working day: "+fmt(dt)+".",{label:"Review",route:"home"});
+      notify("vikram",LV().name+" submitted their last working day: "+fmt(dt)+".",{label:"Review",route:"profile"});
       S.draftDate=""; closeModal(); render(); toast("Last working day submitted");
     };
   };
 }
-/* Profile Settings: a static profile block, the Learning & Development section that moved here,
-   and the role's Last Working Day card. */
-function profileBlock(){
-  var p=me(), tl=p.tl?PEOPLE[p.tl].name:"—", sm=p.sm?PEOPLE[p.sm].name:"—";
-  return '<div class="ph"><div><h1>Profile Settings</h1><p>'+esc(p.name)+' · '+esc(p.role)+'</p></div></div>'+
-    '<div class="card"><div class="cbody" style="border:0"><div class="meta"><div><small>Email</small><b>'+esc(p.email)+'</b></div><div><small>Phone</small><b>'+esc(p.phone)+'</b></div><div><small>Team Lead</small><b>'+esc(tl)+'</b></div><div><small>Senior Manager</small><b>'+esc(sm)+'</b></div></div></div></div>'+
-    '<div class="subh">Learning &amp; Development</div>'+staticCard(ICON.book,"IMP Sheet","Important links &amp; resources")+staticCard(ICON.cap,"Training Modules","Videos, documents &amp; platform access");
+/* View Profile page (avatar menu, top right): the existing profile card, then the Last Working Day
+   content for the role. The Learning & Development tab itself is unchanged. */
+var EMP={priya:["938412","12 Jan 2023"],ankit:["901277","3 Mar 2021"],vikram:["880154","18 Jul 2019"],rahul:["940025","9 May 2023"]};
+function profileCard(){
+  var p=me(), e=EMP[p.id]||["—","—"], init=p.name.split(" ").map(function(x){return x[0];}).join("");
+  var role={Counselor:"Counselor",TL:"Team Lead",SM:"Senior Manager"}[p.role]||p.role;
+  return '<button class="back" data-ld>&lsaquo; Back</button>'+
+    '<div class="pcard"><div class="top2"><span class="pav">'+init+'</span><div><h2>'+esc(p.name)+'</h2><div class="r">'+role+'</div><div class="r">ID: '+e[0]+' · '+esc(p.email)+'</div></div></div>'+
+    '<div class="ptiles"><div><small>Joining date</small><b>'+e[1]+'</b></div><div><small>Team</small><b>'+esc(p.tl?PEOPLE[p.tl].name:p.name)+'</b></div><div><small>Manager</small><b>'+esc(p.sm?PEOPLE[p.sm].name:"—")+'</b></div></div></div>';
+}
+function ldPage(){
+  var extra = S.view==="rahul" ? rahulLgcCard() : "";
+  return ticketsBlock()+staticCard(ICON.book,"IMP Sheet","Important links &amp; resources")+staticCard(ICON.cap,"Training Modules","Videos, documents &amp; platform access")+extra;
 }
 function counselorHome(){
   if(S.req && S.req.status==="deactivated"){
     return '<div class="dead"><div class="ic" style="margin:0 auto 10px">&#128274;</div><h3 style="margin:0 0 6px">Your CRM login has been deactivated</h3><p style="color:var(--muted);margin:0">Your '+S.leads.length+' leads moved on '+fmt(transferDate(S.req))+', and you left your students\' Leap group chats on your last working day, '+fmt(S.req.lwd)+'. Thank you for your work at Leap.</p></div>';
   }
-  return '<div class="page">'+profileBlock()+resignationCard()+'</div>';
+  return '<div class="page">'+profileCard()+resignationCard()+'</div>';
 }
 
 /* ---------- SM ---------- */
@@ -648,14 +700,13 @@ function smHome(){
     rows.map(function(r){
       return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td>'+statusBadge(r.status)+(r.tApp?'<small class="sub">Approved '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>';
-  return '<div class="page">'+profileBlock()+
+  return '<div class="page">'+profileCard()+
    '<div class="card open"><div class="chead"><span class="ic">'+ICON.list+'</span><span class="t"><b>Last Working Day requests '+(pend.length?'<span class="badge b-amber">'+pend.length+' pending</span>':'')+'</b><small>Counselors and TLs in your teams who have entered a last working day. Records drop off once the counselor\'s login is deactivated.</small></span></div>'+
-   '<div class="cbody">'+pills+(rows.length?table:'<div class="note">No last working day requests.</div>')+'</div></div></div>';
+   '<div class="cbody">'+pills+(rows.length?table:'<div class="note">No last working day requests.</div>')+'</div></div>'+scheduleCard()+'</div>';
 }
 function bindSmHome(){
-  function open(id){ var r=S.lv[id].req; if(r.status==="pending") smReview(id); else if(r.status==="approved"){ S.focus=id; S.route="assign"; render(); window.scrollTo(0,0); } else { S.focus=id; S.route="detail"; render(); window.scrollTo(0,0); } }
+  function open(id){ var r=S.lv[id].req; if(r.status==="pending") smReview(id); else if(r.status==="approved") openSchedule(id); else { S.focus=id; S.route="detail"; render(); window.scrollTo(0,0); } }
   document.querySelectorAll("[data-review]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); smReview(b.dataset.review); }; });
-  document.querySelectorAll("[data-assignfor]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); S.focus=b.dataset.assignfor; S.route="assign"; render(); window.scrollTo(0,0); }; });
   document.querySelectorAll("[data-detailfor]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); S.focus=b.dataset.detailfor; S.route="detail"; render(); window.scrollTo(0,0); }; });
   document.querySelectorAll("[data-reopen]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); reopen(b.dataset.reopen); }; });
   document.querySelectorAll("[data-sample]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); toast("Sample history row — not clickable in this mockup"); }; });
@@ -666,10 +717,10 @@ function smReview(id){
   withLeaver(id,function(){
     var r=S.req, tr=transferDate(r);
     showModal('<h3>Review last working day</h3>'+
-      '<div class="kv"><div><small>Counselor</small><b>'+esc(LV().name)+'</b></div><div><small>TL</small><b>'+esc(TLof(id).name)+'</b></div><div><small>Last working day</small><b>'+fmtDay(r.lwd)+'</b></div>'+
-      '<div><small>Leads</small><b class="num">'+S.leads.length+'</b> <button type="button" class="lnkbtn" data-breakdown="'+id+'">breakdown</button></div><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>Scheduled transfer</small><b>'+fmtDay(tr)+', 8 PM</b></div></div>'+
+      '<div class="kv"><div><small>Counselor</small><b>'+esc(LV().name)+'</b></div><div><small>TL</small><b>'+esc(TLof(id).name)+'</b></div><div><small>Last working day entered by '+esc(LV().name)+'</small><b>'+fmtDay(r.lwd)+'</b></div>'+
+      '<div><small>Leads</small><b class="num">'+S.leads.length+'</b> <button type="button" class="lnkbtn" data-breakdown="'+id+'">view leads</button></div><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>Scheduled transfer</small><b>'+fmtDay(tr)+', 8 PM</b></div></div>'+
       (isShort(r)?'<div class="note warn"><b>Short notice.</b> Less than '+OVERLAP_DAYS+' days to the last working day, so leads transfer at 8 PM the day after approval.</div>':'<div class="note">Leads transfer '+OVERLAP_DAYS+' days before the last working day. The counselor stays in their students\' Leap group chats until '+fmtShort(r.lwd)+'.</div>')+
-      '<div class="row" style="justify-content:flex-end"><button class="btn d" id="rvReject">Reject</button><button class="btn" id="rvChange">Change date</button><button class="btn p" id="rvApprove">Approve</button></div>');
+      '<div class="row" style="justify-content:flex-end"><button class="btn d" id="rvReject">Reject</button><button class="btn" id="rvChange">Change last working day</button><button class="btn p" id="rvApprove">Approve</button></div>');
     bindBreakdowns();
     document.getElementById("rvApprove").onclick=function(){ confirmApprove(id,null); };
     document.getElementById("rvChange").onclick=function(){ changeDate(id); };
@@ -680,7 +731,7 @@ function confirmApprove(id,newDate){
   withLeaver(id,function(){
     var r=S.req, lwd=newDate||r.lwd, tr=transferDate({lwd:lwd,appDay:TODAY}), tl=TLof(id);
     showModal('<h3>Approve '+esc(LV().name)+'\'s last working day?</h3>'+
-      '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b>'+(newDate?' (changed from '+fmt(r.lwd)+')':'')+'</li><li>New leads stop going to '+esc(LV().name)+' now.</li><li>'+esc(tl.name)+' gets a bell to schedule the '+S.leads.length+' leads.</li><li>Leads transfer on <b>'+fmtDay(tr)+', 8 PM</b>.</li><li>Login is deactivated on the last working day.</li></ul>'+
+      '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b>'+(newDate?' (changed from '+fmt(r.lwd)+')':'')+'</li><li>New leads stop going to '+esc(LV().name)+' now.</li><li>'+esc(tl.name)+' gets a task to schedule the '+S.leads.length+' leads.</li><li>Leads transfer on <b>'+fmtDay(tr)+', 8 PM</b>.</li><li>Login is deactivated on the last working day.</li></ul>'+
       '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn p" id="caGo">Confirm approval</button></div>');
     document.getElementById("caBack").onclick=function(){ smReview(id); };
     document.getElementById("caGo").onclick=function(){ withLeaver(id,function(){ approve(newDate); }); closeModal(); render(); toast("Approved. "+tl.name+" has been alerted"); };
@@ -732,7 +783,7 @@ function reassignTable(done){
 }
 function detailPage(){
   var r=S.req; var isSM=S.view==="vikram";
-  if(!r) return '<button class="back" data-home>&larr; Back to Profile Settings</button><div class="note">No request to show.</div>';
+  if(!r) return '<button class="back" data-profile>&larr; Back to profile</button><div class="note">No request to show.</div>';
   var acts="", noteHtml="", tr=transferDate(r);
   if(isSM){
     if(r.status==="pending") acts='<button class="btn p" data-review="'+S.cur+'">Review</button>';
@@ -741,7 +792,7 @@ function detailPage(){
   } else if(r.status==="approved"){ var ab2=assignCTA(false); noteHtml=ab2.note; acts=ab2.buttons; }
   var reBlock = (r.status==="approved"||moved(r)) ? '<div class="card"><div class="cbody" style="border:0"><b>'+(moved(r)?"Leads transferred to":"Leads scheduled for")+'</b>'+reassignTable(moved(r))+'</div></div>' : '';
   var msgBlock = r.msgs ? '<div class="card"><div class="cbody" style="border:0"><b>Student messages</b><div class="row">'+["email","wa"].map(function(ch){ var c=msgCounts(ch); return '<span class="badge b-grey">'+(ch==="email"?"Email":"WhatsApp")+': <span class="num">'+c.Sent+' sent · '+c.Failed+' failed · '+c.Pending+' retrying</span></span>'; }).join("")+'</div></div></div>' : '';
-  return '<div class="page"><button class="back" data-home>&larr; Back to Profile Settings</button>'+
+  return '<div class="page"><button class="back" data-profile>&larr; Back to profile</button>'+
    '<div class="ph"><div><h1>'+esc(LV().name)+' · last working day</h1><p>'+esc(LV().role)+' · TL '+esc(TLof(S.cur).name)+' · SM '+esc(PEOPLE.vikram.name)+'</p></div>'+statusBadge(r.status)+'</div>'+
    '<div class="card"><div class="cbody" style="border:0"><div class="meta"><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>SM approved</small><b>'+esc(r.tApp||"—")+'</b></div><div><small>Last working day</small><b>'+fmt(r.lwd)+'</b></div><div><small>Leads transfer</small><b>'+fmtShort(tr)+', 8 PM</b></div><div><small>Scheduled</small><b class="num">'+assignedCount()+' / '+S.leads.length+'</b></div></div>'+leadTotal(S.leads,S.cur)+
    (r.status==="rejected"?'<div class="note bad"><b>Rejection reason:</b> '+esc(r.reason)+(r.reopened?'<br>Reopened for the counselor on '+esc(r.tReo)+'. They can pick a new last working day and apply again.':'')+'</div>':'')+
@@ -755,7 +806,7 @@ function approve(newDate){
   r.status="approved"; r.tApp=now(); r.appDay=TODAY;
   var tr=transferDate(r);
   hist("Approved. New lead allocation to "+LV().name+" stopped. Leads transfer "+fmt(tr)+", 8 PM",PEOPLE.vikram.name);
-  notify(tl.id,"Schedule "+LV().name+"'s "+S.leads.length+" leads before "+fmt(tr)+", 8 PM.",{label:"Schedule leads",route:"assign",focus:S.cur});
+  notify(tl.id,"Schedule "+LV().name+"'s "+S.leads.length+" leads before "+fmt(tr)+", 8 PM.",{label:"Schedule leads",route:"profile",focus:S.cur});
   notify(S.cur,"Your last working day ("+fmt(r.lwd)+") was approved. Your leads transfer on "+fmt(tr)+", 8 PM.");
 }
 function bindDetail(){
@@ -832,31 +883,36 @@ function assignBody(){
       '</div>' : '')+
     '</div></div>';
   var selbar = !locked ? '<div class="selbar">'+(nsel?'<b class="num">'+nsel+' selected</b><button class="btn sm danger-o" id="selClear">Clear selection</button>':'<span style="color:var(--muted)">Click rows to select them, then pick who to schedule them for.</span>')+
-    (rows.length&&!allShownSel?'<button class="btn sm" id="selShown" style="margin-left:auto">Select all '+rows.length+' shown</button>':'')+'</div>' : '';
+    '</div>' : '';
   return banner+
     '<div class="fbar">'+stagePicker+groupPicker+'<label class="f">Servicing type<select class="in" id="fServicing">'+optPretty(SERVICING_TYPES,t.servicing)+'</select></label><label class="f">Program<select class="in" id="fProg">'+optPretty(PROGRAM_TYPES,t.program)+'</select></label>'+
     '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Show<div class="seg">'+["All","Unscheduled","Scheduled"].map(function(s){return '<button data-show="'+s+'" class="'+(t.show===s?"on":"")+'">'+s+'</button>';}).join("")+'</div></div></div>'+
     selbar+table;
 }
-function assignPage(){
+/* Leads to schedule, inline on the View Profile page: one accordion per leaver, one open at a time.
+   Opening a leaver expands their leads right here instead of switching to a different screen. Pending
+   leavers (TL view) are listed but can't be opened until the SM approves. */
+function scheduleCard(){
   var ids=assignLeavers();
-  if(!ids.length) return '<div class="page"><button class="back" data-home>&larr; Back to Profile Settings</button><div class="note">No leads to schedule right now.</div></div>';
-  if(ids.indexOf(S.focus)===-1) S.focus=ids[0];
+  var pend = S.view==="ankit" ? Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&r.status==="pending"&&TLof(id).id==="ankit"; }) : [];
+  if(S.focus && ids.indexOf(S.focus)===-1) S.focus=null;
   var acc=ids.map(function(id){
     return withLeaver(id,function(){
       var r=S.req, open=id===S.focus, asg=assignedCount(), tot=S.leads.length, tr=transferDate(r);
-      return '<div class="card acc2'+(open?" open":"")+'"><button class="chead" data-acc="'+id+'" aria-expanded="'+open+'"><span class="av2">'+PEOPLE[id].name.split(" ").map(function(x){return x[0];}).join("")+'</span><span class="t"><b>'+esc(PEOPLE[id].name)+'</b><small>LWD '+fmt(r.lwd)+' · leads move '+fmtDay(tr)+', 8 PM</small></span>'+
+      return '<div class="card acc2'+(open?" open":"")+'" id="acc-'+id+'"><button class="chead" data-acc="'+id+'" aria-expanded="'+open+'"><span class="av2">'+PEOPLE[id].name.split(" ").map(function(x){return x[0];}).join("")+'</span><span class="t"><b>'+esc(PEOPLE[id].name)+'</b><small>LWD '+fmt(r.lwd)+' · leads move '+fmtDay(tr)+', 8 PM</small></span>'+
         '<span class="prog2"><span class="num">'+asg+' / '+tot+' scheduled</span><span class="bar"><span style="width:'+(tot?asg/tot*100:0)+'%"></span></span></span>'+statusBadge(r.status)+'<span class="chev">&#8964;</span></button>'+
         (open?'<div class="cbody">'+assignBody()+'</div>':'')+'</div>';
     });
   }).join("");
-  return '<div class="page"><button class="back" data-home>&larr; Back to Profile Settings</button>'+
-    '<div class="ph"><div><h1>Schedule leads</h1><p>One counselor at a time. Scheduling picks the new owner — leads only move at 8 PM on the transfer date.</p></div></div>'+acc+'</div>';
+  var waiting=pend.map(function(id){ var r=S.lv[id].req; return '<div class="lrow"><div><b>'+esc(PEOPLE[id].name)+'</b> '+statusBadge("pending")+'<br><small>LWD '+fmt(r.lwd)+' · you can schedule once the SM approves</small></div></div>'; }).join("");
+  return '<div class="card open"><div class="chead"><span class="ic">'+ICON.list+'</span><span class="t"><b>Leads to schedule</b><small>Open a counselor to schedule who gets each lead. Leads only move at 8 PM on their transfer date.</small></span></div>'+
+    '<div class="cbody">'+(acc||waiting?acc+waiting:'<div class="note">No leads to schedule right now.</div>')+'</div></div>';
 }
+function openSchedule(id){ S.focus=id; S.tl.sel={}; S.tl.page=0; S.route="profile"; render(); var el=document.getElementById("acc-"+id); if(el) el.scrollIntoView({block:"start",behavior:"smooth"}); }
 function bottomBar(){
   var el=document.getElementById("bottom");
   var n=Object.keys(S.tl.sel).length;
-  if(S.route!=="assign"||!n||!S.req||S.req.status!=="approved"){ el.innerHTML=""; return; }
+  if(S.route!=="profile"||!S.focus||S.cur!==S.focus||!n||!S.req||S.req.status!=="approved"){ el.innerHTML=""; return; }
   el.innerHTML='<div class="bottom"><b class="num">'+n+' selected</b><select class="in" id="asgTo"><option value="">Schedule for…</option>'+eligible().map(function(p){ var tl=PEOPLE[p.tl].name; var cur=p.open+Object.keys(S.assign).filter(function(k){return S.assign[k]===p.id;}).length; return '<option value="'+p.id+'">'+esc(p.name)+' · '+esc(tl)+' · '+cur+' existing open leads</option>'; }).join("")+'</select><button class="btn p" id="asgGo" disabled>Schedule assignment</button></div>';
   var s=document.getElementById("asgTo"), g=document.getElementById("asgGo");
   s.onchange=function(){ g.disabled=!s.value; };
@@ -898,31 +954,22 @@ function bindAssign(){
   on("fProg","onchange",function(e){ closeMenus(); t.program=e.target.value; t.page=0; render(); });
   document.querySelectorAll("[data-show]").forEach(function(b){ b.onclick=function(){ closeMenus(); t.show=b.dataset.show; t.page=0; render(); }; });
   /* Clicking anywhere outside an open panel closes it. */
-  document.onmousedown=function(e){ if(S.route==="assign" && !e.target.closest(".stagepick")) dropMenus(); };
+  document.onmousedown=function(e){ if(!e.target.closest(".stagepick")) dropMenus(); };
   document.querySelectorAll("[data-sort]").forEach(function(h){ h.onclick=function(){ var k=h.dataset.sort; if(t.sort===k) t.dir=-t.dir; else { t.sort=k; t.dir=1; } render(); }; });
   document.querySelectorAll("[data-sel]").forEach(function(c){ c.onclick=function(e){ e.stopPropagation(); }; c.onchange=function(){ if(c.checked) t.sel[c.dataset.sel]=1; else delete t.sel[c.dataset.sel]; render(); }; });
   /* Whole row toggles selection, not just the checkbox. */
   document.querySelectorAll("[data-rowsel]").forEach(function(tr){ tr.onclick=function(){ var k=tr.dataset.rowsel; if(t.sel[k]) delete t.sel[k]; else t.sel[k]=1; render(); }; });
   on("selClear","onclick",function(){ t.sel={}; render(); });
-  document.querySelectorAll("[data-acc]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.acc; S.focus = S.focus===id ? null : id; t.sel={}; t.page=0; closeMenus(); render(); }; });
+  document.querySelectorAll("[data-acc]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.acc; closeMenus(); if(S.focus===id){ S.focus=null; t.sel={}; render(); } else { t.stage=[]; t.grp=[]; t.servicing="All"; t.program="All"; t.show="All"; openSchedule(id); } }; });
   function toggleAll(){ var rows=filtered(); var all=rows.every(function(l){return t.sel[l.id];}); if(all) t.sel={}; else rows.forEach(function(l){t.sel[l.id]=1;}); render(); }
-  on("selAll","onchange",toggleAll); on("selShown","onclick",toggleAll);
+  on("selAll","onchange",toggleAll);
   on("pPrev","onclick",function(){ t.page--; render(); window.scrollTo(0,0); });
   on("pNext","onclick",function(){ t.page++; render(); window.scrollTo(0,0); });
 }
 
 /* ---------- TL home ---------- */
 function tlHome(){
-  var ids=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r && TLof(id).id==="ankit" && ["pending","approved","transferred"].indexOf(r.status)!==-1; });
-  var list = ids.length ? ids.map(function(id){ return withLeaver(id,function(){
-      var r=S.req, tr=transferDate(r);
-      var right = r.status==="approved" ? assignCTA(false).buttons : r.status==="transferred" ? '<button class="btn" data-detailfor="'+id+'">View</button>' : '';
-      var sub = r.status==="pending" ? 'Waiting for SM approval · LWD '+fmt(r.lwd) : 'LWD '+fmt(r.lwd)+' · leads move '+fmtDay(tr)+', 8 PM · <span class="num">'+assignedCount()+' / '+S.leads.length+'</span> scheduled';
-      return '<div class="lrow"><div><b>'+esc(LV().name)+'</b> '+statusBadge(r.status)+'<br><small>'+sub+'</small></div>'+right+'</div>';
-    }); }).join("") : '<div class="note">No one in your team has entered a last working day.</div>';
-  return '<div class="page">'+profileBlock()+
-    '<div class="card open"><div class="chead"><span class="ic">'+ICON.list+'</span><span class="t"><b>Leads to schedule</b><small>Counselors in your team who have entered a last working day</small></span></div><div class="cbody">'+list+'</div></div>'+
-    staticCard(ICON.res,"Last Working Day","Enter your own last working day")+'</div>';
+  return '<div class="page">'+profileCard()+scheduleCard()+staticCard(ICON.res,"Last Working Day","Enter your own last working day")+'</div>';
 }
 
 /* ---------- Tasks & Performance (visual style borrowed from the counselor CRM's own Tasks &
@@ -1073,7 +1120,8 @@ function bindTasksPerf(){
 }
 
 /* ---------- new counselor ---------- */
-function rahulHome(){
+function rahulLgcCard(){
+  S.cur="priya";
   var mine=moved(S.req) ? S.leads.filter(function(l){return S.assign[l.id]==="rahul";}) : [];
   var tasks = mine.length ? '<div class="tw"><table><thead><tr><th>Task</th><th>Due</th><th>Ready message</th><th></th></tr></thead><tbody>'+mine.slice(0,8).map(function(l){
       var m='Hi '+l.first+', I\'m Rahul Verma, your new counselor at Leap, taking over from '+LV().name+'. Looking forward to helping you. Message me here anytime.';
@@ -1081,9 +1129,10 @@ function rahulHome(){
       return '<tr><td>Post intro in '+esc(l.name)+'\'s Leap group chat</td><td>'+fmtShort(addDays(transferDate(S.req),1))+', 12 PM</td><td style="white-space:normal;min-width:260px;font-size:12px;color:#39445a">'+esc(m)+'</td><td>'+(done?'<span class="badge b-green">Done</span>':'<div class="row"><button class="btn sm" data-copy="'+esc(m)+'">Copy</button><button class="btn sm p" data-done="'+l.id+'">Mark done</button></div>')+'</td></tr>';
     }).join("")+'</tbody></table></div><div style="font-size:12px;color:var(--muted)">Showing 8 of '+mine.length+' tasks.</div>'
     : '<div class="note">No handover tasks. When a teammate\'s leads are transferred to you, a task appears here for each student\'s Leap group chat.</div>';
-  return '<div class="page">'+profileBlock()+
-    '<div class="card open"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Leap group chat intros</b><small>'+(mine.length?"You received "+mine.length+" leads from "+LV().name:"Tasks from handovers")+'</small></span></div><div class="cbody">'+tasks+'</div></div>'+
-    staticCard(ICON.res,"Last Working Day","Enter your last working day — the rest happens automatically")+'</div>';
+  return '<div class="card open"><div class="chead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Leap group chat intros</b><small>'+(mine.length?"You received "+mine.length+" leads from "+LV().name:"Tasks from handovers")+'</small></span></div><div class="cbody">'+tasks+'</div></div>';
+}
+function rahulProfile(){
+  return '<div class="page">'+profileCard()+staticCard(ICON.res,"Last Working Day","Enter your last working day — the rest happens automatically")+'</div>';
 }
 function bindRahul(){
   document.querySelectorAll("[data-copy]").forEach(function(b){ b.onclick=function(){ var t=b.dataset.copy; try{ navigator.clipboard.writeText(t).then(function(){toast("Message copied");},function(){toast("Copy blocked. Select the text instead");}); }catch(e){ toast("Copy blocked. Select the text instead"); } }; });
@@ -1148,24 +1197,31 @@ document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ closeModa
 
 /* ---------- render ---------- */
 function render(){
-  /* Screens about one leaver (assign, detail) follow S.focus; everything else is about Priya. */
-  S.cur = (S.route==="assign"||S.route==="detail") && S.focus && S.lv[S.focus] ? S.focus : "priya";
+  var v=S.view;
+  /* The open schedule accordion (TL/SM profile) and the detail page are about S.focus; everything else is about Priya. */
+  S.cur = ((S.route==="profile"&&(v==="ankit"||v==="vikram"))||S.route==="detail") && S.focus && S.lv[S.focus] ? S.focus : "priya";
   renderDemo(); renderTop(); renderTabs();
-  var m=document.getElementById("main"), v=S.view, html="";
-  if(S.route==="assign" && (v==="ankit"||v==="vikram")) html=assignPage();
+  var m=document.getElementById("main"), html="";
+  if(S.lv.priya.req && S.lv.priya.req.status==="deactivated" && v==="priya"){ S.cur="priya"; html=counselorHome(); }
   else if(S.route==="detail" && (v==="vikram"||v==="ankit")) html=detailPage();
-  else if(S.activeTab==="tasks"){ S.route="home"; html=tasksPerfPage(); }
-  else { S.route="home"; S.cur="priya"; html = v==="priya"?counselorHome(): v==="vikram"?smHome(): v==="ankit"?tlHome(): rahulHome(); }
-  if(S.route==="assign") S.cur = S.focus && S.lv[S.focus] ? S.focus : "priya";
+  else if(S.route==="profile"){
+    if(v==="priya"){ S.cur="priya"; html=counselorHome(); }
+    else if(v==="vikram") html=smHome();
+    else if(v==="ankit") html=tlHome();
+    else html=rahulProfile();
+  }
+  else { S.route="home"; S.cur="priya"; html = S.activeTab==="tasks" ? tasksPerfPage() : ldPage(); }
+  S.cur = ((S.route==="profile"&&(v==="ankit"||v==="vikram"))||S.route==="detail") && S.focus && S.lv[S.focus] ? S.focus : "priya";
   m.innerHTML=html;
-  m.querySelectorAll("[data-home]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.tl.sel={}; S.tl.stageMenuOpen=false; S.tl.grpMenuOpen=false; render(); window.scrollTo(0,0); }; });
+  m.querySelectorAll("[data-ld]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.activeTab="ld"; render(); window.scrollTo(0,0); }; });
+  m.querySelectorAll("[data-profile]").forEach(function(b){ b.onclick=function(){ S.route="profile"; render(); window.scrollTo(0,0); }; });
   if(S.route==="home"&&S.activeTab==="tasks") bindTasksPerf();
-  else if(v==="priya") bindResignation();
-  if(v==="vikram"&&S.route==="home"&&S.activeTab!=="tasks") bindSmHome();
+  if(S.route==="profile"&&v==="priya") bindResignation();
+  if(S.route==="profile"&&v==="vikram") bindSmHome();
+  if(S.route==="profile"&&(v==="vikram"||v==="ankit")) bindAssign();
   if(S.route==="detail") bindDetail();
-  if(S.route==="assign") bindAssign();
-  if(v==="rahul"&&S.activeTab!=="tasks") bindRahul();
-  m.querySelectorAll("[data-assignfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); S.focus=b.dataset.assignfor; S.tl.sel={}; S.route="assign"; render(); window.scrollTo(0,0); }; });
+  if(v==="rahul"&&S.route==="home") bindRahul();
+  m.querySelectorAll("[data-assignfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); openSchedule(b.dataset.assignfor); }; });
   m.querySelectorAll("[data-detailfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); S.focus=b.dataset.detailfor; S.route="detail"; render(); window.scrollTo(0,0); }; });
   bindBreakdowns();
   bottomBar();
