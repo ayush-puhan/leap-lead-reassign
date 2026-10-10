@@ -28,7 +28,7 @@ npx serve .
 The counselor enters their date on the **View Profile** page (avatar menu, top right). The SM and TL act on it from **Tasks & Performance → Important Business Tasks**; the Learning & Development tab is unchanged. Use the yellow "Mockup controls" bar to switch roles and move the clock:
 
 - **Priya (counselor):** enter a last working day (LWD). A red confirm shows who will transfer the leads and when. Then an order-style tracker shows every step up to the transfer date.
-- **Vikram (SM):** the **Last Working Day Approval** tile opens a drawer of pending requests (and an All requests view). Clicking one opens the Review modal with Approve / Change last working day / Reject; approval has a confirm step. Deactivated records drop off.
-- **Ankit (TL):** the **Schedule Reassigned Leads** tile lists each leaver; clicking one opens the scheduling screen (one accordion per leaver). Click rows, choose a counselor and **Schedule assignment**.
+- **Vikram (SM):** on **Tasks & Performance**, the **Last Working Day Approval** tile jumps to the requests section (pending-name pills + table). **Review** opens the modal with Approve / Change last working day / Reject; approval has a confirm step. Deactivated records drop off.
+- **Ankit (TL):** the **Schedule Reassigned Leads** tile jumps to **Leads to schedule** (one accordion per leaver). Open one, click rows, choose a counselor and **Schedule assignment**.
 - **Run 8 PM transfer** moves Priya's leads 7 days before her LWD (or the day after approval on short notice). She stays in the Leap group chats until **Jump to last working day**, when her login is deactivated.
 - **Rahul (new counselor):** reassigned students show inside the Boost STI / Boost Deposit pipelines on **Tasks & Performance**, with a "Reassigned" badge and filter.
