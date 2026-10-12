@@ -277,15 +277,6 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .lrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line-soft)}
 .lrow:last-child{border-bottom:0}
 .lrow small{color:var(--muted);font-size:12px}
-.ibtgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
-.ibt{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:128px;color:inherit}
-.ibt:hover{border-color:#c9d6ff;background:#f8faff}
-.ibt.new2{border-color:#c9d6ff;background:var(--blue-soft)}
-.ibt .ibi{font-size:16px}
-.ibt b{font-size:22px;line-height:1.1}
-.ibt .ibl{font-size:12px;color:#39445a;flex:1}
-.lp{font-size:10px;font-weight:800;letter-spacing:.4px;border-radius:999px;padding:2px 8px}
-.lp.clear{background:var(--green-soft);color:var(--green)}.lp.mod{background:var(--amber-soft);color:var(--amber)}.lp.high{background:var(--red-soft);color:var(--red)}
 /* Full-page modal for the SM / TL flows: covers the whole screen, scrolls inside, footer pinned. */
 .tmodal{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex}
 .tmbox{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
@@ -307,6 +298,20 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .impact .tot{background:var(--blue-soft);border-color:#c9d6ff}
 .step0{font-size:12px;font-weight:600;color:var(--amber);background:var(--amber-soft);border-radius:6px;padding:6px 10px}
 .step0.ok{color:var(--green);background:var(--green-soft)}
+/* Important Business Tasks — matches production: pink container, 4-up tiles, green when 0 pending. */
+.ibtwrap{background:linear-gradient(180deg,#fdeceb,#fbe2e1);border:1px solid #f6c9c7;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ibthead{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:800;color:#c0342b}
+.ibtref{color:#c0342b;font-size:16px;cursor:pointer}
+.ibtgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:820px){.ibtgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ibt{display:flex;flex-direction:column;align-items:stretch;gap:12px;text-align:left;background:linear-gradient(180deg,#fdf1f0,#fbe7e6);border:1px solid #f3d3d1;border-radius:10px;padding:14px 16px;min-height:104px;color:#b42318}
+.ibt:hover{border-color:#eeb3b0;box-shadow:0 2px 8px rgba(180,35,24,.08)}
+.ibt .ibtop{display:flex;justify-content:space-between;align-items:flex-start}
+.ibt .ibi{font-size:18px;line-height:1}
+.ibt b{font-size:22px;font-weight:800;line-height:1;color:#c0342b}
+.ibt .ibl{font-size:13px;font-weight:700;line-height:1.35;color:#b42318}
+.ibt.zero{background:linear-gradient(180deg,#e9f8ef,#ddf3e6);border-color:#bfe6cf}
+.ibt.zero b,.ibt.zero .ibl{color:#1c7a4a}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -928,23 +933,27 @@ function tlHome(){
    The two Last Working Day tasks sit in the existing Important Business Tasks grid next to Drop Off
    Approval etc., and open the same kind of side drawer (Definition, Task Closure, item list). The
    other tiles are static sample counts. */
+/* Existing Important Business Tasks tiles, same set and order as production (sample counts). */
 var IBT_STATIC={
-  ankit:[["&#128221;","ISL Reviews Pending",1],["&#128196;","Review Docs For Conditional Admit",2],["&#9989;","Verify the Probable Conditions marked in the Expected Outcome",1],["&#128179;","Deposit Payment Verification",1],["&#128172;","Applicant Feedback",5],["&#128706;","Visa Drop Request",0],["&#128228;","Drop Off Approval",9]],
-  vikram:[["&#128221;","ISL Reviews Pending",2],["&#128196;","Review Docs For Conditional Admit",220],["&#9989;","Verify the Probable Conditions marked in the Expected Outcome",48],["&#128179;","Deposit Payment Verification",37],["&#128172;","Applicant Feedback",13],["&#128706;","Visa Drop Request",0],["&#128228;","Drop Off Approval",24]]
+  ankit:[["&#128196;","Review Docs For Conditional Admit",26],["&#9989;","Verify the Probable Conditions marked in the Expected Outcome",22],["&#128179;","Deposit Payment Verification",30],["&#128172;","Applicant Feedback",87],["&#128706;","Visa Drop Request",10],["&#128228;","Drop Off Approval / Revival",193],["&#128221;","Ops Tasks",81],["&#128221;","ISL Reviews Pending",0]],
+  vikram:[["&#128196;","Review Docs For Conditional Admit",220],["&#9989;","Verify the Probable Conditions marked in the Expected Outcome",48],["&#128179;","Deposit Payment Verification",37],["&#128172;","Applicant Feedback",113],["&#128706;","Visa Drop Request",0],["&#128228;","Drop Off Approval / Revival",241],["&#128221;","Ops Tasks",96],["&#128221;","ISL Reviews Pending",2]]
 };
-function loadPill(n){ return n===0?'<span class="lp clear">CLEAR</span>':n>20?'<span class="lp high">HIGH</span>':'<span class="lp mod">MODERATE</span>'; }
 function lwdActiveIds(){ return Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&r.status==="approved"; }); }
 function scheduleTaskIds(){ return assignLeavers().filter(function(id){ return withLeaver(id,function(){ return S.req.status==="approved"; }); }); }
-function ibtTile(key,icon,label,n,isNew){
-  return '<button class="ibt'+(isNew?" new2":"")+'" data-ibt="'+key+'"><span class="ibi">'+icon+'</span><b class="num">'+n+'</b><span class="ibl">'+label+'</span>'+loadPill(n)+'</button>';
+/* Production tile: icon top-left, count top-right, bold label below; a tile with 0 pending turns green. */
+function ibtTile(key,icon,label,n){
+  return '<button class="ibt'+(n===0?" zero":"")+'" data-ibt="'+key+'"><span class="ibtop"><span class="ibi">'+icon+'</span><b class="num">'+n+'</b></span><span class="ibl">'+label+'</span></button>';
 }
 function ibtSection(){
   var v=S.view; if(v!=="ankit"&&v!=="vikram") return "";
-  var tiles=[];
-  if(v==="vikram") tiles.push(ibtTile("lwd","&#128197;","Counsellor Last Working Day",lwdActiveIds().length,true));
-  tiles.push(ibtTile("sched","&#128101;","Schedule Reassigned Leads",scheduleTaskIds().length,true));
-  IBT_STATIC[v].forEach(function(x){ tiles.push(ibtTile("static","<span>"+x[0]+"</span>",x[1],x[2],false)); });
-  return '<div class="card"><div class="cbody" style="border:0"><b>&#128203; Important Business Tasks'+(v==="vikram"?" — TL &amp; POD rollup":"")+'</b><div class="ibtgrid">'+tiles.join("")+'</div></div></div>';
+  var items=[];
+  if(v==="vikram") items.push(["lwd","&#128197;","Counsellor Last Working Day",lwdActiveIds().length]);
+  items.push(["sched","&#128101;","Schedule Reassigned Leads",scheduleTaskIds().length]);
+  IBT_STATIC[v].forEach(function(x){ items.push(["static",x[0],x[1],x[2]]); });
+  var pending=items.reduce(function(a,x){return a+x[3];},0), busy=items.filter(function(x){return x[3]>0;}).length;
+  return '<div class="boosthead"><span class="bar"></span>&#128203; Important Business Tasks'+(v==="vikram"?" — TL &amp; POD rollup":"")+'</div>'+
+    '<div class="ibtwrap"><div class="ibthead"><span>&#128203; <span class="num">'+pending+'</span> pending across <span class="num">'+busy+'/'+items.length+'</span> categories</span><span class="ibtref" title="Refresh">&#8635;</span></div>'+
+    '<div class="ibtgrid">'+items.map(function(x){ return ibtTile(x[0],x[1],x[2],x[3]); }).join("")+'</div></div>';
 }
 /* Tiles open the flow in a large task modal (S.tm): "lwd" = Last Working Day requests, "sched" =
    Schedule Reassigned Leads. Review / approval / schedule confirms open on top of it. */
