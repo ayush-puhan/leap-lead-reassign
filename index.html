@@ -204,6 +204,7 @@ tr.sel td{background:#f2f6ff}
 .mbox{background:#fff;border-radius:10px;max-width:460px;width:100%;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
 .mbox h3{margin:0;font-size:17px}
 .mbox.wide{max-width:720px}
+.modal.m2{z-index:70}
 .llist table td{white-space:normal}
 .mbox p{margin:0;color:#39445a}
 .drawerbg{position:fixed;inset:0;background:rgba(11,18,32,.35);z-index:45}
@@ -326,6 +327,7 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 <div id="bottom"></div>
 <div id="taskModal"></div>
 <div id="modal"></div>
+<div id="modal2"></div>
 <div id="taskDrawer"></div>
 <div id="toast"></div>
 
@@ -593,8 +595,8 @@ function leadListModal(id){
       }).join("");
       return '<details class="acc"><summary><span>'+esc(GROUP_LABEL[k])+'</span><b class="num">'+g[k].length+'</b></summary><div class="tw" style="border:0;border-top:1px solid var(--line-soft);border-radius:0"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage</th><th>Program</th><th>Next follow-up</th></tr></thead><tbody>'+rows+'</tbody></table></div></details>';
     }).join("");
-    showModal('<h3>'+esc(LV().name)+'\'s leads · <span class="num">'+S.leads.length+'</span></h3><p style="font-size:13px">Read only. Every lead moves at the transfer.</p>'+
-      '<input class="dsearch" id="llq" placeholder="Search by student name or Lead ID…"><div class="accs llist">'+body+'</div><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Close</button></div>',"wide");
+    showModal2('<h3>'+esc(LV().name)+'\'s leads · <span class="num">'+S.leads.length+'</span></h3><p style="font-size:13px">Read only. Every lead moves at the transfer.</p>'+
+      '<input class="dsearch" id="llq" placeholder="Search by student name or Lead ID…"><div class="accs llist">'+body+'</div><div class="row" style="justify-content:flex-end"><button class="btn" data-m2="close">Close</button></div>',"wide");
     var q=document.getElementById("llq");
     q.oninput=function(){ var v=q.value.trim().toLowerCase();
       document.querySelectorAll(".llist details").forEach(function(d){ var n=0; d.querySelectorAll("tbody tr").forEach(function(tr){ var hit=!v||tr.dataset.q.indexOf(v)!==-1; tr.style.display=hit?"":"none"; if(hit) n++; }); d.style.display=n?"":"none"; if(v) d.open=n>0; }); };
@@ -1181,7 +1183,12 @@ document.querySelector(".vbtn").onclick=function(){ if(S.view==="rahul"){ S.rout
 /* ---------- modal ---------- */
 function showModal(html,cls){ var m=document.getElementById("modal"); m.innerHTML='<div class="modal" role="dialog" aria-modal="true"><div class="mbox'+(cls?" "+cls:"")+'">'+html+'</div></div>'; m.querySelectorAll('[data-m="close"]').forEach(function(b){b.onclick=closeModal;}); var f=m.querySelector("input,textarea,button.p"); if(f) f.focus(); }
 function closeModal(){ document.getElementById("modal").innerHTML=""; }
-document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ if(document.querySelector("#modal .modal")){ closeModal(); return; } closeBell(); closeWho(); if(S.drawerOpen){ S.drawerOpen=null; render(); } else if(S.tm){ closeTaskModal(); } } });
+/* Second layer for read-only views opened from another modal (the lead list), so closing it returns to
+   the modal underneath instead of closing everything. Clicking the backdrop also closes it. */
+function showModal2(html,cls){ var m=document.getElementById("modal2"); m.innerHTML='<div class="modal m2" role="dialog" aria-modal="true"><div class="mbox'+(cls?" "+cls:"")+'">'+html+'</div></div>';
+  m.querySelectorAll('[data-m2="close"]').forEach(function(b){b.onclick=closeModal2;}); m.querySelector(".modal").onclick=function(e){ if(e.target===this) closeModal2(); }; var f=m.querySelector("input"); if(f) f.focus(); }
+function closeModal2(){ document.getElementById("modal2").innerHTML=""; }
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ if(document.querySelector("#modal2 .modal")){ closeModal2(); return; } if(document.querySelector("#modal .modal")){ closeModal(); return; } closeBell(); closeWho(); if(S.drawerOpen){ S.drawerOpen=null; render(); } else if(S.tm){ closeTaskModal(); } } });
 
 /* ---------- render ---------- */
 function render(){
