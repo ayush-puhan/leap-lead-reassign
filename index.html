@@ -138,7 +138,6 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .dchips{display:flex;gap:6px}
 .dchips .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;color:#39445a}
 .dchips .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
-.boostcard .bre{align-self:flex-start;background:rgba(255,255,255,.75);color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
 .f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a}
 input[type=date],select.in,textarea{border:1px solid #c8d1de;border-radius:6px;padding:8px 10px;font:inherit;color:var(--ink);background:#fff;max-width:100%}
 textarea{min-height:80px;resize:vertical;width:100%}
@@ -312,6 +311,41 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .ibt .ibl{font-size:13px;font-weight:700;line-height:1.35;color:#b42318}
 .ibt.zero{background:linear-gradient(180deg,#e9f8ef,#ddf3e6);border-color:#bfe6cf}
 .ibt.zero b,.ibt.zero .ibl{color:#1c7a4a}
+/* Boost drawer — production layout */
+.drawer{width:min(560px,100vw)}
+.drawer .dtop{padding:12px 16px 14px;border-bottom:1px solid var(--line-soft);display:flex;flex-direction:column;gap:12px;flex:none}
+.clsel{align-self:flex-start;border:1px solid var(--line);border-radius:6px;padding:7px 12px;font-size:13px;font-weight:600;color:#39445a}
+.todaybtn{border:1px solid #f3d29a;background:#fff8ec;color:#b45309;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700}
+.todaybtn.on{background:#b45309;color:#fff;border-color:#b45309}
+.dsub{font-size:13px;color:var(--muted)}
+.fchips{display:flex;flex-wrap:wrap;gap:8px}
+.fchip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px 5px 12px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.fchip .cn{font-size:11px;font-weight:700;border-radius:999px;padding:1px 7px;background:var(--grey-soft)}
+.fchip.dark.on{background:#141b2b;border-color:#141b2b;color:#fff}.fchip.dark.on .cn{background:rgba(255,255,255,.18);color:#fff}
+.fchip.b{color:#3949ab;border-color:#c5cae9}.fchip.b .cn{background:#e8eaf6;color:#3949ab}
+.fchip.a{color:#b45309;border-color:#f3d29a}.fchip.a .cn{background:#fff1d6;color:#b45309}
+.fchip.g{color:#1c7a4a;border-color:#bfe6cf}.fchip.g .cn{background:#e3f6ea;color:#1c7a4a}
+.fchip.r{color:#c0342b;border-color:#f6c9c7}.fchip.r .cn{background:#fde2e1;color:#c0342b}
+.fchip.p{color:#6d28d9;border-color:#ddd0fb}.fchip.p .cn{background:#f1ebff;color:#6d28d9}
+.fchip.on:not(.dark){box-shadow:0 0 0 2px currentColor inset}
+.allhead{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;padding:4px 2px}
+.allhead .n{background:var(--grey-soft);border-radius:999px;padding:2px 10px;font-size:12px}
+.tc2{border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fff}
+.tc2 .tchead b{font-size:15px;display:block}
+.tc2 .tchead small{color:var(--muted);font-size:13px}
+.tchip{align-self:flex-start;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;border:1px solid}
+.tchip.sm{font-size:11px;padding:3px 10px;flex:none}
+.tchip.g{background:#effaf3;color:#1c7a4a;border-color:#bfe6cf}
+.tchip.a{background:#fff8ec;color:#b45309;border-color:#f3d29a}
+.tchip.p{background:#f5f0ff;color:#6d28d9;border-color:#ddd0fb}
+.retag{align-self:flex-start;font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-soft);border-radius:6px;padding:2px 8px}
+.htc2{border:1px solid var(--line-soft);background:#fafbfd;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.htc2 .htclabel{font-size:11px;font-weight:800;letter-spacing:.5px;color:#4b566b;text-transform:uppercase}
+.htcrow{display:flex;gap:12px;align-items:flex-start}
+.htcrow p{margin:0;font-size:12px;line-height:1.55;color:#39445a}
+.tc2 .tcbtns{display:flex;gap:10px}
+.lbtn{border:1px solid #c9d6ff;background:#eef2ff;color:#2f3fbf;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700}
+.lbtn:hover{background:#e2e8ff}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -1008,52 +1042,67 @@ function drawerLeads(scope){
 }
 /* A few of the counselor's own (not reassigned) Boost students, so the drawer reads like the real
    mixed pipeline and the Reassigned filter has something to filter out. Static display only. */
+/* Sample own Boost tasks (production task types), so the drawer reads like the real pipeline. */
 var OWN_BOOST = {
-  sti:[["Aarav Mehta","LD-31842","rahul"],["Isha Kapoor","LD-31907","rahul"],["Vivaan Rao","LD-32011","sneha"],["Diya Menon","LD-32054","karan"]],
-  deposit:[["Kabir Shah","LD-30766","rahul"],["Myra Pillai","LD-30812","sneha"],["Reyansh Gupta","LD-30901","karan"]]
+  sti:[["Aarav Mehta","LD-31842","rahul","MSc · Data Science · Ireland","complete"],["Isha Kapoor","LD-31907","rahul","MSc · Agricultural Science · Ireland","hold"],["Vivaan Rao","LD-32011","sneha","BTech · Mechanical Engineering · UK","hold"],["Diya Menon","LD-32054","karan","MBA · Business Administration · Ireland","complete"]],
+  deposit:[["Kabir Shah","LD-30766","rahul","MSc · Finance · UK","deposit"],["Myra Pillai","LD-30812","sneha","MS · Computer Science · USA","dhold"],["Reyansh Gupta","LD-30901","karan","MBA · Marketing · Canada","deposit"]]
 };
-function ownBoostRows(scope){
-  var v=S.view, oversight=v==="ankit"||v==="vikram"||v==="rohit";
-  return OWN_BOOST[scope].filter(function(r){ return oversight || r[2]===v; });
+/* Production task types: chip label, chip colour, and the How to close guidance. */
+var TASK_TYPES={
+  complete:["Complete STI","g","Student has paid for our services, ensure filing STI to resolve this task, always update Follow-up date after confirmation with user. Always use 100ms, Jerry, Leap Group Chat for all communications with the student."],
+  hold:["Clear Application Hold","a","One of your applications for this student is On-hold, check the remarks and resolve the blocker to move ahead, always update Follow-up date after confirmation with user. Always use 100ms, Jerry, Leap Group Chat for all communications with the student."],
+  deposit:["Pay Deposit","g","Student has an admit, help them pay the deposit to resolve this task, always update Follow-up date after confirmation with user. Always use 100ms, Jerry, Leap Group Chat for all communications with the student."],
+  dhold:["Clear Deposit Hold","a","The deposit for this student is On-hold, check the remarks and resolve the blocker, always update Follow-up date after confirmation with user. Always use 100ms, Jerry, Leap Group Chat for all communications with the student."],
+  reassigned:["Connect with Reassigned Lead","p",""]
+};
+/* Category chips shown in the production drawer (static sample counts), plus Reassigned. */
+var DRAWER_CHIPS={
+  sti:[["lockin","Lock-in → STI",1,"b"],["onhold","On Hold",0,"a"],["f2f","F2F → Lock",0,"g"],["isl","ISL → F2F",9,"r"]],
+  deposit:[["admit","Admit → Deposit",3,"b"],["onhold","On Hold",1,"a"]]
+};
+function isOversight(){ var v=S.view; return v==="ankit"||v==="vikram"||v==="rohit"; }
+function ownBoostRows(scope){ return OWN_BOOST[scope].filter(function(r){ return isOversight() || r[2]===S.view; }); }
+function tcCard(name,sub,typeKey,howText,extra,id){
+  var t=TASK_TYPES[typeKey];
+  return '<div class="tc2"><div class="tchead"><b>'+esc(name)+'</b><small>'+sub+'</small></div>'+
+    '<span class="tchip '+t[1]+'">'+t[0]+'</span>'+(extra||"")+
+    '<div class="htc2"><span class="htclabel">How to close</span><div class="htcrow"><span class="tchip sm '+t[1]+'">'+t[0]+'</span><p>'+esc(howText||t[2])+'</p></div></div>'+
+    '<div class="tcbtns"><button class="lbtn" data-viewstudent="'+id+'">View student</button><button class="lbtn" data-viewtask="'+id+'">View Task</button></div></div>';
 }
-function ownCardHtml(r,scope){
-  var oversight=S.view==="ankit"||S.view==="vikram"||S.view==="rohit";
-  return '<div class="taskcard"><div class="tchead"><b>'+esc(r[0])+'</b><small>'+r[1]+(oversight?' · Assigned to '+esc(PEOPLE[r[2]].name):'')+'</small></div>'+
-    '<span class="tcbadge">'+(scope==="sti"?"Boost STI":"Boost Deposit")+'</span>'+
-    '<div class="note" style="margin:0">Existing Boost task — not modeled in this mockup.</div>'+
-    '<div class="tcbtns"><button class="btn sm" data-viewstudent="'+r[1]+'">View student</button><button class="btn sm" data-viewtask="'+r[1]+'">View Task</button></div>'+
-  '</div>';
+function ownCardHtml(r){
+  return tcCard(r[0], r[1].replace("LD-","")+' · '+esc(r[3])+(isOversight()?' · Assigned to '+esc(PEOPLE[r[2]].name):''), r[4], null, '', r[1]);
 }
 function taskCardHtml(l){
-  var grp=leadGroup(l), badgeLbl = grp==="sti"?"Boost STI":"Boost Deposit";
-  var owner=PEOPLE[S.assign[l.id]], oversight=S.view==="ankit"||S.view==="vikram"||S.view==="rohit";
-  var sub = l.id+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(oversight?' · Assigned to '+esc(owner.name):'');
-  return '<div class="taskcard"><div class="tchead"><b>'+esc(l.name)+'</b><small>'+sub+'</small></div>'+
-    '<div class="tcbadges"><span class="tcbadge">'+badgeLbl+'</span><span class="tcbadge re">Reassigned from '+esc(LV().name)+'</span></div>'+
-    (S.req.joined&&S.req.joined[l.id]?'<div class="step0 ok">&#10003; Step 0 · Joined the Leap group chat</div>':'<div class="step0">Step 0 · Join '+esc(l.first)+'\'s Leap group chat to accept this lead (WhatsApp invite sent)</div>')+
-    '<div class="htc"><span class="htclabel">How to close</span><span class="htcchip">Connect with Reassigned Lead</span><p>Book and join a meeting with '+esc(l.first)+', or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.</p></div>'+
-    '<div class="tcbtns"><button class="btn sm" data-viewstudent="'+l.id+'">View student</button><button class="btn sm" data-viewtask="'+l.id+'">View Task</button></div>'+
-  '</div>';
+  var owner=PEOPLE[S.assign[l.id]];
+  var sub = l.id.replace("LD-","")+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(isOversight()?' · Assigned to '+esc(owner.name):'');
+  var extra='<span class="retag">Reassigned from '+esc(LV().name)+'</span>'+
+    (S.req.joined&&S.req.joined[l.id]?'<div class="step0 ok">&#10003; Step 0 · Joined the Leap group chat</div>':'<div class="step0">Step 0 · Join '+esc(l.first)+'\'s Leap group chat to accept this lead (WhatsApp invite sent)</div>');
+  return tcCard(l.name, sub, "reassigned", "Book and join a meeting with "+l.first+", or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.", extra, l.id);
 }
-function openTaskDrawer(scope){ S.drawerOpen={scope:scope,search:"",onlyRe:false}; render(); }
+function openTaskDrawer(scope){ S.drawerOpen={scope:scope,search:"",chip:"all",today:false}; render(); }
 function drawerTitle(scope){ return scope==="sti"?"Boost STI":"Boost Deposit"; }
+/* Drawer laid out like the production Boost drawer: CL filter, Today's Tasks Only, category chips
+   (with a Reassigned chip in the same style), search, then All Tasks. Reassigned leads only show here,
+   never on the Boost card itself. */
 function renderTaskDrawer(){
   var d=S.drawerOpen; if(!d) return "";
   var re=drawerLeads(d.scope), own=ownBoostRows(d.scope);
   var q=(d.search||"").trim().toLowerCase();
   function hit(name,id){ return !q || name.toLowerCase().indexOf(q)!==-1 || id.toLowerCase().indexOf(q)!==-1; }
-  var reShown=re.filter(function(l){return hit(l.name,l.id);});
-  var ownShown=d.onlyRe ? [] : own.filter(function(r){return hit(r[0],r[1]);});
+  var reShown = (d.chip==="all"||d.chip==="re") ? re.filter(function(l){return hit(l.name,l.id);}) : [];
+  var ownShown = d.chip==="re" ? [] : own.filter(function(r){return hit(r[0],r[1]);});
   var total=reShown.length+ownShown.length;
-  var list = total ? reShown.map(taskCardHtml).join("")+ownShown.map(function(r){return ownCardHtml(r,d.scope);}).join("") : '<div class="note">No students match.</div>';
-  var chips='<div class="dchips"><button class="chip'+(d.onlyRe?"":" on")+'" data-onlyre="0">All <span class="num">'+(re.length+own.length)+'</span></button><button class="chip'+(d.onlyRe?" on":"")+'" data-onlyre="1">Reassigned <span class="num">'+re.length+'</span></button></div>';
+  var chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+(re.length+own.length)+'</span></button>'+
+    DRAWER_CHIPS[d.scope].map(function(c){ return '<button class="fchip '+c[3]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+c[2]+'</span></button>'; }).join("")+
+    (re.length?'<button class="fchip p'+(d.chip==="re"?" on":"")+'" data-chip="re">Reassigned <span class="cn">'+re.length+'</span></button>':'');
+  var list = total ? reShown.map(taskCardHtml).join("")+ownShown.map(ownCardHtml).join("") : '<div class="note">No students match.</div>';
   return '<div class="drawerbg" id="drawerBg"></div>'+
     '<div class="drawer" role="dialog" aria-modal="true"><div class="dhead"><button id="drawerBack" aria-label="Back">&larr;</button><b>'+esc(drawerTitle(d.scope))+'</b><button id="drawerRefresh" aria-label="Refresh">&#8635;</button><button id="drawerClose" aria-label="Close">&times;</button></div>'+
-    '<div class="dbody"><input class="dsearch" id="drawerSearch" placeholder="Search by name or ID…" value="'+esc(d.search||"")+'">'+
-    chips+
-    (re.length?'<div class="note">Reassigned students carry a Connect with Reassigned Lead task. It closes automatically once a meeting is booked and joined by the new counselor, or a call connects with the student. (Mocked here — this CRM has no call/meeting-event tracking to hook into yet, so nothing actually closes these.)</div>':'')+
-    '<div class="dcount">'+esc(drawerTitle(d.scope))+' <span class="n">'+total+' total</span></div>'+
-    list+'</div></div>';
+    '<div class="dtop">'+(isOversight()?'<span class="clsel">&#128101; CL: All &#8964;</span>':'')+
+      '<div class="row" style="gap:10px"><button class="todaybtn'+(d.today?" on":"")+'" id="todayBtn">&#128197; Today\'s Tasks Only</button><span class="dsub">'+(d.scope==="sti"?10:4)+' students due today</span></div>'+
+      '<div class="fchips">'+chips+'</div>'+
+      '<input class="dsearch" id="drawerSearch" placeholder="Search by name or ID..." value="'+esc(d.search||"")+'"></div>'+
+    '<div class="dbody"><div class="allhead"><span>&#128275; All Tasks</span><span class="n">'+total+' total</span></div>'+list+'</div></div>';
 }
 function bindTaskDrawer(){
   var d=S.drawerOpen; if(!d) return;
@@ -1062,18 +1111,18 @@ function bindTaskDrawer(){
   var back=document.getElementById("drawerBack"); if(back) back.onclick=close;
   var x=document.getElementById("drawerClose"); if(x) x.onclick=close;
   var rf=document.getElementById("drawerRefresh"); if(rf) rf.onclick=function(){ toast("Refreshed"); };
+  var tb=document.getElementById("todayBtn"); if(tb) tb.onclick=function(){ d.today=!d.today; render(); };
   var s=document.getElementById("drawerSearch");
   if(s){ s.oninput=function(){ d.search=s.value; render(); var ns=document.getElementById("drawerSearch"); if(ns){ ns.focus(); ns.setSelectionRange(ns.value.length,ns.value.length); } }; }
-  document.querySelectorAll("[data-onlyre]").forEach(function(b){ b.onclick=function(){ d.onlyRe=b.dataset.onlyre==="1"; render(); }; });
+  document.querySelectorAll("[data-chip]").forEach(function(b){ b.onclick=function(){ d.chip=b.dataset.chip; render(); }; });
   document.querySelectorAll("[data-viewstudent],[data-viewtask]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
 }
 /* Static "boost" metric card — icon/title/number/subtitle/due-today, matching the CRM's Boost
-   Output & Boost Input rows. Only "sti" and "deposit" are wired (they open the pipeline drawer,
-   where reassigned students sit with a Reassigned badge); every other key is decorative, per the
+   Output & Boost Input rows. Only "sti" and "deposit" are wired (they open the pipeline drawer, the
+   only place reassigned students show); every other key is decorative, per the
    request to copy the page's look without rebuilding its unrelated metrics. */
 function boostCard(cls,icon,title,num,sub,due,key){
-  var re = (key==="sti"||key==="deposit") ? drawerLeads(key).length : 0;
-  return '<div class="boostcard '+cls+'" data-boost="'+key+'"><div class="bhead"><span>'+icon+' '+esc(title.toUpperCase())+'</span><span>&#8635;</span></div><div class="bnum num">'+num+'</div><div class="bsub">'+esc(sub)+'</div>'+(due?'<div class="bdue">'+esc(due)+'</div>':'')+(re?'<div class="bre"><span class="num">'+re+'</span> reassigned</div>':'')+'<div class="blink">View Pipeline &rarr;</div></div>';
+  return '<div class="boostcard '+cls+'" data-boost="'+key+'"><div class="bhead"><span>'+icon+' '+esc(title.toUpperCase())+'</span><span>&#8635;</span></div><div class="bnum num">'+num+'</div><div class="bsub">'+esc(sub)+'</div>'+(due?'<div class="bdue">'+esc(due)+'</div>':'')+'<div class="blink">View Pipeline &rarr;</div></div>';
 }
 function boostInputCards(){
   var isl='<div class="boostcard green" data-boost="isl"><div class="bhead"><span>&#11088; ISL FEEDBACK RATING</span></div><div class="bnum num">3.9<small style="font-size:14px;font-weight:600"> / 5</small></div><div class="bsub">Based on recent surveys</div><div class="blink">View details &rarr;</div></div>';

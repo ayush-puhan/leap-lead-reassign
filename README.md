@@ -33,4 +33,4 @@ The SM drives this flow; the leaving counselor has no control. Use the yellow "M
 - **Run 8 PM transfer** moves the leads on T-7 (7 days before the last working day). If T-7 has already passed, leads move the moment they are scheduled.
 - **Skip ahead 1 day (LGC joins):** new counselors join each student's Leap group chat (Step 0); the LGC message and email go to the student on join.
 - **Jump to last working day:** at 8 PM the old counselor is removed from the Leap group chats and their CRM login is deactivated. Their TL is removed only from groups whose lead went to a counselor under a different TL.
-- **Rahul (new counselor):** reassigned students show in Boost STI / Boost Deposit with a Reassigned badge and Step 0, and **View assigned leads** (top bar) lists every reassigned lead in any stage.
+- **Rahul (new counselor):** reassigned students show only inside the Boost STI / Boost Deposit drawers (not on the cards), with a Reassigned filter chip, a "Connect with Reassigned Lead" task and Step 0, and **View assigned leads** (top bar) lists every reassigned lead in any stage.
