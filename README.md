@@ -25,10 +25,11 @@ npx serve .
 
 ## Trying the flow
 
-The counselor enters their date on the **View Profile** page (avatar menu, top right). The SM and TL act on it from **Tasks & Performance → Important Business Tasks**; the Learning & Development tab is unchanged. Use the yellow "Mockup controls" bar to switch roles and move the clock:
+The SM drives this flow; the leaving counselor has no control. Use the yellow "Mockup controls" bar to switch roles and move the clock:
 
-- **Priya (counselor):** enter a last working day (LWD). A red confirm shows who will transfer the leads and when. Then an order-style tracker shows every step up to the transfer date.
-- **Vikram (SM):** on **Tasks & Performance**, the **Last Working Day Approval** tile opens a full-page modal with the requests (pending-name pills + table). **Review** opens the modal with Approve / Change last working day / Reject; approval has a confirm step. Deactivated records drop off.
-- **Ankit (TL):** the **Schedule Reassigned Leads** tile opens a full-page modal with one accordion per leaver. Open one, click rows, choose a counselor and **Schedule assignment**.
-- **Run 8 PM transfer** moves Priya's leads 7 days before her LWD (or the day after approval on short notice). She stays in the Leap group chats until **Jump to last working day**, when her login is deactivated.
-- **Rahul (new counselor):** reassigned students show inside the Boost STI / Boost Deposit pipelines on **Tasks & Performance**, with a "Reassigned" badge and filter.
+- **Vikram (SM):** Tasks & Performance → Important Business Tasks → **Counsellor Last Working Day** opens a full-page modal. **+ Add last working day**: pick a counselor and a date, see the leads affected (Open App / Post STI / Post Deposit / Drop off), confirm. Fresh lead assignment stops and the TL gets a task. **Reassign leads** opens scheduling; **Cancel** handles retention.
+- **Ankit (TL):** the **Schedule Reassigned Leads** tile opens a full-page modal with one accordion per leaver. Click rows, choose a counselor and **Schedule assignment**.
+- **Run 8 PM transfer** moves the leads on T-7 (7 days before the last working day). If T-7 has already passed, leads move the moment they are scheduled.
+- **Skip ahead 1 day (LGC joins):** new counselors join each student's Leap group chat (Step 0); the LGC message and email go to the student on join.
+- **Jump to last working day:** at 8 PM the old counselor and their TL are removed from the Leap group chats.
+- **Rahul (new counselor):** reassigned students show in Boost STI / Boost Deposit with a Reassigned badge and Step 0, and **View assigned leads** (top bar) lists every reassigned lead in any stage.

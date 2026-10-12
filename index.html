@@ -297,6 +297,13 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .tmfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:12px 16px;background:var(--nav);color:#fff}
 .tmfoot select{min-width:260px}
 .tmsub{margin:0;font-size:13px;color:var(--muted)}
+.impact{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0}
+.impact div{border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:96px;background:#fff}
+.impact small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.impact b{font-size:18px}
+.impact .tot{background:var(--blue-soft);border-color:#c9d6ff}
+.step0{font-size:12px;font-weight:600;color:var(--amber);background:var(--amber-soft);border-radius:6px;padding:6px 10px}
+.step0.ok{color:var(--green);background:var(--green-soft)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -338,8 +345,8 @@ var PEOPLE = {
   neha:{id:"neha",name:"Neha Joshi",role:"Counselor",tl:"meera",sm:"vikram",phone:"+91 98200 42002",email:"neha.joshi@leapfinance.com",open:130}
 };
 var VIEWS = [
-  {id:"priya",label:"Priya Rao (Counselor, resigning)"},
   {id:"vikram",label:"Vikram Mehta (SM)"},
+  {id:"priya",label:"Priya Rao (Counselor, leaving)"},
   {id:"ankit",label:"Ankit Sharma (TL)"},
   {id:"rahul",label:"Rahul Verma (new counselor)"}
 ];
@@ -445,18 +452,18 @@ var S;
 function leaver(id,stageN,split,idStart,req){ return {id:id,leads:makeLeads(stageN,split,idStart),assign:{},req:req,phase:"before"}; }
 function reset(){
   seed=7;
-  S={view:"priya",route:"profile",resOpen:true,notes:{},cur:"priya",focus:"priya",
+  S={view:"vikram",route:"home",resOpen:true,notes:{},cur:"priya",focus:"priya",
      clock:"25 Sep 2026, 11:10 AM",
      tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
-     draftDate:"",formErr:"",activeTab:"ld",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,lv:{}};
+     draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,assigned:{onlyRe:false},lv:{}};
   S.lv.priya=leaver("priya",null,null,40210,null);
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
-    {status:"approved",lwd:new Date(2026,9,9),tSub:"22 Sep 2026, 4:05 PM",tApp:"23 Sep 2026, 10:30 AM",appDay:new Date(2026,8,23),history:[],reason:"",changedFrom:null,msgs:null});
+    {status:"approved",lwd:new Date(2026,9,9),tApp:"23 Sep 2026, 10:30 AM",appDay:new Date(2026,8,23),history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
   S.lv.neha=leaver("neha",{LS_COLLEGE_SHORTLISTED:60,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:30,LS_ADMIT_ACCEPTED:18,LS_VISA_GRANTED:10,LS_LEAD_DROP_OFF:12},{LS_LEAD_DROP_OFF:{pre:8,post:4}},62300,
-    {status:"pending",lwd:new Date(2026,9,12),tSub:"24 Sep 2026, 6:20 PM",history:[],reason:"",changedFrom:null,msgs:null});
+    {status:"approved",lwd:new Date(2026,9,12),tApp:"24 Sep 2026, 6:20 PM",appDay:new Date(2026,8,24),history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
   S.lv.karan.leads.slice(0,30).forEach(function(l){ S.lv.karan.assign[l.id]="sneha"; });
-  S.lv.karan.req.history=[{text:"Scheduled 30 leads for Sneha Kulkarni",by:"Ankit Sharma",at:"24 Sep 2026, 12:15 PM"},{text:"Approved. New lead allocation to Karan Gill stopped",by:"Vikram Mehta",at:"23 Sep 2026, 10:30 AM"},{text:"Last working day 09 Oct 2026 submitted",by:"Karan Gill",at:"22 Sep 2026, 4:05 PM"}];
-  S.lv.neha.req.history=[{text:"Last working day 12 Oct 2026 submitted",by:"Neha Joshi",at:"24 Sep 2026, 6:20 PM"}];
+  S.lv.karan.req.history=[{text:"Scheduled 30 leads for Sneha Kulkarni",by:"Ankit Sharma",at:"24 Sep 2026, 12:15 PM"},{text:"Last working day 09 Oct 2026 added. Fresh lead assignment to Karan Gill stopped; task created for Ankit Sharma",by:"Vikram Mehta",at:"23 Sep 2026, 10:30 AM"}];
+  S.lv.neha.req.history=[{text:"Last working day 12 Oct 2026 added. Fresh lead assignment to Neha Joshi stopped; task created for Meera Iyer",by:"Vikram Mehta",at:"24 Sep 2026, 6:20 PM"}];
   ["req","leads","assign","phase"].forEach(function(k){
     Object.defineProperty(S,k,{get:function(){return S.lv[S.cur][k];},set:function(v){S.lv[S.cur][k]=v;}});
   });
@@ -466,12 +473,13 @@ reset();
 function LV(){ return PEOPLE[S.cur]; }
 function TLof(id){ return PEOPLE[PEOPLE[id].tl]; }
 function fmtDay(d){ return d.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short",year:"numeric"}); }
-/* Transfer runs at 8 PM, OVERLAP_DAYS before LWD. If that is already too soon (short notice or an
-   immediate exit), it runs at 8 PM the day after the SM approves. Before approval, assume approval today. */
-function transferDate(r){ var t=addDays(r.lwd,-OVERLAP_DAYS), min=addDays(r.appDay||TODAY,1); return t<min?min:t; }
-function isShort(r){ return addDays(r.lwd,-OVERLAP_DAYS) < addDays(r.appDay||TODAY,1); }
+/* Leads move at 8 PM on T-7 (OVERLAP_DAYS before LWD). If T-7 is already today or past when the SM adds
+   the LWD (short notice), there is no wait: each lead moves the moment it is scheduled. */
+function isShort(r){ return addDays(r.lwd,-OVERLAP_DAYS) <= (r.appDay||TODAY); }
+function transferDate(r){ return isShort(r) ? (r.appDay||TODAY) : addDays(r.lwd,-OVERLAP_DAYS); }
+function moveWhen(r){ return isShort(r) ? "immediately once scheduled" : fmtDay(transferDate(r))+", 8 PM"; }
 function moved(r){ return r && (r.status==="transferred"||r.status==="deactivated"); }
-function activeReq(id){ var r=S.lv[id]&&S.lv[id].req; return !!r && ["pending","approved","transferred"].indexOf(r.status)!==-1; }
+function activeReq(id){ var r=S.lv[id]&&S.lv[id].req; return !!r && ["approved","transferred"].indexOf(r.status)!==-1; }
 function withLeaver(id,fn){ var prev=S.cur; S.cur=id; try{ return fn(); } finally { S.cur=prev; } }
 function now(){ return S.clock; }
 function notify(who,text,action){ S.notes[who].unshift({text:text,at:now(),action:action||null,read:false}); }
@@ -481,7 +489,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&am
 function toast(t){ var el=document.getElementById("toast"); el.innerHTML='<div class="toast">'+esc(t)+'</div>'; clearTimeout(toast._t); toast._t=setTimeout(function(){el.innerHTML="";},2600); }
 function assignedCount(){ return Object.keys(S.assign).length; }
 function statusBadge(st){
-  var m={pending:["Pending SM approval","b-amber"],approved:["Approved · TL assigning","b-blue"],transferred:["Leads transferred","b-green"],deactivated:["Deactivated","b-grey"],rejected:["Rejected","b-red"],cancelled:["Cancelled","b-grey"]};
+  var m={approved:["Scheduled · TL assigning","b-blue"],transferred:["Leads transferred","b-green"],deactivated:["Completed","b-grey"],cancelled:["Cancelled (retained)","b-grey"]};
   var x=m[st]; return '<span class="badge '+x[1]+'">'+x[0]+'</span>';
 }
 var ICON={res:"&#128682;",book:"&#128214;",cap:"&#127891;",list:"&#128203;",task:"&#9745;"};
@@ -493,16 +501,16 @@ function renderDemo(){
   var opts=VIEWS.map(function(v){return '<option value="'+v.id+'"'+(S.view===v.id?" selected":"")+'>'+v.label+'</option>';}).join("");
   var r=S.lv.priya.req, ph=S.lv.priya.phase;
   var canRun = r && r.status==="approved" && ph==="before";
-  var canSkip = ph==="retrying";
+  var canSkip = ph==="joining";
   var canLwd = r && r.status==="transferred";
   document.getElementById("demo").innerHTML =
     '<b>Mockup controls</b><label>View as <select id="viewSel">'+opts+'</select></label>'+
     '<span class="clock">Clock: '+esc(S.clock)+'</span>'+
-    '<button id="runBtn"'+(canRun?"":" disabled")+' title="Runs the job that fires at 8 PM, '+OVERLAP_DAYS+' days before the last working day">Run 8 PM transfer</button>'+
-    '<button id="skipBtn"'+(canSkip?"":" disabled")+'>Skip ahead 1 hour (retries)</button>'+
-    '<button id="lwdBtn"'+(canLwd?"":" disabled")+' title="Priya leaves the Leap group chats and her login is deactivated">Jump to last working day</button>'+
+    '<button id="runBtn"'+(canRun?"":" disabled")+' title="Runs the job that fires at 8 PM on T-7 (7 days before the last working day)">Run 8 PM transfer</button>'+
+    '<button id="skipBtn"'+(canSkip?"":" disabled")+' title="New counsellors join their students\' Leap group chats">Skip ahead 1 day (LGC joins)</button>'+
+    '<button id="lwdBtn"'+(canLwd?"":" disabled")+' title="Priya and her TL are removed from the Leap group chats">Jump to last working day</button>'+
     '<span class="sp"></span><button id="resetBtn">Reset</button>';
-  document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; if(S.route==="detail"){ S.route="home"; S.activeTab="tasks"; } S.tm=null; S.focus=null; S.tl.sel={}; closeBell(); closeWho(); render(); };
+  document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; if(S.route==="detail"||S.route==="assigned"){ S.route="home"; S.activeTab="tasks"; } S.tm=null; S.focus=null; S.tl.sel={}; closeBell(); closeWho(); render(); };
   document.getElementById("runBtn").onclick=runTransfer;
   document.getElementById("skipBtn").onclick=finishRetries;
   document.getElementById("lwdBtn").onclick=jumpToLwd;
@@ -593,81 +601,15 @@ function leadListModal(id){
   });
 }
 function bindBreakdowns(){ document.querySelectorAll("[data-breakdown]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); leadListModal(b.dataset.breakdown); }; }); }
-/* Order-tracker style status (like a delivery tracker): fixed start (LWD submitted) and fixed end
-   (leads transfer on a known date at 8 PM), with every step and its date visible, then the LWD itself. */
-function orderTracker(r){
-  var st=r.status, tr=transferDate(r), asg=assignedCount(), tot=S.leads.length;
-  var steps=[
-    {t:"LWD submitted",d:r.tSub,done:true},
-    {t:"SM approval",d:r.tApp||("Waiting for "+PEOPLE.vikram.name),done:st!=="pending"},
-    {t:"TL schedules leads",d: moved(r)?"Done": st==="approved"?(asg+" of "+tot+" scheduled"):"After approval",done:moved(r)},
-    {t:"Leads transfer",d:fmtDay(tr)+", 8 PM"+(st==="pending"?" (expected)":""),done:moved(r),end:true},
-    {t:"Last working day",d:fmtDay(r.lwd)+" · leave Leap group chats",done:st==="deactivated"}
-  ];
-  var cur=steps.findIndex(function(x){return !x.done;});
-  return '<div class="otrack">'+steps.map(function(x,i){
-    var cls=x.done?"done":(i===cur?"cur":"");
-    return '<div class="ostep '+cls+(x.end?" end":"")+'"><i>'+(x.done?"&#10003;":(i+1))+'</i><div><b>'+x.t+'</b><span>'+esc(x.d)+'</span></div></div>';
-  }).join("")+'</div>';
+/* Leads affected, in the four buckets the SM sees when adding a last working day. */
+function impactBuckets(leads){
+  var g=groupCounts(leads);
+  return [["Open App",g.pre_sti.total],["Post STI",g.sti.total],["Post Deposit",g.deposit_done.total+g.visa.total],["Drop off",g.dropoff_pre_isl.total+g.dropoff_post_isl.total+g.ungrouped.total]];
 }
-function lwdHeadline(r){
-  var tr=transferDate(r);
-  if(moved(r)) return '<div class="hl ok"><small>Your leads moved on</small><b>'+fmtDay(tr)+', 8 PM</b><span>You stay in your students\' Leap group chats until your last working day, '+fmtDay(r.lwd)+', to help the new counselors settle in.</span></div>';
-  return '<div class="hl"><small>Your leads transfer on</small><b>'+fmtDay(tr)+', 8 PM</b><span>'+(r.status==="pending"?"Expected date — confirmed once "+esc(PEOPLE.vikram.name)+" approves. ":"")+'You can tell your students this date. You stay in their Leap group chats until '+fmtDay(r.lwd)+'.</span></div>';
-}
-function transferPreview(dtIso){
-  if(!dtIso) return '';
-  var r={lwd:parseIso(dtIso)}; var tr=transferDate(r);
-  return isShort(r) ? '<div class="note warn"><b>Less than '+OVERLAP_DAYS+' days away.</b> Your leads will transfer at 8 PM the day after your SM approves (if approved today: '+fmtDay(tr)+').</div>'
-    : '<div class="note">Your leads will transfer on <b>'+fmtDay(tr)+', 8 PM</b> — '+OVERLAP_DAYS+' days before your last working day, so you overlap with the new counselors.</div>';
+function impactHtml(leads){
+  return '<div class="impact"><div class="tot"><small>Leads affected</small><b class="num">'+leads.length+'</b></div>'+impactBuckets(leads).map(function(x){return '<div><small>'+x[0]+'</small><b class="num">'+x[1]+'</b></div>';}).join("")+'</div>';
 }
 
-/* ---------- counselor (leaver) ---------- */
-function resignationCard(){
-  var r=S.req, body="";
-  var open=S.resOpen;
-  if(!r || r.status==="cancelled" || (r.status==="rejected" && r.reopened)){
-    var min=iso(addDays(TODAY,1));
-    body = (r&&r.status==="cancelled"?'<div class="note"><span class="badge b-grey">Cancelled by '+esc(PEOPLE.vikram.name)+'</span> on '+esc(r.tCan)+'. You can submit a new date below.</div>':'')+
-      (r&&r.status==="rejected"?'<div class="note bad">'+statusBadge("rejected")+' Your last request ('+fmt(r.lwd)+') was rejected by '+esc(PEOPLE.vikram.name)+' on '+esc(r.tRej)+'.<br><b>Reason:</b> '+esc(r.reason)+'<br>Reopened by '+esc(PEOPLE.vikram.name)+' on '+esc(r.tReo)+'. Pick a new last working day below to apply again.</div>':'')+
-      '<div class="note">Enter your last working day — that\'s all you need to do. Your SM approves it, your TL schedules who gets each lead, and your leads transfer automatically at 8 PM, '+OVERLAP_DAYS+' days before your last working day. Students are told by email and WhatsApp.</div>'+
-      '<div><div class="lab">Your leads</div>'+leadTotal(S.leads,"priya")+'</div>'+
-      '<label class="f">Last working day<input type="date" id="lwd" min="'+min+'" value="'+esc(S.draftDate)+'"></label>'+
-      '<div id="lwdPrev">'+transferPreview(S.draftDate)+'</div>'+
-      (S.formErr?'<div class="err">'+esc(S.formErr)+'</div>':'')+
-      '<div class="row"><button class="btn p" id="submitRes"'+(S.draftDate?"":" disabled")+'>'+(r&&r.status==="rejected"?"Apply again":"Submit")+'</button></div>';
-  } else if(r.status==="rejected"){
-    body = '<div class="meta"><div><small>Last working day</small><b>'+fmt(r.lwd)+'</b></div><div><small>Status</small>'+statusBadge(r.status)+'</div></div>'+
-      '<div class="note bad"><b>Reason from your SM:</b> '+esc(r.reason)+'<br>Please speak to your SM. Once they reopen your request you can pick a new date and apply again.</div>';
-  } else {
-    body = lwdHeadline(r)+orderTracker(r)+
-      '<div class="meta"><div><small>Last working day</small><b>'+fmt(r.lwd)+(r.changedFrom?' <span style="color:var(--muted);font-weight:400">(changed by '+esc(PEOPLE.vikram.name)+' from '+fmt(r.changedFrom)+')</span>':'')+'</b></div><div><small>Status</small>'+statusBadge(r.status)+'</div><div><small>Your leads</small><b class="num">'+S.leads.length+'</b></div></div>';
-    if(r.status==="approved") body += '<div class="note">New leads are no longer assigned to you.</div>';
-    if(r.status==="pending") body += '<div class="note">You can\'t withdraw this. Talk to your SM if you need to cancel it.</div>';
-  }
-  return '<div class="card'+(open?" open":"")+'"><button class="chead" id="resHead" aria-expanded="'+open+'"><span class="ic">'+ICON.res+'</span><span class="t"><b>Last Working Day</b><small>Enter your last working day — the rest happens automatically</small></span><span class="chev">&#8964;</span></button>'+(open?'<div class="cbody">'+body+'</div>':'')+'</div>';
-}
-function bindResignation(){
-  var h=document.getElementById("resHead"); if(h) h.onclick=function(){ S.resOpen=!S.resOpen; render(); };
-  var d=document.getElementById("lwd"); if(d) d.oninput=function(){ S.draftDate=d.value; S.formErr=""; var b=document.getElementById("submitRes"); if(b) b.disabled=!d.value; var pv=document.getElementById("lwdPrev"); if(pv) pv.innerHTML=transferPreview(d.value); };
-  var s=document.getElementById("submitRes"); if(s) s.onclick=function(){
-    var dt=parseIso(S.draftDate);
-    if(dt<=TODAY){ S.formErr="Pick a date from tomorrow onwards."; render(); return; }
-    var r0={lwd:dt}, tr=transferDate(r0), tl=TLof("priya");
-    showModal('<div class="dhdr"><b>Submit your last working day?</b><span>This can\'t be undone. Only your SM can cancel it.</span></div>'+
-      '<div class="kv"><div><small>Counselor</small><b>'+esc(LV().name)+'</b></div><div><small>Last working day</small><b>'+fmtDay(dt)+'</b></div><div><small>Total leads</small><b class="num">'+S.leads.length+'</b></div></div>'+
-      '<div class="note bad"><b>'+esc(tl.name)+'</b> (your TL) will transfer your leads by <b>'+fmtDay(tr)+', 8 PM</b>.'+(isShort(r0)?' Less than '+OVERLAP_DAYS+' days\' notice — this is the day after approval if your SM approves today.':'')+'</div>'+
-      '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Go back</button><button class="btn danger" id="confirmRes">Yes, submit</button></div>',"danger");
-    document.getElementById("confirmRes").onclick=function(){
-      /* A resubmission after a rejection starts a fresh request: only the latest request's history is kept. */
-      var again=S.req&&S.req.status==="rejected";
-      S.req={status:"pending",lwd:dt,tSub:now(),history:[],reason:"",changedFrom:null,msgs:null};
-      hist((again?"Applied again with last working day ":"Last working day submitted: ")+fmt(dt),LV().name);
-      notify("vikram",LV().name+" submitted their last working day: "+fmt(dt)+".",{label:"Review",route:"home",tab:"tasks",tm:"lwd"});
-      S.draftDate=""; closeModal(); render(); toast("Last working day submitted");
-    };
-  };
-}
 /* View Profile page (avatar menu, top right): the existing profile card, then the Last Working Day
    content for the role. The Learning & Development tab itself is unchanged. */
 var EMP={priya:["938412","12 Jan 2023"],ankit:["901277","3 Mar 2021"],vikram:["880154","18 Jul 2019"],rahul:["940025","9 May 2023"]};
@@ -681,11 +623,9 @@ function profileCard(){
 function ldPage(){
   return ticketsBlock()+staticCard(ICON.book,"IMP Sheet","Important links &amp; resources")+staticCard(ICON.cap,"Training Modules","Videos, documents &amp; platform access");
 }
+/* The leaving counselor has no control in this flow: the SM enters the last working day. */
 function counselorHome(){
-  if(S.req && S.req.status==="deactivated"){
-    return '<div class="dead"><div class="ic" style="margin:0 auto 10px">&#128274;</div><h3 style="margin:0 0 6px">Your CRM login has been deactivated</h3><p style="color:var(--muted);margin:0">Your '+S.leads.length+' leads moved on '+fmt(transferDate(S.req))+', and you left your students\' Leap group chats on your last working day, '+fmt(S.req.lwd)+'. Thank you for your work at Leap.</p></div>';
-  }
-  return '<div class="page">'+profileCard()+resignationCard()+'</div>';
+  return '<div class="page">'+profileCard()+'</div>';
 }
 
 /* ---------- SM ---------- */
@@ -698,92 +638,83 @@ function msgCounts(ch){
    filter. Order: Pending (nearest LWD first), Rejected, Approved, Transferred, then Cancelled. */
 var SAMPLE_ROWS=[
   {name:"Farhan Ali",tl:"Meera Iyer",lwd:new Date(2026,8,30),leads:288,status:"transferred",tApp:"16 Sep 2026"},
-  {name:"Dev Khanna",tl:"Meera Iyer",lwd:new Date(2026,9,20),leads:302,status:"rejected"}
+  {name:"Dev Khanna",tl:"Meera Iyer",lwd:new Date(2026,9,20),leads:302,status:"cancelled",tApp:"18 Sep 2026"}
 ];
-var SORT_RANK={pending:0,rejected:1,approved:2,transferred:3,cancelled:4};
+var SORT_RANK={approved:0,transferred:1,cancelled:2};
 function smRows(){
   var rows=[];
   Object.keys(S.lv).forEach(function(id){ var r=S.lv[id].req; if(!r||r.status==="deactivated") return;
-    rows.push({id:id,name:PEOPLE[id].name,tl:TLof(id).name,lwd:r.lwd,leads:S.lv[id].leads.length,status:r.status,tApp:r.tApp,reopened:r.reopened}); });
+    rows.push({id:id,name:PEOPLE[id].name,tl:TLof(id).name,lwd:r.lwd,leads:S.lv[id].leads.length,status:r.status,tApp:r.tApp,move:withLeaver(id,function(){return isShort(r)?"Immediately":fmtShort(transferDate(r))+", 8 PM";})}); });
   SAMPLE_ROWS.forEach(function(x){ rows.push(x); });
   rows.sort(function(a,b){ return (SORT_RANK[a.status]-SORT_RANK[b.status]) || (a.lwd-b.lwd); });
   return rows;
 }
 function smAction(r){
   if(!r.id) return '<button class="btn sm" data-sample="1">View</button>';
-  if(r.status==="pending") return '<button class="btn sm p" data-review="'+r.id+'">Review</button>';
-  if(r.status==="approved") return '<button class="btn sm" data-assignfor="'+r.id+'">Assign leads</button>';
-  if(r.status==="rejected" && !r.reopened) return '<button class="btn sm" data-reopen="'+r.id+'">Reopen</button>';
+  if(r.status==="approved") return '<div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-assignfor="'+r.id+'">Reassign leads</button><button class="btn sm danger-o" data-cancelreq="'+r.id+'">Cancel</button></div>';
   return '<button class="btn sm" data-detailfor="'+r.id+'">View</button>';
 }
 function smHome(){
   return '<div class="page">'+profileCard()+'</div>';
 }
-/* The agreed SM section (pills + table + Take action), placed on Tasks & Performance under
-   Important Business Tasks. The Last Working Day Approval tile scrolls here. */
+/* SM's Counsellor Last Working Day modal: add an LWD for anyone in the team, see everyone in progress. */
 function smRequestsCard(){
-  var rows=smRows(), pend=rows.filter(function(r){return r.status==="pending";});
-  var pills = pend.length>1 ? '<div class="pills"><span>Pending approval:</span>'+pend.map(function(r){return '<button class="npill" data-review="'+r.id+'">'+esc(r.name)+' <span class="num">· LWD '+fmtShort(r.lwd)+'</span></button>';}).join("")+'</div>' : '';
-  var table = '<div class="tw"><table><thead><tr><th>Counselor name</th><th>TL name</th><th>Last working day</th><th>Leads</th><th>Status</th><th>Take action</th></tr></thead><tbody>'+
+  var rows=smRows();
+  var table = '<div class="tw"><table><thead><tr><th>Counsellor</th><th>TL</th><th>Last working day</th><th>Leads</th><th>Leads move</th><th>Status</th><th>Take action</th></tr></thead><tbody>'+
     rows.map(function(r){
-      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td>'+statusBadge(r.status)+(r.tApp?'<small class="sub">Approved '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
+      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td class="num">'+(r.move||"—")+'</td><td>'+statusBadge(r.status)+(r.tApp?'<small class="sub">Added '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>';
-  return '<p class="tmsub">Counselors in your teams who have entered a last working day'+(pend.length?' · <span class="badge b-amber">'+pend.length+' pending</span>':'')+'. Records drop off once the counselor\'s login is deactivated.</p>'+
-   pills+(rows.length?table:'<div class="note">No last working day requests.</div>');
+  return '<div class="row" style="justify-content:space-between"><p class="tmsub">Add the last working day of any counsellor in your team. Fresh lead assignment stops at once, their TL gets a task to reassign the leads, and leads move 7 days before the last working day. Rows drop off once the counsellor has left.</p><button class="btn p" id="addLwd">+ Add last working day</button></div>'+
+    (rows.length?table:'<div class="note">No counsellors leaving right now.</div>');
 }
 function bindSmHome(){
-  document.querySelectorAll("#taskModal [data-review]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); smReview(b.dataset.review); }; });
-  document.querySelectorAll("#taskModal [data-reopen]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); reopen(b.dataset.reopen); }; });
+  var a=document.getElementById("addLwd"); if(a) a.onclick=function(){ addLwdModal("",""); };
+  document.querySelectorAll("#taskModal [data-cancelreq]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); cancelReq(b.dataset.cancelreq); }; });
   document.querySelectorAll("[data-sample]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); toast("Sample history row — not clickable in this mockup"); }; });
   document.querySelectorAll("tr[data-row]").forEach(function(tr){ tr.onclick=function(){ openRequest(tr.dataset.row); }; tr.onkeydown=function(e){ if(e.key==="Enter") openRequest(tr.dataset.row); }; });
 }
-/* Opens the right agreed screen for a request: Review modal (pending), scheduling (approved),
-   detail page (rejected / transferred). */
-function openRequest(id){ var r=S.lv[id].req; if(r.status==="pending") smReview(id); else if(r.status==="approved") openSchedule(id); else { S.tm=null; S.focus=id; S.route="detail"; render(); window.scrollTo(0,0); } }
-/* Review opens in a modal (not a new page) so the SM can work through several requests quickly. */
-function smReview(id){
-  withLeaver(id,function(){
-    var r=S.req, tr=transferDate(r);
-    showModal('<h3>Review last working day</h3>'+
-      '<div class="kv"><div><small>Counselor</small><b>'+esc(LV().name)+'</b></div><div><small>TL</small><b>'+esc(TLof(id).name)+'</b></div><div><small>Last working day entered by '+esc(LV().name)+'</small><b>'+fmtDay(r.lwd)+'</b></div>'+
-      '<div><small>Leads</small><b class="num">'+S.leads.length+'</b> <button type="button" class="lnkbtn" data-breakdown="'+id+'">view leads</button></div><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>Scheduled transfer</small><b>'+fmtDay(tr)+', 8 PM</b></div></div>'+
-      (isShort(r)?'<div class="note warn"><b>Short notice.</b> Less than '+OVERLAP_DAYS+' days to the last working day, so leads transfer at 8 PM the day after approval.</div>':'<div class="note">Leads transfer '+OVERLAP_DAYS+' days before the last working day. The counselor stays in their students\' Leap group chats until '+fmtShort(r.lwd)+'.</div>')+
-      '<div class="row" style="justify-content:flex-end"><button class="btn d" id="rvReject">Reject</button><button class="btn" id="rvChange">Change last working day</button><button class="btn p" id="rvApprove">Approve</button></div>');
-    bindBreakdowns();
-    document.getElementById("rvApprove").onclick=function(){ confirmApprove(id,null); };
-    document.getElementById("rvChange").onclick=function(){ changeDate(id); };
-    document.getElementById("rvReject").onclick=function(){ rejectReq(id); };
-  });
+function openRequest(id){ var r=S.lv[id].req; if(r.status==="approved") openSchedule(id); else { S.tm=null; S.focus=id; S.route="detail"; render(); window.scrollTo(0,0); } }
+/* Counsellors the SM can add: everyone under them who isn't already leaving. */
+function addableCounsellors(){ return Object.keys(PEOPLE).filter(function(k){ var p=PEOPLE[k]; return p.role==="Counselor" && p.sm==="vikram" && !activeReq(k); }); }
+function ensureLeaver(id){ if(!S.lv[id]){ var n=0; for(var i=0;i<id.length;i++) n+=id.charCodeAt(i); S.lv[id]=leaver(id,{LS_COLLEGE_SHORTLISTED:30+n%20,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:15+n%10,LS_DEPOSIT_PAID:4+n%5,LS_VISA_APPLIED:3+n%4,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},70000+n*10,null); } }
+function addLwdModal(id,dt){
+  var opts='<option value="">Pick a counsellor…</option>'+addableCounsellors().map(function(k){ var p=PEOPLE[k]; return '<option value="'+k+'"'+(k===id?" selected":"")+'>'+esc(p.name)+' · '+esc(PEOPLE[p.tl].name)+'</option>'; }).join("");
+  var body="";
+  if(id && dt){
+    ensureLeaver(id);
+    var r0={lwd:parseIso(dt),appDay:TODAY};
+    body = withLeaver(id,function(){ return impactHtml(S.leads)+'<button type="button" class="lnkbtn" data-breakdown="'+id+'">View leads</button>'; })+
+      (isShort(r0)?'<div class="note warn"><b>Less than 7 days to the last working day.</b> Leads will move immediately as '+esc(TLof(id).name)+' schedules them.</div>'
+        :'<div class="note">Leads move on <b>'+fmtDay(transferDate(r0))+', 8 PM</b> (7 days before the last working day), so the old and new counsellor overlap for a week.</div>');
+  }
+  showModal('<h3>Add last working day</h3><label class="f">Counsellor<select class="in" id="alC">'+opts+'</select></label><label class="f">Last working day<input type="date" id="alD" min="'+iso(addDays(TODAY,1))+'" value="'+esc(dt)+'"></label>'+body+
+    '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Cancel</button><button class="btn danger" id="alGo"'+(id&&dt?"":" disabled")+'>Add last working day</button></div>',"wide");
+  bindBreakdowns();
+  var c=document.getElementById("alC"), d=document.getElementById("alD");
+  c.onchange=d.onchange=function(){ addLwdModal(c.value,d.value); };
+  document.getElementById("alGo").onclick=function(){ confirmAddLwd(id,parseIso(dt)); };
 }
-function confirmApprove(id,newDate){
-  withLeaver(id,function(){
-    var r=S.req, lwd=newDate||r.lwd, tr=transferDate({lwd:lwd,appDay:TODAY}), tl=TLof(id);
-    showModal('<h3>Approve '+esc(LV().name)+'\'s last working day?</h3>'+
-      '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b>'+(newDate?' (changed from '+fmt(r.lwd)+')':'')+'</li><li>New leads stop going to '+esc(LV().name)+' now.</li><li>'+esc(tl.name)+' gets a task to schedule the '+S.leads.length+' leads.</li><li>Leads transfer on <b>'+fmtDay(tr)+', 8 PM</b>.</li><li>Login is deactivated on the last working day.</li></ul>'+
-      '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn p" id="caGo">Confirm approval</button></div>');
-    document.getElementById("caBack").onclick=function(){ smReview(id); };
-    document.getElementById("caGo").onclick=function(){ withLeaver(id,function(){ approve(newDate); }); closeModal(); render(); toast("Approved. "+tl.name+" has been alerted"); };
-  });
+function confirmAddLwd(id,lwd){
+  ensureLeaver(id);
+  var r0={lwd:lwd,appDay:TODAY}, tl=TLof(id), n=S.lv[id].leads.length;
+  showModal('<div class="dhdr"><b>Add '+esc(PEOPLE[id].name)+'\'s last working day?</b><span>Fresh lead assignment to them stops now.</span></div>'+
+    '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li><li><b>'+esc(tl.name)+'</b> gets a task to reassign the <b>'+n+'</b> leads (you can reassign them too).</li><li>Leads move <b>'+moveWhen(r0)+'</b>; anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team.</li><li>On '+fmtShort(lwd)+' at 8 PM, '+esc(PEOPLE[id].name)+' and '+esc(tl.name)+' are removed from the students\' Leap group chats.</li><li>You can cancel this any time before the leads move (e.g. if they are retained).</li></ul>'+
+    '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn danger" id="caGo">Yes, add</button></div>',"danger");
+  document.getElementById("caBack").onclick=function(){ addLwdModal(id,iso(lwd)); };
+  document.getElementById("caGo").onclick=function(){
+    withLeaver(id,function(){
+      S.req={status:"approved",lwd:lwd,tApp:now(),appDay:TODAY,history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}};
+      S.assign={}; S.phase="before";
+      hist("Last working day "+fmt(lwd)+" added. Fresh lead assignment to "+LV().name+" stopped; task created for "+tl.name,me().name);
+      notify(tl.id,"Task: reassign "+LV().name+"'s "+S.leads.length+" leads. They move "+moveWhen(S.req)+".",{label:"Reassign leads",route:"home",tab:"tasks",tm:"sched",focus:id});
+    });
+    closeModal(); render(); toast("Last working day added. "+tl.name+" has a task to reassign the leads");
+  };
 }
-function changeDate(id){
-  withLeaver(id,function(){
-    showModal('<h3>Change last working day</h3><label class="f">Last working day<input type="date" id="cd" min="'+iso(addDays(TODAY,1))+'" value="'+iso(S.req.lwd)+'"></label><div class="err" id="cdErr"></div><div class="row" style="justify-content:flex-end"><button class="btn" id="cdBack">Back</button><button class="btn p" id="cdSave">Continue</button></div>');
-    document.getElementById("cdBack").onclick=function(){ smReview(id); };
-    document.getElementById("cdSave").onclick=function(){ var v=document.getElementById("cd").value; if(!v||parseIso(v)<=TODAY){ document.getElementById("cdErr").textContent="Pick a date from tomorrow onwards."; return; } confirmApprove(id,parseIso(v)); };
-  });
-}
-function rejectReq(id){
-  withLeaver(id,function(){
-    showModal('<h3>Reject '+esc(LV().name)+'\'s last working day</h3><label class="f">Reason<textarea id="rr" maxlength="500" placeholder="For example: last working day doesn\'t match HR records"></textarea></label><div class="err" id="rrErr"></div><div class="row" style="justify-content:flex-end"><button class="btn" id="rrBack">Back</button><button class="btn d" id="rrSave">Reject</button></div>');
-    document.getElementById("rrBack").onclick=function(){ smReview(id); };
-    document.getElementById("rrSave").onclick=function(){ var v=document.getElementById("rr").value.trim(); if(!v){ document.getElementById("rrErr").textContent="Add a reason."; return; }
-      withLeaver(id,function(){ S.req.status="rejected"; S.req.reason=v; S.req.tRej=now(); hist("Rejected: "+v,PEOPLE.vikram.name); notify(id,"Your last working day was rejected. Reason: "+v); });
-      closeModal(); render(); toast("Rejected. "+PEOPLE[id].name+" has been told"); };
-  });
-}
-function reopen(id){
-  withLeaver(id,function(){ S.req.reopened=true; S.req.tReo=now(); hist("Reopened for counselor",PEOPLE.vikram.name); notify(id,"Your SM reopened your last working day request. Rejection reason: "+S.req.reason+". You can pick a new date and apply again."); });
-  render(); toast("Reopened. "+PEOPLE[id].name+" can apply again");
+/* Retention: the SM can cancel before the leads move. */
+function cancelReq(id){
+  showModal('<h3>Cancel '+esc(PEOPLE[id].name)+'\'s last working day?</h3><p>Use this if they are staying. Scheduled reassignments are cleared, the TL\'s task closes, and they start getting fresh leads again.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Keep it</button><button class="btn d" id="cc">Cancel reassignment</button></div>');
+  document.getElementById("cc").onclick=function(){ withLeaver(id,function(){ S.req.status="cancelled"; S.req.tCan=now(); S.assign={}; hist("Cancelled (counsellor retained). Scheduled reassignments cleared; fresh leads resume",me().name); notify(TLof(id).id,LV().name+"'s reassignment was cancelled — they are staying."); }); closeModal(); render(); toast("Reassignment cancelled"); };
 }
 
 /* ---------- request detail (SM, TL) ---------- */
@@ -795,7 +726,7 @@ function assignCTA(showCancel){
   var badge = complete ? ' <span class="badge b-green">All scheduled</span>' : (asg>0 ? ' <span class="badge b-amber">In progress</span>' : '');
   var note = complete ? '<div class="note ok">All '+tot+' leads are scheduled. You can still change any of them before '+fmtDay(tr)+', 8 PM.</div>'
     : (asg>0 ? '<div class="note">'+asg+' of '+tot+' leads scheduled so far.</div>' : '');
-  var buttons = '<button class="btn '+(complete?"":"p")+'" data-assignfor="'+S.cur+'">'+label+'</button>'+(showCancel?'<button class="btn d" id="aCancel">Cancel</button>':'');
+  var buttons = '<button class="btn '+(complete?"":"p")+'" data-assignfor="'+S.cur+'">'+label+'</button>'+(showCancel?'<button class="btn d" data-cancelreq="'+S.cur+'">Cancel</button>':'');
   return {note:note, buttons:buttons, badge:badge, asg:asg, tot:tot};
 }
 /* Who the leaver's leads are going to: one row per receiving counselor, plus an Unassigned row before transfer. */
@@ -812,39 +743,20 @@ function reassignTable(done){
 function detailPage(){
   var r=S.req; var isSM=S.view==="vikram";
   if(!r) return '<button class="back" data-tasks>&larr; Back to Tasks &amp; Performance</button><div class="note">No request to show.</div>';
-  var acts="", noteHtml="", tr=transferDate(r);
-  if(isSM){
-    if(r.status==="pending") acts='<button class="btn p" data-review="'+S.cur+'">Review</button>';
-    if(r.status==="approved"){ var ab=assignCTA(true); noteHtml=ab.note; acts=ab.buttons; }
-    if(r.status==="rejected" && !r.reopened) acts='<button class="btn" data-reopen="'+S.cur+'">Reopen for counselor</button>';
-  } else if(r.status==="approved"){ var ab2=assignCTA(false); noteHtml=ab2.note; acts=ab2.buttons; }
+  var acts="", noteHtml="";
+  if(r.status==="approved"){ var ab=assignCTA(isSM); noteHtml=ab.note; acts=ab.buttons; }
   var reBlock = (r.status==="approved"||moved(r)) ? '<div class="card"><div class="cbody" style="border:0"><b>'+(moved(r)?"Leads transferred to":"Leads scheduled for")+'</b>'+reassignTable(moved(r))+'</div></div>' : '';
-  var msgBlock = r.msgs ? '<div class="card"><div class="cbody" style="border:0"><b>Student messages</b><div class="row">'+["email","wa"].map(function(ch){ var c=msgCounts(ch); return '<span class="badge b-grey">'+(ch==="email"?"Email":"WhatsApp")+': <span class="num">'+c.Sent+' sent · '+c.Failed+' failed · '+c.Pending+' retrying</span></span>'; }).join("")+'</div></div></div>' : '';
+  var j=r.joined?Object.keys(r.joined).length:0;
+  var msgBlock = moved(r) ? '<div class="card"><div class="cbody" style="border:0"><b>Leap group chat &amp; student email</b><div class="note">Sent as each new counsellor joins the student\'s group: <b class="num">'+j+'</b> of '+S.leads.length+' joined — LGC message and email sent. '+(S.leads.length-j)+' waiting for the new counsellor to join.</div></div></div>' : '';
   return '<div class="page"><button class="back" data-tasks>&larr; Back to Tasks &amp; Performance</button>'+
    '<div class="ph"><div><h1>'+esc(LV().name)+' · last working day</h1><p>'+esc(LV().role)+' · TL '+esc(TLof(S.cur).name)+' · SM '+esc(PEOPLE.vikram.name)+'</p></div>'+statusBadge(r.status)+'</div>'+
-   '<div class="card"><div class="cbody" style="border:0"><div class="meta"><div><small>Submitted</small><b>'+esc(r.tSub)+'</b></div><div><small>SM approved</small><b>'+esc(r.tApp||"—")+'</b></div><div><small>Last working day</small><b>'+fmt(r.lwd)+'</b></div><div><small>Leads transfer</small><b>'+fmtShort(tr)+', 8 PM</b></div><div><small>Scheduled</small><b class="num">'+assignedCount()+' / '+S.leads.length+'</b></div></div>'+leadTotal(S.leads,S.cur)+
-   (r.status==="rejected"?'<div class="note bad"><b>Rejection reason:</b> '+esc(r.reason)+(r.reopened?'<br>Reopened for the counselor on '+esc(r.tReo)+'. They can pick a new last working day and apply again.':'')+'</div>':'')+
+   '<div class="card"><div class="cbody" style="border:0"><div class="meta"><div><small>Added by SM</small><b>'+esc(r.tApp||"—")+'</b></div><div><small>Last working day</small><b>'+fmt(r.lwd)+'</b></div><div><small>Leads move</small><b>'+(isShort(r)?"Immediately":fmtShort(transferDate(r))+", 8 PM")+'</b></div><div><small>Scheduled</small><b class="num">'+assignedCount()+' / '+S.leads.length+'</b></div></div>'+impactHtml(S.leads)+
    noteHtml+(acts?'<div class="row">'+acts+'</div>':'')+'</div></div>'+
    reBlock+msgBlock+
-   '<div class="card"><div class="cbody" style="border:0"><b>History</b> <small style="color:var(--muted)">(latest request only)</small><ul class="hist">'+r.history.map(function(h){return '<li>'+esc(h.text)+' · '+esc(h.by)+'<small>'+esc(h.at)+'</small></li>';}).join("")+'</ul></div></div></div>';
-}
-function approve(newDate){
-  var r=S.req, tl=TLof(S.cur);
-  if(newDate){ r.changedFrom=r.lwd; hist("Last working day changed from "+fmt(r.lwd)+" to "+fmt(newDate),PEOPLE.vikram.name); r.lwd=newDate; }
-  r.status="approved"; r.tApp=now(); r.appDay=TODAY;
-  var tr=transferDate(r);
-  hist("Approved. New lead allocation to "+LV().name+" stopped. Leads transfer "+fmt(tr)+", 8 PM",PEOPLE.vikram.name);
-  notify(tl.id,"Schedule "+LV().name+"'s "+S.leads.length+" leads before "+fmt(tr)+", 8 PM.",{label:"Schedule leads",route:"home",tab:"tasks",tm:"sched",focus:S.cur});
-  notify(S.cur,"Your last working day ("+fmt(r.lwd)+") was approved. Your leads transfer on "+fmt(tr)+", 8 PM.");
+   '<div class="card"><div class="cbody" style="border:0"><b>History</b><ul class="hist">'+r.history.map(function(h){return '<li>'+esc(h.text)+' · '+esc(h.by)+'<small>'+esc(h.at)+'</small></li>';}).join("")+'</ul></div></div></div>';
 }
 function bindDetail(){
-  document.querySelectorAll("#taskModal [data-review]").forEach(function(b){ b.onclick=function(){ smReview(b.dataset.review); }; });
-  document.querySelectorAll("#main [data-reopen]").forEach(function(b){ b.onclick=function(){ reopen(b.dataset.reopen); }; });
-  var c=document.getElementById("aCancel"); if(c) c.onclick=function(){
-    var id=S.cur;
-    showModal('<h3>Cancel '+esc(LV().name)+'\'s last working day?</h3><p>All scheduled assignments will be cleared and they will start getting new leads again.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Keep it</button><button class="btn d" id="cc">Cancel request</button></div>');
-    document.getElementById("cc").onclick=function(){ withLeaver(id,function(){ S.req.status="cancelled"; S.req.tCan=now(); S.assign={}; hist("Cancelled. Assignments cleared and lead allocation restored",PEOPLE.vikram.name); notify(id,"Your last working day request was cancelled by "+PEOPLE.vikram.name+"."); notify(TLof(id).id,LV().name+"'s last working day request was cancelled. Scheduled assignments were cleared."); }); closeModal(); render(); toast("Request cancelled"); };
-  };
+  document.querySelectorAll("#main [data-cancelreq]").forEach(function(b){ b.onclick=function(){ cancelReq(b.dataset.cancelreq); }; });
 }
 
 /* ---------- TL assign ---------- */
@@ -874,7 +786,7 @@ function filtered(){
 }
 function assignRowHtml(l,locked){
   var a=S.assign[l.id], sel=!!S.tl.sel[l.id];
-  return '<tr class="'+(locked?"":"cl ")+(sel?"sel":"")+'"'+(locked?'':' data-rowsel="'+l.id+'"')+'><td><input type="checkbox" data-sel="'+l.id+'"'+(sel?" checked":"")+(locked?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.servicing))+'</td><td>'+esc(prettyEnum(l.program))+'</td><td class="num">'+fmtShort(l.last)+'</td><td class="num">'+fmtShort(l.next)+'</td><td>'+(a?'<span class="badge b-blue">'+esc(PEOPLE[a].name)+'</span>':'<span class="badge b-amber">Unscheduled</span>')+'</td></tr>';
+  return '<tr class="'+(locked?"":"cl ")+(sel?"sel":"")+'"'+(locked?'':' data-rowsel="'+l.id+'"')+'><td><input type="checkbox" data-sel="'+l.id+'"'+(sel?" checked":"")+(locked?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.servicing))+'</td><td>'+esc(prettyEnum(l.program))+'</td><td class="num">'+fmtShort(l.last)+'</td><td class="num">'+fmtShort(l.next)+'</td><td>'+(a?(S.req.movedNow&&S.req.movedNow[l.id]?'<span class="badge b-green">Moved to '+esc(PEOPLE[a].name)+'</span>':'<span class="badge b-blue">'+esc(PEOPLE[a].name)+'</span>'):'<span class="badge b-amber">Unscheduled</span>')+'</td></tr>';
 }
 /* Leavers this viewer schedules leads for: the TL sees their own team's, the SM sees everyone's. */
 function assignLeavers(){
@@ -890,6 +802,7 @@ function assignBody(){
   function optPretty(list,v){ return '<option value="All"'+(v==="All"?" selected":"")+'>All</option>'+list.map(function(x){return '<option value="'+x+'"'+(x===v?" selected":"")+'>'+esc(prettyEnum(x))+'</option>';}).join(""); }
   function th(key,label){ var ar = t.sort===key ? (t.dir===1?" &#9650;":" &#9660;") : ""; return '<th class="s" data-sort="'+key+'">'+label+ar+'</th>'; }
   var banner = locked ? '<div class="note ok"><b>Transfer complete.</b> This list is read only.</div>' :
+    isShort(r) ? '<div class="note warn"><b>Short notice:</b> leads move immediately as you schedule them. Anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team at 8 PM on '+fmtShort(r.lwd)+'.</div>' :
     (tot>0&&asg===tot ? '<div class="note ok"><b>All '+tot+' leads are scheduled.</b> They move at '+fmtDay(tr)+', 8 PM — you can still change any of them until then.</div>'
       : '<div class="note">Nothing moves until <b>'+fmtDay(tr)+', 8 PM</b>. Anything left unscheduled then is split evenly across '+esc(tl.name)+'\'s team.</div>');
   var table = slice.length ? '<div class="tw"><table><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all shown"'+(allShownSel?" checked":"")+(locked?" disabled":"")+'></th>'+th("name","Student")+th("id","Lead ID")+th("stage","Stage")+th("servicing","Servicing type")+th("program","Program")+th("last","Last contacted")+th("next","Next follow-up")+th("to","Scheduled for")+'</tr></thead><tbody>'+
@@ -947,11 +860,13 @@ function bottomBar(){
   s.onchange=function(){ g.disabled=!s.value; };
   g.onclick=function(){
     var who=s.value, ids=Object.keys(S.tl.sel), id=S.cur, r=S.req, tr=transferDate(r);
-    showModal('<h3>Schedule assignment?</h3><div class="kv"><div><small>Schedule for</small><b>'+esc(PEOPLE[who].name)+'</b></div><div><small>Leads</small><b class="num">'+ids.length+' of '+esc(LV().name)+'\'s</b></div><div><small>Last working day</small><b>'+fmtDay(r.lwd)+'</b></div><div><small>Leads move</small><b>'+fmtDay(tr)+', 8 PM</b></div></div>'+
-      '<div class="note">Nothing moves now. '+esc(PEOPLE[who].name)+' becomes the owner at '+fmtDay(tr)+', 8 PM. You can change this any time before then.</div>'+
+    showModal('<h3>Schedule assignment?</h3><div class="kv"><div><small>Schedule for</small><b>'+esc(PEOPLE[who].name)+'</b></div><div><small>Leads</small><b class="num">'+ids.length+' of '+esc(LV().name)+'\'s</b></div><div><small>Last working day</small><b>'+fmtDay(r.lwd)+'</b></div><div><small>Leads move</small><b>'+(isShort(r)?"Now":fmtDay(tr)+", 8 PM")+'</b></div></div>'+
+      (isShort(r)?'<div class="note warn">Short notice: these leads move to '+esc(PEOPLE[who].name)+' <b>now</b>.</div>':'<div class="note">Nothing moves now. '+esc(PEOPLE[who].name)+' becomes the owner at '+fmtDay(tr)+', 8 PM. You can change this any time before then.</div>')+
       '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Back</button><button class="btn p" id="schGo">Schedule</button></div>');
     document.getElementById("schGo").onclick=function(){
-      withLeaver(id,function(){ ids.forEach(function(x){ S.assign[x]=who; }); hist("Scheduled "+ids.length+" leads for "+PEOPLE[who].name+" (move "+fmt(tr)+", 8 PM)",me().name); });
+      withLeaver(id,function(){ ids.forEach(function(x){ S.assign[x]=who; if(isShort(S.req)) S.req.movedNow[x]=1; });
+        if(isShort(S.req)){ hist("Moved "+ids.length+" leads to "+PEOPLE[who].name+" immediately (short notice); tasks and follow-ups moved",me().name); notify(who,"You received "+ids.length+" leads from "+LV().name+". Join each student's Leap group chat to accept them."); }
+        else hist("Scheduled "+ids.length+" leads for "+PEOPLE[who].name+" (move "+fmt(tr)+", 8 PM)",me().name); });
       S.tl.sel={}; closeModal(); render(); toast(ids.length+" leads scheduled for "+PEOPLE[who].name);
     };
   };
@@ -1011,7 +926,7 @@ var IBT_STATIC={
   vikram:[["&#128221;","ISL Reviews Pending",2],["&#128196;","Review Docs For Conditional Admit",220],["&#9989;","Verify the Probable Conditions marked in the Expected Outcome",48],["&#128179;","Deposit Payment Verification",37],["&#128172;","Applicant Feedback",13],["&#128706;","Visa Drop Request",0],["&#128228;","Drop Off Approval",24]]
 };
 function loadPill(n){ return n===0?'<span class="lp clear">CLEAR</span>':n>20?'<span class="lp high">HIGH</span>':'<span class="lp mod">MODERATE</span>'; }
-function lwdPendingIds(){ return Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&r.status==="pending"; }); }
+function lwdActiveIds(){ return Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&r.status==="approved"; }); }
 function scheduleTaskIds(){ return assignLeavers().filter(function(id){ return withLeaver(id,function(){ return S.req.status==="approved"; }); }); }
 function ibtTile(key,icon,label,n,isNew){
   return '<button class="ibt'+(isNew?" new2":"")+'" data-ibt="'+key+'"><span class="ibi">'+icon+'</span><b class="num">'+n+'</b><span class="ibl">'+label+'</span>'+loadPill(n)+'</button>';
@@ -1019,7 +934,7 @@ function ibtTile(key,icon,label,n,isNew){
 function ibtSection(){
   var v=S.view; if(v!=="ankit"&&v!=="vikram") return "";
   var tiles=[];
-  if(v==="vikram") tiles.push(ibtTile("lwd","&#128197;","Last Working Day Approval",lwdPendingIds().length,true));
+  if(v==="vikram") tiles.push(ibtTile("lwd","&#128197;","Counsellor Last Working Day",lwdActiveIds().length,true));
   tiles.push(ibtTile("sched","&#128101;","Schedule Reassigned Leads",scheduleTaskIds().length,true));
   IBT_STATIC[v].forEach(function(x){ tiles.push(ibtTile("static","<span>"+x[0]+"</span>",x[1],x[2],false)); });
   return '<div class="card"><div class="cbody" style="border:0"><b>&#128203; Important Business Tasks'+(v==="vikram"?" — TL &amp; POD rollup":"")+'</b><div class="ibtgrid">'+tiles.join("")+'</div></div></div>';
@@ -1036,7 +951,7 @@ function renderTaskModal(){
   var el=document.getElementById("taskModal"), k=S.tm;
   if(!k || S.route!=="home" || S.activeTab!=="tasks"){ el.innerHTML=""; return; }
   var prev=el.querySelector(".tmscroll"), keep=prev?prev.scrollTop:0;
-  var title = k==="lwd" ? "Last Working Day Approval" : "Schedule Reassigned Leads";
+  var title = k==="lwd" ? "Counsellor Last Working Day" : "Schedule Reassigned Leads";
   var body = k==="lwd" ? smRequestsCard() : scheduleCard();
   el.innerHTML='<div class="tmodal" id="tmBg"><div class="tmbox" role="dialog" aria-modal="true"><div class="tmhead"><button class="back" id="tmBack">&larr; Back to Tasks &amp; Performance</button><b>'+title+'</b><button id="tmClose" aria-label="Close">&times;</button></div><div class="tmscroll"><div class="tmbody">'+body+'</div></div><div id="tmFoot"></div></div></div>';
   el.querySelector(".tmscroll").scrollTop=keep;
@@ -1057,12 +972,13 @@ function lockScroll(){ document.body.style.overflow = S.tm ? "hidden" : ""; }
    sees his own; Ankit sees his whole team's, for oversight). These carry the Connect with Reassigned
    Leads task and show inside the existing Boost STI / Boost Deposit drawers with a Reassigned badge. */
 function drawerLeads(scope){
-  if(!moved(S.req)) return [];
+  var r=S.req; if(!r) return [];
   var v=S.view, forId = v==="rahul" ? "rahul" : null, oversight = v==="ankit"||v==="vikram";
   var TASK_GROUPS = scope==="sti" ? ["sti"] : ["deposit_done"];
   return S.leads.filter(function(l){
     var owner=S.assign[l.id];
     if(!owner || TASK_GROUPS.indexOf(leadGroup(l))===-1) return false;
+    if(!moved(r) && !(r.movedNow&&r.movedNow[l.id])) return false;
     return oversight ? PEOPLE[owner].tl===LV().tl : owner===forId;
   });
 }
@@ -1090,6 +1006,7 @@ function taskCardHtml(l){
   var sub = l.id+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(oversight?' · Assigned to '+esc(owner.name):'');
   return '<div class="taskcard"><div class="tchead"><b>'+esc(l.name)+'</b><small>'+sub+'</small></div>'+
     '<div class="tcbadges"><span class="tcbadge">'+badgeLbl+'</span><span class="tcbadge re">Reassigned from '+esc(LV().name)+'</span></div>'+
+    (S.req.joined&&S.req.joined[l.id]?'<div class="step0 ok">&#10003; Step 0 · Joined the Leap group chat</div>':'<div class="step0">Step 0 · Join '+esc(l.first)+'\'s Leap group chat to accept this lead (WhatsApp invite sent)</div>')+
     '<div class="htc"><span class="htclabel">How to close</span><span class="htcchip">Connect with Reassigned Lead</span><p>Book and join a meeting with '+esc(l.first)+', or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.</p></div>'+
     '<div class="tcbtns"><button class="btn sm" data-viewstudent="'+l.id+'">View student</button><button class="btn sm" data-viewtask="'+l.id+'">View Task</button></div>'+
   '</div>';
@@ -1196,63 +1113,70 @@ function bindTasksPerf(){
 
 /* ---------- new counselor ---------- */
 function rahulProfile(){
-  return '<div class="page">'+profileCard()+staticCard(ICON.res,"Last Working Day","Enter your last working day — the rest happens automatically")+'</div>';
+  return '<div class="page">'+profileCard()+'</div>';
 }
 
-/* ---------- 8 PM transfer ---------- */
+/* ---------- 8 PM transfer (T-7) ---------- */
 function runTransfer(){
   S.cur="priya";
   var r=S.req; if(!r||r.status!=="approved") return;
   S.clock=fmt(transferDate(r))+", 8:00 PM";
-  // 1. auto split leftovers across the TL team, fewest open leads first
   var pool=eligible().filter(function(p){return p.tl===LV().tl;});
   var load=function(p){ return p.open+Object.keys(S.assign).filter(function(k){return S.assign[k]===p.id;}).length; };
   pool.sort(function(a,b){return load(a)-load(b);});
   var left=S.leads.filter(function(l){return !S.assign[l.id];}).sort(function(a,b){return a.id<b.id?-1:1;});
   left.forEach(function(l,i){ S.assign[l.id]=pool[i%pool.length].id; });
-  if(left.length) hist("Auto split "+left.length+" unscheduled leads across "+PEOPLE.ankit.name+"'s team","System");
-  // 2. move leads, 3. queue messages
+  if(left.length) hist("Auto split "+left.length+" unscheduled leads across "+TLof(S.cur).name+"'s team","System");
   hist("Moved "+S.leads.length+" leads with open tasks, follow-ups and history","System");
-  r.msgs={};
-  S.leads.forEach(function(l){
-    var e = !l.email ? {s:"Failed",why:"No email on lead",at:now()} : l.flaky ? {s:"Pending",why:"",at:now()} : {s:"Sent",at:now()};
-    var w = !l.phone ? {s:"Failed",why:"No phone on lead",at:now()} : (l.flaky&&l.email) ? {s:"Pending",why:"",at:now()} : {s:"Sent",at:now()};
-    r.msgs[l.id]={email:e,wa:w};
-  });
-  hist("Sent student emails and WhatsApp messages; failed sends will retry 3 times over 1 hour","System");
-  // 4. tasks + bells
   var per={}; S.leads.forEach(function(l){ per[S.assign[l.id]]=(per[S.assign[l.id]]||0)+1; });
-  Object.keys(per).forEach(function(k){ notify(k,"You received "+per[k]+" leads from "+LV().name+"."); });
+  Object.keys(per).forEach(function(k){ notify(k,"You received "+per[k]+" leads from "+LV().name+". Join each student's Leap group chat to accept them."); });
   var conn=S.leads.filter(function(l){ var g=leadGroup(l); return g==="sti"||g==="deposit_done"; }).length;
   hist("Created "+conn+" Connect with Reassigned Leads tasks (Boost STI / Boost Deposit)","System");
-  /* Leap group chats are handled outside the CRM: each new counselor gets a WhatsApp "Join this group"
-     notification for every student's group, and the student message posts once they join. */
-  hist("Leap group chat: new counselors notified on WhatsApp to join "+S.leads.length+" student groups (outside CRM)","System");
+  hist("New counsellors invited on WhatsApp to join "+S.leads.length+" student Leap group chats (Step 0). LGC message and email go to each student when their new counsellor joins","System");
+  /* Mock: about two thirds of new counsellors join on day one. */
+  S.leads.forEach(function(l){ if(parseInt(l.id.slice(3),10)%3) r.joined[l.id]=1; });
   r.status="transferred"; r.tTr=now();
-  hist(LV().name+" stays active in the students' Leap group chats until "+fmt(r.lwd),"System");
-  notify("priya","Your "+S.leads.length+" leads moved to new counselors. You stay in your students' Leap group chats until "+fmt(r.lwd)+".");
-  S.phase="retrying"; S.tl.sel={};
-  render(); toast("Transfer done");
+  hist(LV().name+" and their TL stay in the Leap group chats until 8 PM on "+fmt(r.lwd),"System");
+  S.phase="joining"; S.tl.sel={};
+  render(); toast("Leads moved");
 }
 function finishRetries(){
   S.cur="priya";
-  if(S.phase!=="retrying") return;
-  S.clock=fmt(transferDate(S.req))+", 9:00 PM";
-  var i=0;
-  Object.keys(S.req.msgs).forEach(function(k){ var m=S.req.msgs[k]; ["email","wa"].forEach(function(ch){ if(m[ch].s==="Pending"){ i++; m[ch]= (i%2) ? {s:"Failed",why: ch==="email"?"Mailbox unavailable (550)":"Number not on WhatsApp",at:now()} : {s:"Sent",at:now()}; } }); });
-  hist("Retries finished. Final Sent / Failed counts updated on the Handovers card","System");
-  S.phase="done"; render(); toast("Retries finished");
+  if(S.phase!=="joining") return;
+  S.clock=fmt(addDays(transferDate(S.req),1))+", 8:00 PM";
+  S.leads.forEach(function(l){ S.req.joined[l.id]=1; });
+  hist("All new counsellors joined their students' Leap group chats; LGC message and email sent to every student","System");
+  S.phase="done"; render(); toast("Everyone joined their Leap group chats");
 }
-/* Last working day: the leaver leaves every Leap group chat and their login is deactivated. The SM's
-   list drops the record from here on. */
+/* Last working day, 8 PM: the old counsellor and their TL are removed from every student's Leap group
+   chat. The record drops off the SM's list. (Login deactivation stays with the existing HR process.) */
 function jumpToLwd(){
   S.cur="priya";
   var r=S.req; if(!r||r.status!=="transferred") return;
-  S.clock=fmt(r.lwd)+", 8:00 PM"; if(S.phase==="retrying") S.phase="done";
+  S.clock=fmt(r.lwd)+", 8:00 PM"; S.phase="done";
   r.status="deactivated";
-  hist(LV().name+" removed from "+S.leads.length+" Leap group chats; CRM login deactivated","System");
-  render(); toast("Last working day: login deactivated");
+  hist(LV().name+" and "+TLof(S.cur).name+" removed from "+S.leads.length+" Leap group chats","System");
+  render(); toast("Last working day: removed from Leap group chats");
 }
+
+/* ---------- View assigned leads (new counsellor) ----------
+   The top-bar button already exists in the CRM. Reassigned leads, in every stage, are marked so the
+   new counsellor can tell them apart and filter to them. */
+var OWN_LEADS=[["Aarav Mehta","LD-31842","LS_APPLICATION_SUBMITTED_TO_INSTITUTE"],["Isha Kapoor","LD-31907","LS_CONDITIONAL_ADMIT_RECEIVED"],["Kabir Shah","LD-30766","LS_DEPOSIT_PAID"],["Tara Bose","LD-30655","LS_COLLEGE_SHORTLISTED"],["Dhruv Jain","LD-30588","LS_VISA_APPLIED"]];
+function assignedPage(){
+  var reLeads=[], v=S.view;
+  Object.keys(S.lv).forEach(function(id){ withLeaver(id,function(){ var r=S.req; if(!r) return;
+    S.leads.forEach(function(l){ if(S.assign[l.id]===v && (moved(r)||(r.movedNow&&r.movedNow[l.id]))) reLeads.push({l:l,from:PEOPLE[id].name,on:r.movedNow&&r.movedNow[l.id]&&!moved(r)?fmtShort(r.appDay):fmtShort(transferDate(r)),joined:!!(r.joined&&r.joined[l.id])}); }); }); });
+  var a=S.assigned, rows=[];
+  reLeads.forEach(function(x){ rows.push('<tr><td><b>'+esc(x.l.name)+'</b></td><td>'+x.l.id+'</td><td>'+esc(STAGE_LABEL[x.l.stage])+'</td><td>'+esc(GROUP_LABEL[leadGroup(x.l)])+'</td><td><span class="badge b-blue">Reassigned</span> <small class="sub">from '+esc(x.from)+' · '+x.on+'</small></td><td>'+(x.joined?'<span class="badge b-green">Joined LGC</span>':'<span class="badge b-amber">Join LGC (Step 0)</span>')+'</td></tr>'); });
+  if(!a.onlyRe) OWN_LEADS.forEach(function(o){ rows.push('<tr><td><b>'+esc(o[0])+'</b></td><td>'+o[1]+'</td><td>'+esc(STAGE_LABEL[o[2]])+'</td><td>'+esc(GROUP_LABEL[STAGE_GROUP[o[2]]])+'</td><td style="color:var(--faint)">—</td><td style="color:var(--faint)">—</td></tr>'); });
+  return '<div class="page"><button class="back" data-tasks>&larr; Back</button><div class="ph"><div><h1>My assigned leads</h1><p>Reassigned leads are marked so you can tell them apart. Join each student\'s Leap group chat to accept a reassigned lead.</p></div></div>'+
+    '<div class="dchips"><button class="chip'+(a.onlyRe?"":" on")+'" data-asg="0">All</button><button class="chip'+(a.onlyRe?" on":"")+'" data-asg="1">Reassigned <span class="num">'+reLeads.length+'</span></button></div>'+
+    '<div class="tw"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage</th><th>Group</th><th>Reassigned</th><th>Leap group chat</th></tr></thead><tbody>'+(rows.join("")||'<tr><td colspan="6">No leads.</td></tr>')+'</tbody></table></div>'+
+    '<div style="font-size:12px;color:var(--muted)">Mock: '+OWN_LEADS.length+' sample own leads plus every lead reassigned to you.</div></div>';
+}
+document.querySelector(".vbtn").style.cursor="pointer";
+document.querySelector(".vbtn").onclick=function(){ if(S.view==="rahul"){ S.route="assigned"; S.assigned.onlyRe=true; render(); window.scrollTo(0,0); } else toast("Not modeled for this role"); };
 
 /* ---------- modal ---------- */
 function showModal(html,cls){ var m=document.getElementById("modal"); m.innerHTML='<div class="modal" role="dialog" aria-modal="true"><div class="mbox'+(cls?" "+cls:"")+'">'+html+'</div></div>'; m.querySelectorAll('[data-m="close"]').forEach(function(b){b.onclick=closeModal;}); var f=m.querySelector("input,textarea,button.p"); if(f) f.focus(); }
@@ -1265,8 +1189,8 @@ function render(){
   renderDemo(); renderTop(); renderTabs();
   var m=document.getElementById("main"), html="";
   S.cur = S.route==="detail" && S.focus && S.lv[S.focus] ? S.focus : "priya";
-  if(S.lv.priya.req && S.lv.priya.req.status==="deactivated" && v==="priya"){ S.cur="priya"; html=counselorHome(); }
-  else if(S.route==="detail" && lead) html=detailPage();
+  if(S.route==="detail" && lead) html=detailPage();
+  else if(S.route==="assigned" && v==="rahul") html=assignedPage();
   else if(S.route==="profile"){ S.cur="priya"; html = v==="priya"?counselorHome(): v==="vikram"?smHome(): v==="ankit"?tlHome(): rahulProfile(); }
   else { S.route="home"; S.cur="priya"; html = S.activeTab==="tasks" ? tasksPerfPage() : ldPage(); }
   m.innerHTML=html;
@@ -1278,7 +1202,7 @@ function render(){
   m.querySelectorAll("[data-ld]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.activeTab="ld"; render(); window.scrollTo(0,0); }; });
   m.querySelectorAll("[data-tasks]").forEach(function(b){ b.onclick=function(){ S.route="home"; S.activeTab="tasks"; S.tl.sel={}; render(); window.scrollTo(0,0); }; });
   if(S.route==="home"&&S.activeTab==="tasks"){ bindTasksPerf(); bindIbt(); if(S.tm==="lwd") bindSmHome(); if(S.tm==="sched") bindAssign(); }
-  if(S.route==="profile"&&v==="priya") bindResignation();
+  m.querySelectorAll("[data-asg]").forEach(function(b){ b.onclick=function(){ S.assigned.onlyRe=b.dataset.asg==="1"; render(); }; });
   if(S.route==="detail") bindDetail();
   document.querySelectorAll("#main [data-assignfor], #taskModal [data-assignfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); openSchedule(b.dataset.assignfor); }; });
   document.querySelectorAll("#main [data-detailfor], #taskModal [data-detailfor]").forEach(function(b){ if(!b.onclick) b.onclick=function(e){ e.stopPropagation(); S.tm=null; S.focus=b.dataset.detailfor; S.route="detail"; render(); window.scrollTo(0,0); }; });
