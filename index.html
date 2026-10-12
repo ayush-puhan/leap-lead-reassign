@@ -610,6 +610,16 @@ function moved(r){ return r && (r.status==="transferred"||r.status==="deactivate
 function activeReq(id){ var r=S.lv[id]&&S.lv[id].req; return !!r && ["approved","transferred","deactivated"].indexOf(r.status)!==-1; }
 function withLeaver(id,fn){ var prev=S.cur; S.cur=id; try{ return fn(); } finally { S.cur=prev; } }
 function now(){ return S.clock; }
+var MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Sept:8,Oct:9,Nov:10,Dec:11};
+function parseStamp(t){ var m=String(t).match(/(\d+) (\w+) (\d{4}), (\d+):(\d+) (AM|PM)/); if(!m) return null; var h=+m[4]%12+(m[6]==="PM"?12:0); return new Date(+m[3],MON[m[2]],+m[1],h,+m[5]); }
+function fmtStamp(d){ var h=d.getHours(), ap=h>=12?"PM":"AM"; h=h%12||12; return fmtShort(d)+", "+h+":"+String(d.getMinutes()).padStart(2,"0")+" "+ap; }
+/* Swapnil's PRD: the TL / PL closes the scheduling task within 24 hrs of assignment (all leads
+   scheduled), else an email goes to their reporting manager and Debasish Sahoo. */
+function slaInfo(id){ var r=S.lv[id].req, at=parseStamp(r.tApp), due=at&&new Date(at.getTime()+864e5), owner=TLof(id), rm=PEOPLE[owner.pod||owner.sm||"vikram"];
+  var done=withLeaver(id,function(){ return assignedCount()===S.leads.length; });
+  return {due:due, done:done, overdue:!done && due && parseStamp(S.clock)>due, rm:rm}; }
+function slaBadge(id){ var x=slaInfo(id); if(!x.due) return "";
+  return x.done ? '<span class="badge b-green">Task done</span>' : x.overdue ? '<span class="badge b-red" title="Email sent to '+esc(x.rm.name)+' and Debasish Sahoo">Overdue · escalated to '+esc(x.rm.name)+'</span>' : '<span class="badge b-amber">Due '+fmtStamp(x.due)+'</span>'; }
 function notify(who,text,action){ S.notes[who].unshift({text:text,at:now(),action:action||null,read:false}); }
 function hist(text,by){ S.req.history.unshift({text:text,by:by,at:now()}); }
 function me(){ return PEOPLE[S.view]; }
@@ -617,7 +627,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&am
 function toast(t){ var el=document.getElementById("toast"); el.innerHTML='<div class="toast">'+esc(t)+'</div>'; clearTimeout(toast._t); toast._t=setTimeout(function(){el.innerHTML="";},2600); }
 function assignedCount(){ return Object.keys(S.assign).length; }
 function statusBadge(st){
-  var m={approved:["Scheduling leads","b-blue"],transferred:["Leads transferred","b-green"],deactivated:["Completed","b-grey"],cancelled:["Cancelled (retained)","b-grey"]};
+  var m={approved:["Scheduling leads","b-blue"],transferred:["Leads transferred","b-green"],deactivated:["Completed","b-grey"],cancelled:["Deleted","b-grey"]};
   var x=m[st]; return '<span class="badge '+x[1]+'">'+x[0]+'</span>';
 }
 var ICON={res:"&#128682;",book:"&#128214;",cap:"&#127891;",list:"&#128203;",task:"&#9745;"};
@@ -781,7 +791,7 @@ function smRows(){
 }
 function smAction(r){
   if(!r.id) return '<button class="btn sm" data-sample="1">View</button>';
-  if(r.status==="approved") return '<div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-assignfor="'+r.id+'">Reassign leads</button><button class="btn sm danger-o" data-cancelreq="'+r.id+'">Cancel</button></div>';
+  if(r.status==="approved") return '<div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-assignfor="'+r.id+'">Reassign leads</button>'+(movedAny(r.id)?'':'<button class="btn sm" data-editlwd="'+r.id+'">Edit</button><button class="btn sm danger-o" data-cancelreq="'+r.id+'">Delete</button>')+'</div>';
   if(r.status==="transferred") return '<button class="btn sm" data-handover="'+r.id+'">Track handover</button>';
   return '<button class="btn sm" data-handover="'+r.id+'">View</button>';
 }
@@ -793,7 +803,7 @@ function smRequestsCard(){
   var rows=smRows();
   var table = '<div class="tw"><table><thead><tr><th>Counsellor</th><th>TL</th><th>Last working day</th><th>Leads</th><th>Leads move</th><th>Status</th><th>Take action</th></tr></thead><tbody>'+
     rows.map(function(r){
-      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td class="num">'+(r.move||"—")+'</td><td>'+statusBadge(r.status)+(r.joined!=null?'<small class="sub"><span class="num">'+r.joined+' / '+r.leads+'</span> groups joined by CL</small>':r.tApp?'<small class="sub">Added '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
+      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td class="num">'+(r.move||"—")+'</td><td>'+statusBadge(r.status)+(r.id&&r.status==="approved"?' '+slaBadge(r.id):'')+(r.joined!=null?'<small class="sub"><span class="num">'+r.joined+' / '+r.leads+'</span> groups joined by CL</small>':r.tApp?'<small class="sub">Added '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>';
   if(S.tmView) return handoverHtml(S.tmView);
   var nAct=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="approved"||r.status==="transferred"); }).length;
@@ -804,6 +814,7 @@ function smRequestsCard(){
 }
 function bindSmHome(){
   var a=document.getElementById("addLwd"); if(a) a.onclick=function(){ addLwdModal("",""); };
+  document.querySelectorAll("#taskModal [data-editlwd]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); editLwdModal(b.dataset.editlwd,iso(S.lv[b.dataset.editlwd].req.lwd)); }; });
   document.querySelectorAll("#taskModal [data-cancelreq]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); cancelReq(b.dataset.cancelreq); }; });
   document.querySelectorAll("[data-smtab]").forEach(function(b){ b.onclick=function(){ S.smTab=b.dataset.smtab; render(); }; });
   document.querySelectorAll("[data-sample]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); toast("Sample history row — not clickable in this mockup"); }; });
@@ -835,7 +846,7 @@ function confirmAddLwd(id,lwd){
   ensureLeaver(id);
   var r0={lwd:lwd,appDay:TODAY}, tl=TLof(id), n=S.lv[id].leads.length;
   showModal('<div class="dhdr"><b>Add '+esc(PEOPLE[id].name)+'\'s last working day?</b><span>Fresh lead assignment to them stops now.</span></div>'+
-    '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li><li><b>'+esc(tl.name)+'</b>'+(PEOPLE[id].tl?'':' (POD leader — '+esc(PEOPLE[id].name)+' has no TL)')+' gets a task to reassign the <b>'+n+'</b> leads (you can reassign them too).</li><li>Leads move <b>'+moveWhen(r0)+'</b>; anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team.</li><li>On '+fmtShort(lwd)+' at 8 PM, '+esc(PEOPLE[id].name)+' is removed from the students\' Leap group chats and their CRM login is deactivated.</li><li>You can cancel this any time before the leads move (e.g. if they are retained).</li></ul>'+
+    '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li><li><b>'+esc(tl.name)+'</b>'+(PEOPLE[id].tl?'':' (POD leader — '+esc(PEOPLE[id].name)+' has no TL)')+' gets a task to reassign the <b>'+n+'</b> leads (you can reassign them too).</li><li>Leads move <b>'+moveWhen(r0)+'</b>; anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team.</li><li>On '+fmtShort(lwd)+' at 8 PM, '+esc(PEOPLE[id].name)+' is removed from the students\' Leap group chats and their CRM login is deactivated.</li><li>You can edit or delete this until the leads move.</li></ul>'+
     '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn danger" id="caGo">Yes, add</button></div>',"danger");
   document.getElementById("caBack").onclick=function(){ addLwdModal(id,iso(lwd)); };
   document.getElementById("caGo").onclick=function(){
@@ -849,9 +860,22 @@ function confirmAddLwd(id,lwd){
   };
 }
 /* Retention: the SM can cancel before the leads move. */
+/* Edit / delete: the SM can change or remove the last working day until the reassignment is done.
+   Delete covers retention and mistakes alike. */
+function movedAny(id){ var r=S.lv[id].req; return r.movedNow && Object.keys(r.movedNow).length>0; }
+function editLwdModal(id,dt){
+  if(movedAny(id)){ toast("Some leads have already moved, so the last working day can't be changed"); return; }
+  var r0={lwd:parseIso(dt),appDay:TODAY};
+  showModal('<h3>Edit '+esc(PEOPLE[id].name)+'\'s last working day</h3><label class="f">Last working day<input type="date" id="elD" min="'+iso(addDays(TODAY,1))+'" value="'+esc(dt)+'"></label>'+
+    (isShort(r0)?'<div class="note warn"><b>Less than 7 days to the last working day.</b> Leads will move immediately as they are scheduled.</div>':'<div class="note">Leads move on <b>'+fmtDay(transferDate(r0))+', 8 PM</b>. Leads already scheduled stay with the same counsellors.</div>')+
+    '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Cancel</button><button class="btn p" id="elGo">Save</button></div>');
+  var d=document.getElementById("elD"); d.onchange=function(){ editLwdModal(id,d.value); };
+  document.getElementById("elGo").onclick=function(){ withLeaver(id,function(){ var old=S.req.lwd; S.req.lwd=parseIso(d.value); hist("Last working day changed from "+fmt(old)+" to "+fmt(S.req.lwd)+". Leads move "+moveWhen(S.req),me().name); notify(TLof(id).id,LV().name+"'s last working day changed to "+fmt(S.req.lwd)+". Leads move "+moveWhen(S.req)+"."); }); closeModal(); render(); toast("Last working day updated"); };
+}
 function cancelReq(id){
-  showModal('<h3>Cancel '+esc(PEOPLE[id].name)+'\'s last working day?</h3><p>Use this if they are staying. Scheduled reassignments are cleared, the TL\'s task closes, and they start getting fresh leads again.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Keep it</button><button class="btn d" id="cc">Cancel reassignment</button></div>');
-  document.getElementById("cc").onclick=function(){ withLeaver(id,function(){ S.req.status="cancelled"; S.req.tCan=now(); S.assign={}; hist("Cancelled (counsellor retained). Scheduled reassignments cleared; fresh leads resume",me().name); notify(TLof(id).id,LV().name+"'s reassignment was cancelled — they are staying."); }); closeModal(); render(); toast("Reassignment cancelled"); };
+  if(movedAny(id)){ toast("Some leads have already moved, so this can't be deleted"); return; }
+  showModal('<h3>Delete '+esc(PEOPLE[id].name)+'\'s last working day?</h3><p>Use this if they\'re staying or it was added by mistake. Scheduled reassignments are cleared, the TL\'s task closes, and they start getting fresh leads again.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Keep it</button><button class="btn d" id="cc">Delete</button></div>');
+  document.getElementById("cc").onclick=function(){ withLeaver(id,function(){ S.req.status="cancelled"; S.req.tCan=now(); S.assign={}; hist("Last working day deleted. Scheduled reassignments cleared; fresh leads resume",me().name); notify(TLof(id).id,LV().name+"'s last working day was deleted. Your reassignment task is closed."); }); closeModal(); render(); toast("Last working day deleted"); };
 }
 
 /* ---------- after the move: handover tracking (SM, TL, POD) ----------
@@ -1003,7 +1027,7 @@ function scheduleCard(){
         : '<span class="prog2"><span class="num">'+asg+' / '+tot+' scheduled</span><span class="bar"><span style="width:'+(tot?asg/tot*100:0)+'%"></span></span></span>';
       var sub = mv ? 'Leads moved '+fmtShort(isShort(r)?r.appDay:tr)+' · LWD '+fmt(r.lwd)+(r.status==="transferred"?' (leaves LGC at 8 PM)':'') : 'LWD '+fmt(r.lwd)+' · leads move '+fmtDay(tr)+', 8 PM';
       return '<div class="card acc2'+(open?" open":"")+'" id="acc-'+id+'"><button class="chead" data-acc="'+id+'" aria-expanded="'+open+'"><span class="av2">'+PEOPLE[id].name.split(" ").map(function(x){return x[0];}).join("")+'</span><span class="t"><b>'+esc(PEOPLE[id].name)+'</b><small>'+sub+'</small></span>'+
-        prog+statusBadge(r.status)+'<span class="chev">&#8964;</span></button>'+
+        prog+(r.status==="approved"?slaBadge(id):statusBadge(r.status))+'<span class="chev">&#8964;</span></button>'+
         (open?'<div class="cbody">'+(mv?handoverHtml(id):assignBody())+'</div>':'')+'</div>';
     });
   }
@@ -1096,7 +1120,7 @@ var IBT_STATIC={
 /* Tile counts: leavers still needing something — scheduling, or new counsellors yet to join LGC. */
 function pendingJoins(id){ var r=S.lv[id].req; return r.status==="transferred" && Object.keys(r.joined).length<S.lv[id].leads.length; }
 function lwdActiveIds(){ return Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="approved"||r.status==="transferred"); }); }
-function scheduleTaskIds(){ return assignLeavers().filter(function(id){ var r=S.lv[id].req; return r.status==="approved" || pendingJoins(id); }); }
+function scheduleTaskIds(){ return assignLeavers().filter(function(id){ var r=S.lv[id].req; return (r.status==="approved" && !slaInfo(id).done) || pendingJoins(id); }); }
 /* Production tile: icon top-left, count top-right, bold label below; a tile with 0 pending turns green. */
 function ibtTile(key,icon,label,n){
   return '<button class="ibt'+(n===0?" zero":"")+'" data-ibt="'+key+'"><span class="ibtop"><span class="ibi">'+icon+'</span><b class="num">'+n+'</b></span><span class="ibl">'+label+'</span></button>';
@@ -1216,7 +1240,8 @@ function ownCardHtml(r){
    Call Student stays off until the counsellor has joined the group. TL / POD / SM see status only. */
 function reRowHtml(l){ return withLeaver(l._lv,function(){
   var j=isJoined(l), c=callRec(l), own=S.view===S.assign[l.id], key=l._lv+'|'+l.id;
-  var meta=l.id.replace("LD-","")+' · '+RE_CHIPS[reRank(l)][1]+(isOversight()?' · '+esc(PEOPLE[S.assign[l.id]].name):' · from '+esc(LV().name));
+  var lm=leadMeta(l), oldTl=LV().tl?PEOPLE[LV().tl].name:"no TL";
+  var meta=l.id.replace("LD-","")+' · '+RE_CHIPS[reRank(l)][1]+' · '+lm.country+' · '+lm.intake+'</small><small>From '+esc(LV().name)+' (TL '+esc(oldTl)+')'+(isOversight()?' · now with '+esc(PEOPLE[S.assign[l.id]].name):'');
   var status=wgChecks(own?"You":"CL",j)+(c.tries?'<span class="att">'+c.tries+'/3 attempts</span>':'');
   var ctas = own ? (j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>')+
       '<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>'
@@ -1237,6 +1262,8 @@ function callStudent(lv,id){
 /* View Task: the production lead page (Back, name, Templates / WhatsApp, details card). The WhatsApp
    groups row carries the membership checkboxes; for a reassigned lead the counsellor's box stays empty
    until they join the group (Step 0). */
+var INTAKES=["Jan 2027","Sep 2026","May 2027"];
+function leadMeta(l){ var n=parseInt(l.id.replace(/\D/g,""),10); return {country:COUNTRIES[n%COUNTRIES.length], intake:INTAKES[n%INTAKES.length]}; }
 var COURSES=["Business Administration","Data Science","Computer Science","Finance","Mechanical Engineering","Marketing"], COUNTRIES=["Ireland","UK","USA","Canada","Germany"];
 function findTaskLead(id){
   var hit=null;
@@ -1248,7 +1275,7 @@ function findTaskLead(id){
 }
 function viewTaskPage(id){
   var t=findTaskLead(id), l=t.l, n=parseInt(id.replace(/\D/g,""),10);
-  var course=t.course||COURSES[n%COURSES.length], country=t.country||COUNTRIES[n%COUNTRIES.length];
+  var course=t.course||COURSES[n%COURSES.length], country=t.country||leadMeta(l).country;
   var me_=S.view===t.owner, clLabel=me_?"You":"CL";
   var stamp=function(d){ return d?String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear()+" 18:52 PM":"--"; };
   var hint = t.joined ? '' : '<div class="note warn" style="margin-top:8px">'+(me_?'Join this group to accept the lead (Step 0). The WhatsApp invite has been sent to you.':esc(PEOPLE[t.owner].name)+' hasn\'t joined this group yet.')+(t.lv?' '+esc(PEOPLE[t.lv].name)+' stays in it until 8 PM on '+fmtShort(S.lv[t.lv].req.lwd)+'.':'')+'</div>';
@@ -1258,7 +1285,7 @@ function viewTaskPage(id){
       '<div><small>User ID</small><b>'+n+'</b></div><div><small>Course</small><b>'+esc(course)+'</b></div>'+
       '<div><small>Country</small><b class="lnk">'+esc(country)+'</b></div><div><small>Last call</small><b>'+stamp(l.last)+' — Connected</b></div>'+
       '<div><small>Follow-up</small><b>&#9998; '+(l.next?fmt(l.next):"--")+'</b></div><div><small>Last connected</small><b>'+stamp(l.last)+'</b></div>'+
-      '<div><small>Intake</small><b>Jan 2027</b></div><div><small>Phone</small><button class="vtbtn">View Phone Number</button></div>'+
+      '<div><small>Intake</small><b>'+(t.own?"Jan 2027":leadMeta(l).intake)+'</b></div><div><small>Phone</small><button class="vtbtn">View Phone Number</button></div>'+
       '<div><small>Notes</small><button class="vtbtn">Fetch Notes</button></div><div></div></div>'+
       '<small class="vtlab">WhatsApp groups</small><div class="vtwg"><b>Leap Scholar | '+esc(l.name)+' | '+n+'</b>'+wgChecks(clLabel,t.joined)+'</div>'+hint+
       '<small class="vtlab">Servicing type</small><label class="f"><span>Type <span style="color:var(--red)">*</span></span><select class="in"><option'+(l.servicing==="FREE_SERVICE"?" selected":"")+'>Free Service</option><option'+(l.servicing==="PAID_SERVICE"?" selected":"")+'>Paid Service</option></select></label><div><button class="vtsave">Save</button></div>'+
