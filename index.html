@@ -184,6 +184,8 @@ tr.sel td{background:#f2f6ff}
 .fbar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
 /* Every filter control is the same height and width so the row reads as one set. */
 .fbar select.in,.fbar .stagepick>.btn{height:36px;width:170px;padding:0 10px;font-size:13px;font-weight:400;border:1px solid #c8d1de;border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:space-between;color:var(--ink)}
+.fbar .stagepick>.btn .chv{flex:none;margin-left:8px;color:#39445a}
+.fbar .stagepick>.btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fbar .seg{height:36px}
 .fbar .seg button{height:34px;padding:0 14px;font-size:13px}
 .seg{display:inline-flex;border:1px solid #c8d1de;border-radius:6px;overflow:hidden}
@@ -510,7 +512,7 @@ function renderDemo(){
     '<span class="clock">Clock: '+esc(S.clock)+'</span>'+
     '<button id="runBtn"'+(canRun?"":" disabled")+' title="Runs the job that fires at 8 PM on T-7 (7 days before the last working day)">Run 8 PM transfer</button>'+
     '<button id="skipBtn"'+(canSkip?"":" disabled")+' title="New counsellors join their students\' Leap group chats">Skip ahead 1 day (LGC joins)</button>'+
-    '<button id="lwdBtn"'+(canLwd?"":" disabled")+' title="Priya and her TL are removed from the Leap group chats">Jump to last working day</button>'+
+    '<button id="lwdBtn"'+(canLwd?"":" disabled")+' title="Priya is removed from the Leap group chats and her CRM login is deactivated">Jump to last working day</button>'+
     '<span class="sp"></span><button id="resetBtn">Reset</button>';
   document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; if(S.route==="detail"||S.route==="assigned"){ S.route="home"; S.activeTab="tasks"; } S.tm=null; S.focus=null; S.tl.sel={}; closeBell(); closeWho(); render(); };
   document.getElementById("runBtn").onclick=runTransfer;
@@ -627,6 +629,8 @@ function ldPage(){
 }
 /* The leaving counselor has no control in this flow: the SM enters the last working day. */
 function counselorHome(){
+  var r=S.lv.priya.req;
+  if(r && r.status==="deactivated") return '<div class="dead"><div class="ic" style="margin:0 auto 10px">&#128274;</div><h3 style="margin:0 0 6px">Your CRM login has been deactivated</h3><p style="color:var(--muted);margin:0">Your last working day was '+fmt(r.lwd)+'. Thank you for your work at Leap.</p></div>';
   return '<div class="page">'+profileCard()+'</div>';
 }
 
@@ -700,7 +704,7 @@ function confirmAddLwd(id,lwd){
   ensureLeaver(id);
   var r0={lwd:lwd,appDay:TODAY}, tl=TLof(id), n=S.lv[id].leads.length;
   showModal('<div class="dhdr"><b>Add '+esc(PEOPLE[id].name)+'\'s last working day?</b><span>Fresh lead assignment to them stops now.</span></div>'+
-    '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li><li><b>'+esc(tl.name)+'</b> gets a task to reassign the <b>'+n+'</b> leads (you can reassign them too).</li><li>Leads move <b>'+moveWhen(r0)+'</b>; anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team.</li><li>On '+fmtShort(lwd)+' at 8 PM, '+esc(PEOPLE[id].name)+' and '+esc(tl.name)+' are removed from the students\' Leap group chats.</li><li>You can cancel this any time before the leads move (e.g. if they are retained).</li></ul>'+
+    '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li><li><b>'+esc(tl.name)+'</b> gets a task to reassign the <b>'+n+'</b> leads (you can reassign them too).</li><li>Leads move <b>'+moveWhen(r0)+'</b>; anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team.</li><li>On '+fmtShort(lwd)+' at 8 PM, '+esc(PEOPLE[id].name)+' is removed from the students\' Leap group chats and their CRM login is deactivated. '+esc(tl.name)+' is removed only from groups whose lead went to a counsellor under a different TL.</li><li>You can cancel this any time before the leads move (e.g. if they are retained).</li></ul>'+
     '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn danger" id="caGo">Yes, add</button></div>',"danger");
   document.getElementById("caBack").onclick=function(){ addLwdModal(id,iso(lwd)); };
   document.getElementById("caGo").onclick=function(){
@@ -795,6 +799,7 @@ function assignLeavers(){
   return Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; if(!r||["approved","transferred"].indexOf(r.status)===-1) return false; return S.view==="vikram" || TLof(id).id===S.view; })
     .sort(function(a,b){ return transferDate(S.lv[a].req)-transferDate(S.lv[b].req); });
 }
+var CHEV='<svg class="chv" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function assignBody(){
   var r=S.req, t=S.tl, locked=r.status!=="approved", tr=transferDate(r), tl=TLof(S.cur);
   var rows=filtered(), per=50, pages=Math.max(1,Math.ceil(rows.length/per)); if(t.page>=pages) t.page=pages-1;
@@ -812,14 +817,14 @@ function assignBody(){
     '</tbody></table></div><div class="pag"><span class="num">'+(t.page*per+1)+'–'+(t.page*per+slice.length)+' of '+rows.length+'</span><button class="btn sm" id="pPrev"'+(t.page?"":" disabled")+'>Previous</button><button class="btn sm" id="pNext"'+(t.page<pages-1?"":" disabled")+'>Next</button></div>'
     : '<div class="note">No leads match these filters.</div>';
   var stageLabel = (!t.stage.length || t.stage.length===STAGES.length) ? "All stages" : (t.stage.length===1 ? prettyEnum(t.stage[0]) : t.stage.length+" stages selected");
-  var stagePicker = '<div class="f"><span>Stage</span><div class="stagepick"><button type="button" class="btn sm" id="stageBtn">'+esc(stageLabel)+' &#8964;</button>'+
+  var stagePicker = '<div class="f"><span>Stage</span><div class="stagepick"><button type="button" class="btn sm" id="stageBtn"><span>'+esc(stageLabel)+'</span>'+CHEV+'</button>'+
     (t.stageMenuOpen ? '<div class="panel"><div class="hdr"><span>Stage (select any number)</span><button type="button" class="btn sm" id="stageClear">Clear</button></div>'+
       '<label class="all"><input type="checkbox" id="stageAll"'+(t.stage.length===STAGES.length?" checked":"")+'> Select all</label>'+
       STAGES.map(function(s){return '<label><input type="checkbox" data-stagechk="'+s+'"'+(t.stage.indexOf(s)!==-1?" checked":"")+'> '+esc(prettyEnum(s))+'</label>';}).join("")+
       '</div>' : '')+
     '</div></div>';
   var grpLabel = (!t.grp.length || t.grp.length===GROUP_ORDER.length) ? "All groups" : (t.grp.length===1 ? GROUP_LABEL[t.grp[0]] : t.grp.length+" groups selected");
-  var groupPicker = '<div class="f"><span>Group</span><div class="stagepick"><button type="button" class="btn sm" id="grpBtn">'+esc(grpLabel)+' &#8964;</button>'+
+  var groupPicker = '<div class="f"><span>Group</span><div class="stagepick"><button type="button" class="btn sm" id="grpBtn"><span>'+esc(grpLabel)+'</span>'+CHEV+'</button>'+
     (t.grpMenuOpen ? '<div class="panel"><div class="hdr"><span>Group (select any number)</span><button type="button" class="btn sm" id="grpClear">Clear</button></div>'+
       '<label class="all"><input type="checkbox" id="grpAll"'+(t.grp.length===GROUP_ORDER.length?" checked":"")+'> Select all</label>'+
       GROUP_ORDER.map(function(k){return '<label><input type="checkbox" data-grpchk="'+k+'"'+(t.grp.indexOf(k)!==-1?" checked":"")+'> '+esc(GROUP_LABEL[k])+'</label>';}).join("")+
@@ -1138,7 +1143,7 @@ function runTransfer(){
   /* Mock: about two thirds of new counsellors join on day one. */
   S.leads.forEach(function(l){ if(parseInt(l.id.slice(3),10)%3) r.joined[l.id]=1; });
   r.status="transferred"; r.tTr=now();
-  hist(LV().name+" and their TL stay in the Leap group chats until 8 PM on "+fmt(r.lwd),"System");
+  hist(LV().name+" stays in the Leap group chats until 8 PM on "+fmt(r.lwd),"System");
   S.phase="joining"; S.tl.sel={};
   render(); toast("Leads moved");
 }
@@ -1150,15 +1155,19 @@ function finishRetries(){
   hist("All new counsellors joined their students' Leap group chats; LGC message and email sent to every student","System");
   S.phase="done"; render(); toast("Everyone joined their Leap group chats");
 }
-/* Last working day, 8 PM: the old counsellor and their TL are removed from every student's Leap group
-   chat. The record drops off the SM's list. (Login deactivation stays with the existing HR process.) */
+/* Last working day, 8 PM: the old counsellor is removed from every student's Leap group chat and their
+   CRM login is deactivated. Their TL is removed only from groups whose lead went to a counsellor under a
+   different TL (e.g. the SM or POD reassigned it across teams); if the TL is unchanged they stay. The
+   record drops off the SM's list. */
 function jumpToLwd(){
   S.cur="priya";
   var r=S.req; if(!r||r.status!=="transferred") return;
   S.clock=fmt(r.lwd)+", 8:00 PM"; S.phase="done";
   r.status="deactivated";
-  hist(LV().name+" and "+TLof(S.cur).name+" removed from "+S.leads.length+" Leap group chats","System");
-  render(); toast("Last working day: removed from Leap group chats");
+  var oldTl=LV().tl, cross=S.leads.filter(function(l){ var o=S.assign[l.id]; return o && PEOPLE[o].tl!==oldTl; }).length;
+  hist(LV().name+" removed from "+S.leads.length+" Leap group chats; CRM login deactivated","System");
+  hist(cross ? TLof(S.cur).name+" removed from "+cross+" Leap group chats whose lead moved to another TL's team; stays in the other "+(S.leads.length-cross) : TLof(S.cur).name+" stays in all "+S.leads.length+" Leap group chats (every lead stayed in the same team)","System");
+  render(); toast("Last working day: removed from Leap group chats, login deactivated");
 }
 
 /* ---------- View assigned leads (new counsellor) ----------
@@ -1196,7 +1205,8 @@ function render(){
   renderDemo(); renderTop(); renderTabs();
   var m=document.getElementById("main"), html="";
   S.cur = S.route==="detail" && S.focus && S.lv[S.focus] ? S.focus : "priya";
-  if(S.route==="detail" && lead) html=detailPage();
+  if(v==="priya" && S.lv.priya.req && S.lv.priya.req.status==="deactivated") html=counselorHome();
+  else if(S.route==="detail" && lead) html=detailPage();
   else if(S.route==="assigned" && v==="rahul") html=assignedPage();
   else if(S.route==="profile"){ S.cur="priya"; html = v==="priya"?counselorHome(): v==="vikram"?smHome(): v==="ankit"?tlHome(): rahulProfile(); }
   else { S.route="home"; S.cur="priya"; html = S.activeTab==="tasks" ? tasksPerfPage() : ldPage(); }
