@@ -116,6 +116,7 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .boostcard.purple{background:linear-gradient(180deg,#f4efff,#ebe2ff);border-color:#d9c9fb}
 .boostcard.purple .bhead{color:#5b2bb5}
 .boostcard.purple .bnum,.boostcard.purple .blink{color:#5b2bb5}
+.asgt td{white-space:normal}.asgt td:first-child,.asgt th:first-child{width:36px}
 .smt td.act{text-align:right;white-space:nowrap;width:1%}
 .smt td,.smt th{padding-left:12px;padding-right:12px}
 .smt td small.sub{white-space:normal}
@@ -563,7 +564,7 @@ function reset(){
   seed=7;
   S={view:"vikram",route:"home",resOpen:true,notes:{},cur:"priya",focus:"priya",
      clock:"25 Sep 2026, 11:10 AM",
-     tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
+     tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"stage",dir:1,page:0,sel:{}},
      draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,tmView:null,smTab:"active",calls:{},observe:{},assigned:{onlyRe:false},lv:{}};
   S.lv.priya=leaver("priya",null,null,40210,null);
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
@@ -975,7 +976,6 @@ function filtered(){
   var k=t.sort, d=t.dir;
   rows.sort(function(a,b){
     var x,y;
-    if(k==="next"||k==="last"){ x=a[k]?a[k].getTime():Infinity; y=b[k]?b[k].getTime():Infinity; if(x===y) return 0; return (x<y?-1:1)*d; }
     if(k==="to"){ x=S.assign[a.id]?PEOPLE[S.assign[a.id]].name:"~"; y=S.assign[b.id]?PEOPLE[S.assign[b.id]].name:"~"; }
     else { x=a[k]; y=b[k]; }
     return x<y?-d:x>y?d:0;
@@ -984,7 +984,7 @@ function filtered(){
 }
 function assignRowHtml(l,locked){
   var a=S.assign[l.id], sel=!!S.tl.sel[l.id];
-  return '<tr class="'+(locked?"":"cl ")+(sel?"sel":"")+'"'+(locked?'':' data-rowsel="'+l.id+'"')+'><td><input type="checkbox" data-sel="'+l.id+'"'+(sel?" checked":"")+(locked?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.servicing))+'</td><td>'+esc(prettyEnum(l.program))+'</td><td class="num">'+fmtShort(l.last)+'</td><td class="num">'+fmtShort(l.next)+'</td><td>'+(a?(S.req.movedNow&&S.req.movedNow[l.id]?'<span class="badge b-green">Moved to '+esc(PEOPLE[a].name)+'</span>':'<span class="badge b-blue">'+esc(PEOPLE[a].name)+'</span>'):'<span class="badge b-amber">Unscheduled</span>')+'</td></tr>';
+  return '<tr class="'+(locked?"":"cl ")+(sel?"sel":"")+'"'+(locked?'':' data-rowsel="'+l.id+'"')+'><td><input type="checkbox" data-sel="'+l.id+'"'+(sel?" checked":"")+(locked?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td><b>'+esc(l.name)+'</b><small class="sub">'+l.id+'</small></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.servicing))+'</td><td>'+esc(prettyEnum(l.program))+'</td><td>'+(a?(S.req.movedNow&&S.req.movedNow[l.id]?'<span class="badge b-green">Moved to '+esc(PEOPLE[a].name)+'</span>':'<span class="badge b-blue">'+esc(PEOPLE[a].name)+'</span>'):'<span class="badge b-amber">Unscheduled</span>')+'</td></tr>';
 }
 /* Leavers this viewer schedules leads for: the TL sees their own team's, the SM sees everyone's. */
 function assignLeavers(){
@@ -1004,7 +1004,7 @@ function assignBody(){
     isShort(r) ? '<div class="note warn"><b>Short notice:</b> leads move immediately as you schedule them. Anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team at 8 PM on '+fmtShort(r.lwd)+'.</div>' :
     (tot>0&&asg===tot ? '<div class="note ok"><b>All '+tot+' leads are scheduled.</b> They move at '+fmtDay(tr)+', 8 PM — you can still change any of them until then.</div>'
       : '<div class="note">Nothing moves until <b>'+fmtDay(tr)+', 8 PM</b>. Anything left unscheduled then is split evenly across '+esc(tl.name)+'\'s team.</div>');
-  var table = slice.length ? '<div class="tw"><table><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all shown"'+(allShownSel?" checked":"")+(locked?" disabled":"")+'></th>'+th("name","Student")+th("id","Lead ID")+th("stage","Stage")+th("servicing","Servicing type")+th("program","Program")+th("last","Last contacted")+th("next","Next follow-up")+th("to","Scheduled for")+'</tr></thead><tbody>'+
+  var table = slice.length ? '<div class="tw"><table class="asgt"><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all shown"'+(allShownSel?" checked":"")+(locked?" disabled":"")+'></th>'+th("name","Student")+th("stage","Stage")+th("servicing","Servicing type")+th("program","Program")+th("to","Scheduled for")+'</tr></thead><tbody>'+
     slice.map(function(l){ return assignRowHtml(l,locked); }).join("")+
     '</tbody></table></div><div class="pag"><span class="num">'+(t.page*per+1)+'–'+(t.page*per+slice.length)+' of '+rows.length+'</span><button class="btn sm" id="pPrev"'+(t.page?"":" disabled")+'>Previous</button><button class="btn sm" id="pNext"'+(t.page<pages-1?"":" disabled")+'>Next</button></div>'
     : '<div class="note">No leads match these filters.</div>';
