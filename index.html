@@ -236,6 +236,9 @@ tr.sel td{background:#f2f6ff}
 .mbox{background:#fff;border-radius:10px;max-width:460px;width:100%;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
 .mbox h3{margin:0;font-size:17px}
 .mbox.wide{max-width:860px}
+.mbox{max-height:calc(100vh - 32px);overflow:auto}
+.mbox>.tw,.mbox>.llist{flex:1 1 auto;min-height:0;overflow:auto}
+.mbox>.tw thead th{position:sticky;top:0;z-index:1}
 .modal.m2{z-index:70}
 .llist table td{white-space:normal}
 .mbox p{margin:0;color:#39445a}
