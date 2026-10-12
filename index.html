@@ -280,10 +280,11 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .tmodal{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex}
 .tmbox{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
 .tmbody{max-width:1100px;width:100%;margin:0 auto}
-.tmhead{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#fff;border-bottom:1px solid var(--line);flex:none}
-.tmhead b{font-size:17px;flex:1;text-align:center}
-.tmhead .back{font-size:14px;color:var(--blue);font-weight:600;padding:0}
-.tmhead button{background:none;border:0;font-size:22px;color:var(--muted);line-height:1;padding:2px 6px}
+/* Same header as the production Boost drawer: back arrow + title on the left, close on the right. */
+.tmhead{display:flex;align-items:center;gap:12px;height:56px;padding:0 20px;background:#fff;border-bottom:1px solid var(--line);flex:none}
+.tmhead b{font-size:17px;font-weight:700;flex:1;line-height:1}
+.tmhead .ib{display:grid;place-items:center;width:32px;height:32px;background:none;border:0;border-radius:8px;color:#4b566b;padding:0}
+.tmhead .ib:hover{background:var(--grey-soft);color:var(--ink)}
 .tmscroll{flex:1;overflow:auto}
 .tmbody{padding:20px 16px 24px;display:flex;flex-direction:column;gap:12px}
 #tmFoot{flex:none}
@@ -1010,7 +1011,7 @@ function renderTaskModal(){
   var prev=el.querySelector(".tmscroll"), keep=prev?prev.scrollTop:0;
   var title = k==="lwd" ? "Counsellor Last Working Day" : "Schedule Reassigned Leads";
   var body = k==="lwd" ? smRequestsCard() : scheduleCard();
-  el.innerHTML='<div class="tmodal" id="tmBg"><div class="tmbox" role="dialog" aria-modal="true"><div class="tmhead"><button class="back" id="tmBack">&larr; Back to Tasks &amp; Performance</button><b>'+title+'</b><button id="tmClose" aria-label="Close">&times;</button></div><div class="tmscroll"><div class="tmbody">'+body+'</div></div><div id="tmFoot"></div></div></div>';
+  el.innerHTML='<div class="tmodal" id="tmBg"><div class="tmbox" role="dialog" aria-modal="true"><div class="tmhead"><button class="ib" id="tmBack" aria-label="Back to Tasks &amp; Performance" title="Back to Tasks &amp; Performance"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M15 9H3.5M8 4 3 9l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>'+title+'</b><button class="ib" id="tmClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div><div class="tmscroll"><div class="tmbody">'+body+'</div></div><div id="tmFoot"></div></div></div>';
   el.querySelector(".tmscroll").scrollTop=keep;
   document.getElementById("tmClose").onclick=closeTaskModal;
   document.getElementById("tmBack").onclick=closeTaskModal;
