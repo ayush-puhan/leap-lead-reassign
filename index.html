@@ -704,7 +704,7 @@ function confirmAddLwd(id,lwd){
   ensureLeaver(id);
   var r0={lwd:lwd,appDay:TODAY}, tl=TLof(id), n=S.lv[id].leads.length;
   showModal('<div class="dhdr"><b>Add '+esc(PEOPLE[id].name)+'\'s last working day?</b><span>Fresh lead assignment to them stops now.</span></div>'+
-    '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li><li><b>'+esc(tl.name)+'</b> gets a task to reassign the <b>'+n+'</b> leads (you can reassign them too).</li><li>Leads move <b>'+moveWhen(r0)+'</b>; anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team.</li><li>On '+fmtShort(lwd)+' at 8 PM, '+esc(PEOPLE[id].name)+' is removed from the students\' Leap group chats and their CRM login is deactivated. '+esc(tl.name)+' is removed only from groups whose lead went to a counsellor under a different TL.</li><li>You can cancel this any time before the leads move (e.g. if they are retained).</li></ul>'+
+    '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li><li><b>'+esc(tl.name)+'</b> gets a task to reassign the <b>'+n+'</b> leads (you can reassign them too).</li><li>Leads move <b>'+moveWhen(r0)+'</b>; anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team.</li><li>On '+fmtShort(lwd)+' at 8 PM, '+esc(PEOPLE[id].name)+' is removed from the students\' Leap group chats and their CRM login is deactivated.</li><li>You can cancel this any time before the leads move (e.g. if they are retained).</li></ul>'+
     '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn danger" id="caGo">Yes, add</button></div>',"danger");
   document.getElementById("caBack").onclick=function(){ addLwdModal(id,iso(lwd)); };
   document.getElementById("caGo").onclick=function(){
