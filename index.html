@@ -396,6 +396,9 @@ var PEOPLE = {
   sneha:{id:"sneha",name:"Sneha Kulkarni",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41002",email:"sneha.kulkarni@leapfinance.com",open:95},
   karan:{id:"karan",name:"Karan Gill",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41003",email:"karan.gill@leapfinance.com",open:120},
   arjun:{id:"arjun",name:"Arjun Nair",role:"Counselor",tl:"meera",sm:"vikram",phone:"+91 98200 42001",email:"arjun.nair@leapfinance.com",open:110},
+  tanvi:{id:"tanvi",name:"Tanvi Desai",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41004",email:"tanvi.desai@leapfinance.com",open:0},
+  rhea:{id:"rhea",name:"Rhea Bhat",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41005",email:"rhea.bhat@leapfinance.com",open:0},
+  imran:{id:"imran",name:"Imran Sheikh",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41006",email:"imran.sheikh@leapfinance.com",open:0},
   neha:{id:"neha",name:"Neha Joshi",role:"Counselor",tl:"meera",sm:"vikram",phone:"+91 98200 42002",email:"neha.joshi@leapfinance.com",open:130}
 };
 var VIEWS = [
@@ -519,6 +522,28 @@ function reset(){
   S.lv.karan.leads.slice(0,30).forEach(function(l){ S.lv.karan.assign[l.id]="sneha"; });
   S.lv.karan.req.history=[{text:"Scheduled 30 leads for Sneha Kulkarni",by:"Ankit Sharma",at:"24 Sep 2026, 12:15 PM"},{text:"Last working day 09 Oct 2026 added. Fresh lead assignment to Karan Gill stopped; task created for Ankit Sharma",by:"Vikram Mehta",at:"23 Sep 2026, 10:30 AM"}];
   S.lv.neha.req.history=[{text:"Last working day 12 Oct 2026 added. Fresh lead assignment to Neha Joshi stopped; task created for Meera Iyer",by:"Vikram Mehta",at:"24 Sep 2026, 6:20 PM"}];
+  /* One seeded leaver per post-move state, so every view exists on load:
+     Rhea  — leads moved, some new counsellors still to join LGC (Ankit)
+     Tanvi — leads moved, everyone joined LGC (Ankit)
+     Imran — completed: left, a few leads went to Meera's team, 2 groups never joined (Ankit)
+     Zara  — no TL, so Rohit (POD) schedules; short notice, so leads move as scheduled */
+  function seedMoved(id,stageN,idStart,lwd,added,to,joinedEvery,status){
+    var lv=S.lv[id]=leaver(id,stageN,null,idStart,{status:status,lwd:lwd,tApp:fmt(added)+", 11:00 AM",appDay:added,history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
+    lv.phase="done";
+    lv.leads.forEach(function(l,i){ lv.assign[l.id]=to[i%to.length]; if(joinedEvery(i)) lv.req.joined[l.id]=1; });
+    var mv=addDays(lwd,-OVERLAP_DAYS), j=Object.keys(lv.req.joined).length, n=lv.leads.length;
+    lv.req.history=(status==="deactivated"?[{text:PEOPLE[id].name+" removed from "+n+" Leap group chats; CRM login deactivated",by:"System",at:fmt(lwd)+", 8:00 PM"}]:[]).concat([
+      {text:j+" of "+n+" new counsellors joined their students' Leap group chats; LGC message and email sent on each join",by:"System",at:fmt(addDays(mv,1))+", 8:00 PM"},
+      {text:"Moved "+n+" leads with open tasks, follow-ups and history",by:"System",at:fmt(mv)+", 8:00 PM"},
+      {text:"Last working day "+fmt(lwd)+" added. Fresh lead assignment to "+PEOPLE[id].name+" stopped; task created for "+TLof(id).name,by:"Vikram Mehta",at:fmt(added)+", 11:00 AM"}]);
+  }
+  seedMoved("rhea",{LS_COLLEGE_SHORTLISTED:22,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:14,LS_DEPOSIT_PAID:6,LS_VISA_APPLIED:4},81000,new Date(2026,8,29),new Date(2026,8,12),["rahul","sneha"],function(i){return i%4!==0;},"transferred");
+  seedMoved("tanvi",{LS_COLLEGE_SHORTLISTED:18,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:12,LS_CONDITIONAL_ADMIT_RECEIVED:6,LS_DEPOSIT_PAID:4},82000,new Date(2026,9,1),new Date(2026,8,14),["sneha","rahul"],function(){return true;},"transferred");
+  seedMoved("imran",{LS_COLLEGE_SHORTLISTED:20,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:10,LS_VISA_APPLIED:6},83000,new Date(2026,8,22),new Date(2026,8,5),["rahul","sneha","sneha","arjun"],function(i){return i!==3&&i!==7;},"deactivated");
+  S.lv.zara=leaver("zara",{LS_COLLEGE_SHORTLISTED:25,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:12,LS_DEPOSIT_PAID:5},null,84000,
+    {status:"approved",lwd:new Date(2026,8,29),tApp:"24 Sep 2026, 4:00 PM",appDay:new Date(2026,8,24),history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
+  S.lv.zara.leads.slice(0,12).forEach(function(l){ S.lv.zara.assign[l.id]="sneha"; S.lv.zara.req.movedNow[l.id]=1; });
+  S.lv.zara.req.history=[{text:"Moved 12 leads to Sneha Kulkarni immediately (short notice); tasks and follow-ups moved",by:"Rohit Kapoor",at:"24 Sep 2026, 6:10 PM"},{text:"Last working day 29 Sep 2026 added. Fresh lead assignment to Zara Khan stopped; task created for Rohit Kapoor (POD leader, no TL)",by:"Vikram Mehta",at:"24 Sep 2026, 4:00 PM"}];
   ["req","leads","assign","phase"].forEach(function(k){
     Object.defineProperty(S,k,{get:function(){return S.lv[S.cur][k];},set:function(v){S.lv[S.cur][k]=v;}});
   });
@@ -537,7 +562,7 @@ function isShort(r){ return addDays(r.lwd,-OVERLAP_DAYS) <= (r.appDay||TODAY); }
 function transferDate(r){ return isShort(r) ? (r.appDay||TODAY) : addDays(r.lwd,-OVERLAP_DAYS); }
 function moveWhen(r){ return isShort(r) ? "immediately once scheduled" : fmtDay(transferDate(r))+", 8 PM"; }
 function moved(r){ return r && (r.status==="transferred"||r.status==="deactivated"); }
-function activeReq(id){ var r=S.lv[id]&&S.lv[id].req; return !!r && ["approved","transferred"].indexOf(r.status)!==-1; }
+function activeReq(id){ var r=S.lv[id]&&S.lv[id].req; return !!r && ["approved","transferred","deactivated"].indexOf(r.status)!==-1; }
 function withLeaver(id,fn){ var prev=S.cur; S.cur=id; try{ return fn(); } finally { S.cur=prev; } }
 function now(){ return S.clock; }
 function notify(who,text,action){ S.notes[who].unshift({text:text,at:now(),action:action||null,read:false}); }
@@ -547,7 +572,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&am
 function toast(t){ var el=document.getElementById("toast"); el.innerHTML='<div class="toast">'+esc(t)+'</div>'; clearTimeout(toast._t); toast._t=setTimeout(function(){el.innerHTML="";},2600); }
 function assignedCount(){ return Object.keys(S.assign).length; }
 function statusBadge(st){
-  var m={approved:["Scheduled · TL assigning","b-blue"],transferred:["Leads transferred","b-green"],deactivated:["Completed","b-grey"],cancelled:["Cancelled (retained)","b-grey"]};
+  var m={approved:["Scheduling leads","b-blue"],transferred:["Leads transferred","b-green"],deactivated:["Completed","b-grey"],cancelled:["Cancelled (retained)","b-grey"]};
   var x=m[st]; return '<span class="badge '+x[1]+'">'+x[0]+'</span>';
 }
 var ICON={res:"&#128682;",book:"&#128214;",cap:"&#127891;",list:"&#128203;",task:"&#9745;"};
@@ -1069,16 +1094,18 @@ function lockScroll(){ document.body.style.overflow = S.tm ? "hidden" : ""; }
    sees his own; Ankit sees his whole team's, for oversight). These carry the Connect with Reassigned
    Leads task and show inside the existing Boost STI / Boost Deposit drawers with a Reassigned badge. */
 function drawerLeads(scope){
-  var r=S.req; if(!r) return [];
   var v=S.view, forId = v==="rahul" ? "rahul" : null, oversight = v==="ankit"||v==="vikram"||v==="rohit";
-  var TASK_GROUPS = scope==="sti" ? ["sti"] : ["deposit_done"];
-  return S.leads.filter(function(l){
-    var owner=S.assign[l.id];
-    if(!owner || TASK_GROUPS.indexOf(leadGroup(l))===-1) return false;
-    if(!moved(r) && !(r.movedNow&&r.movedNow[l.id])) return false;
-    if(!oversight) return owner===forId;
-    return v==="vikram" || (v==="rohit" ? podOf(owner)==="rohit" : PEOPLE[owner].tl===v);
+  var TASK_GROUPS = scope==="sti" ? ["sti"] : ["deposit_done"], out=[];
+  Object.keys(S.lv).forEach(function(id){ var lv=S.lv[id], r=lv.req; if(!r||r.status==="cancelled") return;
+    lv.leads.forEach(function(l){
+      var owner=lv.assign[l.id];
+      if(!owner || TASK_GROUPS.indexOf(leadGroup(l))===-1) return;
+      if(!moved(r) && !(r.movedNow&&r.movedNow[l.id])) return;
+      if(oversight ? !(v==="vikram" || (v==="rohit" ? podOf(owner)==="rohit" : PEOPLE[owner].tl===v)) : owner!==forId) return;
+      l._lv=id; out.push(l);
+    });
   });
+  return out;
 }
 /* A few of the counselor's own (not reassigned) Boost students, so the drawer reads like the real
    mixed pipeline and the Reassigned filter has something to filter out. Static display only. */
@@ -1112,7 +1139,8 @@ function tcCard(name,sub,typeKey,howText,extra,id){
 function ownCardHtml(r){
   return tcCard(r[0], r[1].replace("LD-","")+' · '+esc(r[3])+(isOversight()?' · Assigned to '+esc(PEOPLE[r[2]].name):''), r[4], null, '', r[1]);
 }
-function taskCardHtml(l){
+function taskCardHtml(l){ return withLeaver(l._lv,function(){ return taskCardBody(l); }); }
+function taskCardBody(l){
   var owner=PEOPLE[S.assign[l.id]];
   var sub = l.id.replace("LD-","")+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(isOversight()?' · Assigned to '+esc(owner.name):'');
   var extra='<span class="retag">Reassigned from '+esc(LV().name)+'</span>'+

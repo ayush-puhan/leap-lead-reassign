@@ -23,6 +23,20 @@ or serve it with any static file server, e.g.:
 npx serve .
 ```
 
+## Every view, by role
+
+Sample counsellors are seeded in each state, so every view exists on load (Priya is the one you walk through yourself).
+
+| State | Seeded as | SM (Counsellor Last Working Day) | TL (Schedule Reassigned Leads) | POD leader | New counsellor (Rahul) |
+|---|---|---|---|---|---|
+| Scheduling, normal (T-7) | Karan (TL Ankit), Neha (TL Meera) | In progress, Reassign leads / Cancel | To schedule | — | — |
+| Scheduling, short notice (moves as scheduled) | Zara (no TL, POD Rohit) | In progress, "Immediately" | — | To schedule | — |
+| Leads moved, some still to join LGC | Rhea (TL Ankit) | Track handover: warning + Remind all | Leads moved · tracking handover | — | View assigned leads: "Join LGC (Step 0)"; Boost drawer Step 0 prompt |
+| Leads moved, everyone joined LGC | Tanvi (TL Ankit) | Track handover: green "Every new counsellor has joined" | Leads moved · tracking handover | — | "Joined LGC" |
+| Completed (left), some leads went cross-team, 2 never joined | Imran (TL Ankit) | Past tab | Completed: removal summary + red follow-up note | — | — |
+| Cancelled (retained) | Dev (sample row) | Past tab | — | — | — |
+| Leaving / left (counsellor's own screen) | Priya | — | — | — | Priya: profile only; after **Jump to last working day**, the deactivated screen |
+
 ## Trying the flow
 
 The SM drives this flow; the leaving counselor has no control. Use the yellow "Mockup controls" bar to switch roles and move the clock:
