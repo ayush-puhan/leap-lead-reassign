@@ -204,7 +204,7 @@ tr.sel td{background:#f2f6ff}
 .modal{position:fixed;inset:0;background:rgba(11,18,32,.5);display:grid;place-items:center;padding:16px;z-index:60}
 .mbox{background:#fff;border-radius:10px;max-width:460px;width:100%;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
 .mbox h3{margin:0;font-size:17px}
-.mbox.wide{max-width:720px}
+.mbox.wide{max-width:860px}
 .modal.m2{z-index:70}
 .llist table td{white-space:normal}
 .mbox p{margin:0;color:#39445a}
@@ -280,6 +280,27 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .hstep.now{border-color:var(--amber)}.hstep.now .dot{border-color:var(--amber);background:var(--amber-soft)}
 .grph{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:6px 0 -4px}
 @media(max-width:700px){.hsteps{grid-template-columns:1fr 1fr}}
+.wg{display:inline-flex;gap:14px;align-items:center;white-space:nowrap}
+.wgk{display:inline-flex;gap:6px;align-items:center;font-size:13px}
+.ck{width:15px;height:15px;border-radius:3px;border:1.5px solid #c3cad6;background:#fff;display:inline-grid;place-items:center;font-size:10px;color:#fff;line-height:1}
+.ck.on{background:#3a9d4f;border-color:#3a9d4f}
+.vtask{position:fixed;inset:0;z-index:70;background:#f3f5fa;overflow:auto;padding:40px 16px}
+.vthead,.vtcard{max-width:900px;margin:0 auto}
+.vthead{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:12px;margin-bottom:20px}
+.vtback{justify-self:start;background:none;border:0;font-size:16px;color:#4b566b;padding:6px 0}
+.vtname{display:flex;flex-direction:column;align-items:center;gap:10px}.vtname b{font-size:20px}
+.vtprem{border:1.5px dashed #a78bfa;background:#f6f3ff;color:#6d4aff;border-radius:999px;padding:6px 16px;font-weight:700;font-size:13px}
+.vtacts{justify-self:end;display:flex;gap:10px}
+.vttpl{background:#efedff;border:1px solid #dcd7ff;color:#4b3cf0;border-radius:8px;padding:8px 16px;font-size:14px}
+.vtwa{background:#3d3df5;border:0;color:#fff;border-radius:8px;width:72px;font-size:18px}
+.vtcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;gap:10px}
+.vtgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px 40px}
+.vtgrid small,.vtlab{display:block;color:#8a94a6;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.vtlab{margin-top:14px}.vtgrid b{font-size:14px}.vtgrid b.lnk{color:var(--blue)}
+.vtbtn{border:1px solid var(--line);background:#fff;color:#3d3df5;border-radius:6px;padding:8px 26px;font-weight:700;font-size:14px}
+.vtwg{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;padding:6px 0}
+.vtsave{background:#e8a06f;color:#fff;border:0;border-radius:8px;padding:9px 22px;font-weight:700;font-size:15px}
+@media(max-width:600px){.vthead{grid-template-columns:1fr}.vtgrid{grid-template-columns:1fr}}
 .selbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;min-height:30px}
 .lrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line-soft)}
 .lrow:last-child{border-bottom:0}
@@ -748,7 +769,7 @@ function smRequestsCard(){
   var rows=smRows();
   var table = '<div class="tw"><table><thead><tr><th>Counsellor</th><th>TL</th><th>Last working day</th><th>Leads</th><th>Leads move</th><th>Status</th><th>Take action</th></tr></thead><tbody>'+
     rows.map(function(r){
-      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td class="num">'+(r.move||"—")+'</td><td>'+statusBadge(r.status)+(r.joined!=null?'<small class="sub"><span class="num">'+r.joined+' / '+r.leads+'</span> joined LGC</small>':r.tApp?'<small class="sub">Added '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
+      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td class="num">'+(r.move||"—")+'</td><td>'+statusBadge(r.status)+(r.joined!=null?'<small class="sub"><span class="num">'+r.joined+' / '+r.leads+'</span> groups joined by new counsellor</small>':r.tApp?'<small class="sub">Added '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>';
   if(S.tmView) return handoverHtml(S.tmView);
   var nAct=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="approved"||r.status==="transferred"); }).length;
@@ -814,6 +835,12 @@ function cancelReq(id){
    (Schedule Reassigned Leads, the leaver's card) see the same view: who got the leads, how many new
    counsellors have joined each student's Leap group chat (Step 0; the LGC message and student email go
    out on join), reminders for anyone who hasn't, and what happens at 8 PM on the last working day. */
+/* WhatsApp group membership, shown like the production lead page: a checkbox per member. The student is
+   already in their group; the box that changes is the new counsellor's. */
+function wgChecks(clLabel,clIn){
+  function ck(on,label){ return '<span class="wgk"><span class="ck'+(on?" on":"")+'">'+(on?"&#10003;":"")+'</span>'+label+'</span>'; }
+  return '<span class="wg">'+ck(clIn,clLabel)+ck(true,"Student")+'</span>';
+}
 function lgcByOwner(){
   var by={};
   S.leads.forEach(function(l){ var k=S.assign[l.id]; if(!k) return; var o=by[k]=by[k]||{n:0,j:0,leads:[]}; o.n++; o.leads.push(l); if(S.req.joined&&S.req.joined[l.id]) o.j++; });
@@ -837,7 +864,7 @@ function handoverHtml(id){
     var rows=keys.map(function(k){ var o=by[k], q=PEOPLE[k], pend=o.n-o.j;
       return '<tr><td><b>'+esc(q.name)+'</b></td><td>'+esc(teamName(q))+'</td><td class="num">'+o.n+'</td><td>'+(pend?'<span class="num">'+o.j+' / '+o.n+'</span> joined':'<span class="badge b-green">All joined</span>')+(rem[k]?'<small class="sub">Reminded '+esc(rem[k])+'</small>':'')+'</td>'+
         '<td><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-joinlist="'+id+'|'+k+'">View leads</button>'+(pend&&!done?'<button class="btn sm" data-remind="'+id+'|'+k+'">Remind</button>':'')+'</div></td></tr>'; }).join("");
-    var table='<div class="tw"><table><thead><tr><th>New counsellor</th><th>TL</th><th>Leads</th><th>Joined Leap group chat</th><th>Take action</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    var table='<div class="tw"><table><thead><tr><th>New counsellor</th><th>TL</th><th>Leads</th><th>Groups joined</th><th>Take action</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
     var head = S.tm==="lwd" ? '<div class="ph" style="margin:0"><div><h1 style="font-size:18px;margin:0">'+esc(p.name)+' · handover</h1><p style="margin:2px 0 0">'+(p.tl?'TL '+esc(tl.name):'No TL · POD '+esc(tl.name))+' · last working day '+fmtDay(r.lwd)+'</p></div>'+statusBadge(r.status)+'</div>' : '';
     return head+(S.tm==="lwd"?steps:"")+alert+'<b style="font-size:14px">Where the leads went</b>'+table+
       '<details class="acc"><summary><span>History</span><b class="num">'+r.history.length+'</b></summary><div style="padding:10px 14px"><ul class="hist">'+r.history.map(function(h){return '<li>'+esc(h.text)+' · '+esc(h.by)+'<small>'+esc(h.at)+'</small></li>';}).join("")+'</ul></div></details>';
@@ -846,8 +873,8 @@ function handoverHtml(id){
 function joinListModal(id,who){
   withLeaver(id,function(){
     var ls=S.leads.filter(function(l){return S.assign[l.id]===who;}).sort(function(a,b){ var ja=S.req.joined[a.id]?1:0, jb=S.req.joined[b.id]?1:0; return ja-jb || (a.name<b.name?-1:1); });
-    var rows=ls.map(function(l){ var jn=S.req.joined[l.id]; return '<tr><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+(jn?'<span class="badge b-green">Joined</span><small class="sub">LGC message + email sent</small>':'<span class="badge b-amber">Not joined yet</span>')+'</td></tr>'; }).join("");
-    showModal2('<h3>'+esc(PEOPLE[who].name)+' · leads from '+esc(LV().name)+' · <span class="num">'+ls.length+'</span></h3><div class="tw"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage</th><th>Leap group chat</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="row" style="justify-content:flex-end"><button class="btn" data-m2="close">Close</button></div>',"wide");
+    var rows=ls.map(function(l){ var jn=S.req.joined[l.id]; return '<tr><td><b>Leap Scholar | '+esc(l.name)+' | '+l.id.replace("LD-","")+'</b></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+wgChecks("Counsellor",!!jn)+'</td></tr>'; }).join("");
+    showModal2('<h3>'+esc(PEOPLE[who].name)+' · leads from '+esc(LV().name)+' · <span class="num">'+ls.length+'</span></h3><div class="tw"><table><thead><tr><th>WhatsApp group</th><th>Stage</th><th>Members</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="row" style="justify-content:flex-end"><button class="btn" data-m2="close">Close</button></div>',"wide");
   });
 }
 function remind(id,who){
@@ -948,7 +975,7 @@ function scheduleCard(){
   function accHtml(id){
     return withLeaver(id,function(){
       var r=S.req, open=id===S.focus, asg=assignedCount(), tot=S.leads.length, tr=transferDate(r), mv=moved(r), j=Object.keys(r.joined||{}).length;
-      var prog = mv ? '<span class="prog2"><span class="num">'+j+' / '+tot+' joined LGC</span><span class="bar"><span style="width:'+(tot?j/tot*100:0)+'%"></span></span></span>'
+      var prog = mv ? '<span class="prog2"><span class="num">'+j+' / '+tot+' groups joined by new counsellor</span><span class="bar"><span style="width:'+(tot?j/tot*100:0)+'%"></span></span></span>'
         : '<span class="prog2"><span class="num">'+asg+' / '+tot+' scheduled</span><span class="bar"><span style="width:'+(tot?asg/tot*100:0)+'%"></span></span></span>';
       var sub = mv ? 'Leads moved '+fmtShort(isShort(r)?r.appDay:tr)+' · LWD '+fmt(r.lwd)+(r.status==="transferred"?' (leaves LGC at 8 PM)':'') : 'LWD '+fmt(r.lwd)+' · leads move '+fmtDay(tr)+', 8 PM';
       return '<div class="card acc2'+(open?" open":"")+'" id="acc-'+id+'"><button class="chead" data-acc="'+id+'" aria-expanded="'+open+'"><span class="av2">'+PEOPLE[id].name.split(" ").map(function(x){return x[0];}).join("")+'</span><span class="t"><b>'+esc(PEOPLE[id].name)+'</b><small>'+sub+'</small></span>'+
@@ -1147,6 +1174,38 @@ function taskCardBody(l){
     (S.req.joined&&S.req.joined[l.id]?'<div class="step0 ok">&#10003; Step 0 · Joined the Leap group chat</div>':'<div class="step0">Step 0 · Join '+esc(l.first)+'\'s Leap group chat to accept this lead (WhatsApp invite sent)</div>');
   return tcCard(l.name, sub, "reassigned", "Book and join a meeting with "+l.first+", or connect a call with them. Always log the interaction and update the follow-up date. Use 100ms, Jerry or the Leap Group Chat for all communication with the student.", extra, l.id);
 }
+/* View Task: the production lead page (Back, name, Templates / WhatsApp, details card). The WhatsApp
+   groups row carries the membership checkboxes; for a reassigned lead the counsellor's box stays empty
+   until they join the group (Step 0). */
+var COURSES=["Business Administration","Data Science","Computer Science","Finance","Mechanical Engineering","Marketing"], COUNTRIES=["Ireland","UK","USA","Canada","Germany"];
+function findTaskLead(id){
+  var hit=null;
+  Object.keys(S.lv).forEach(function(k){ S.lv[k].leads.forEach(function(l){ if(l.id===id) hit={l:l,lv:k,owner:S.lv[k].assign[l.id],joined:!!(S.lv[k].req&&S.lv[k].req.joined[l.id])}; }); });
+  if(hit) return hit;
+  var r=OWN_BOOST.sti.concat(OWN_BOOST.deposit).filter(function(x){return x[1]===id;})[0];
+  var parts=r[3].split(" · ");
+  return {l:{id:id,name:r[0],program:"LS_MASTERS",servicing:"PAID_SERVICE",last:addDays(TODAY,-2),next:addDays(TODAY,3)},course:parts[1],country:parts[2],owner:r[2],joined:true,own:true};
+}
+function viewTaskPage(id){
+  var t=findTaskLead(id), l=t.l, n=parseInt(id.replace(/\D/g,""),10);
+  var course=t.course||COURSES[n%COURSES.length], country=t.country||COUNTRIES[n%COUNTRIES.length];
+  var me_=S.view===t.owner, clLabel=me_?"You":esc(PEOPLE[t.owner].name);
+  var stamp=function(d){ return d?String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear()+" 18:52 PM":"--"; };
+  var hint = t.joined ? '' : '<div class="note warn" style="margin-top:8px">'+(me_?'Join this group to accept the lead (Step 0). The WhatsApp invite has been sent to you.':esc(PEOPLE[t.owner].name)+' hasn\'t joined this group yet.')+(t.lv?' '+esc(PEOPLE[t.lv].name)+' stays in it until 8 PM on '+fmtShort(S.lv[t.lv].req.lwd)+'.':'')+'</div>';
+  var el=document.getElementById("modal2");
+  el.innerHTML='<div class="vtask"><div class="vthead"><button class="vtback" id="vtBack">&lsaquo;&nbsp; Back</button><div class="vtname"><b>'+esc(l.name)+'</b><button class="vtprem">+ Add premium plan</button></div><div class="vtacts"><button class="vttpl">&#128172; Templates</button><button class="vtwa" aria-label="WhatsApp">&#9990;</button></div></div>'+
+    '<div class="vtcard"><div class="vtgrid">'+
+      '<div><small>User ID</small><b>'+n+'</b></div><div><small>Course</small><b>'+esc(course)+'</b></div>'+
+      '<div><small>Country</small><b class="lnk">'+esc(country)+'</b></div><div><small>Last call</small><b>'+stamp(l.last)+' — Connected</b></div>'+
+      '<div><small>Follow-up</small><b>&#9998; '+(l.next?fmt(l.next):"--")+'</b></div><div><small>Last connected</small><b>'+stamp(l.last)+'</b></div>'+
+      '<div><small>Intake</small><b>Jan 2027</b></div><div><small>Phone</small><button class="vtbtn">View Phone Number</button></div>'+
+      '<div><small>Notes</small><button class="vtbtn">Fetch Notes</button></div><div></div></div>'+
+      '<small class="vtlab">WhatsApp groups</small><div class="vtwg"><b>Leap Scholar | '+esc(l.name)+' | '+n+'</b>'+wgChecks(clLabel,t.joined)+'</div>'+hint+
+      '<small class="vtlab">Servicing type</small><label class="f"><span>Type <span style="color:var(--red)">*</span></span><select class="in"><option'+(l.servicing==="FREE_SERVICE"?" selected":"")+'>Free Service</option><option'+(l.servicing==="PAID_SERVICE"?" selected":"")+'>Paid Service</option></select></label><div><button class="vtsave">Save</button></div>'+
+    '</div></div>';
+  document.getElementById("vtBack").onclick=closeModal2;
+  el.querySelectorAll(".vttpl,.vtwa,.vtbtn,.vtsave,.vtprem").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
+}
 function openTaskDrawer(scope){ S.drawerOpen={scope:scope,search:"",chip:"all",today:false}; render(); }
 function drawerTitle(scope){ return scope==="sti"?"Boost STI":"Boost Deposit"; }
 /* Drawer laid out like the production Boost drawer: CL filter, Today's Tasks Only, category chips
@@ -1183,7 +1242,8 @@ function bindTaskDrawer(){
   var s=document.getElementById("drawerSearch");
   if(s){ s.oninput=function(){ d.search=s.value; render(); var ns=document.getElementById("drawerSearch"); if(ns){ ns.focus(); ns.setSelectionRange(ns.value.length,ns.value.length); } }; }
   document.querySelectorAll("[data-chip]").forEach(function(b){ b.onclick=function(){ d.chip=b.dataset.chip; render(); }; });
-  document.querySelectorAll("[data-viewstudent],[data-viewtask]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
+  document.querySelectorAll("[data-viewstudent]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
+  document.querySelectorAll("[data-viewtask]").forEach(function(b){ b.onclick=function(){ viewTaskPage(b.dataset.viewtask); }; });
 }
 /* Static "boost" metric card — icon/title/number/subtitle/due-today, matching the CRM's Boost
    Output & Boost Input rows. Only "sti" and "deposit" are wired (they open the pipeline drawer, the
@@ -1318,11 +1378,11 @@ function assignedPage(){
   Object.keys(S.lv).forEach(function(id){ withLeaver(id,function(){ var r=S.req; if(!r) return;
     S.leads.forEach(function(l){ if(S.assign[l.id]===v && (moved(r)||(r.movedNow&&r.movedNow[l.id]))) reLeads.push({l:l,from:PEOPLE[id].name,on:r.movedNow&&r.movedNow[l.id]&&!moved(r)?fmtShort(r.appDay):fmtShort(transferDate(r)),joined:!!(r.joined&&r.joined[l.id])}); }); }); });
   var a=S.assigned, rows=[];
-  reLeads.forEach(function(x){ rows.push('<tr><td><b>'+esc(x.l.name)+'</b></td><td>'+x.l.id+'</td><td>'+esc(STAGE_LABEL[x.l.stage])+'</td><td>'+esc(GROUP_LABEL[leadGroup(x.l)])+'</td><td><span class="badge b-blue">Reassigned</span> <small class="sub">from '+esc(x.from)+' · '+x.on+'</small></td><td>'+(x.joined?'<span class="badge b-green">Joined LGC</span>':'<span class="badge b-amber">Join LGC (Step 0)</span>')+'</td></tr>'); });
+  reLeads.forEach(function(x){ rows.push('<tr><td><b>'+esc(x.l.name)+'</b></td><td>'+x.l.id+'</td><td>'+esc(STAGE_LABEL[x.l.stage])+'</td><td>'+esc(GROUP_LABEL[leadGroup(x.l)])+'</td><td><span class="badge b-blue">Reassigned</span> <small class="sub">from '+esc(x.from)+' · '+x.on+'</small></td><td>'+wgChecks("You",x.joined)+(x.joined?'':'<small class="sub">Join to accept this lead (Step 0)</small>')+'</td></tr>'); });
   if(!a.onlyRe) OWN_LEADS.forEach(function(o){ rows.push('<tr><td><b>'+esc(o[0])+'</b></td><td>'+o[1]+'</td><td>'+esc(STAGE_LABEL[o[2]])+'</td><td>'+esc(GROUP_LABEL[STAGE_GROUP[o[2]]])+'</td><td style="color:var(--faint)">—</td><td style="color:var(--faint)">—</td></tr>'); });
   return '<div class="page"><button class="back" data-tasks>&larr; Back</button><div class="ph"><div><h1>My assigned leads</h1><p>Reassigned leads are marked so you can tell them apart. Join each student\'s Leap group chat to accept a reassigned lead.</p></div></div>'+
     '<div class="dchips"><button class="chip'+(a.onlyRe?"":" on")+'" data-asg="0">All</button><button class="chip'+(a.onlyRe?" on":"")+'" data-asg="1">Reassigned <span class="num">'+reLeads.length+'</span></button></div>'+
-    '<div class="tw"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage</th><th>Group</th><th>Reassigned</th><th>Leap group chat</th></tr></thead><tbody>'+(rows.join("")||'<tr><td colspan="6">No leads.</td></tr>')+'</tbody></table></div>'+
+    '<div class="tw"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage</th><th>Group</th><th>Reassigned</th><th>WhatsApp group</th></tr></thead><tbody>'+(rows.join("")||'<tr><td colspan="6">No leads.</td></tr>')+'</tbody></table></div>'+
     '<div style="font-size:12px;color:var(--muted)">Mock: '+OWN_LEADS.length+' sample own leads plus every lead reassigned to you.</div></div>';
 }
 document.querySelector(".vbtn").style.cursor="pointer";
@@ -1336,7 +1396,7 @@ function closeModal(){ document.getElementById("modal").innerHTML=""; }
 function showModal2(html,cls){ var m=document.getElementById("modal2"); m.innerHTML='<div class="modal m2" role="dialog" aria-modal="true"><div class="mbox'+(cls?" "+cls:"")+'">'+html+'</div></div>';
   m.querySelectorAll('[data-m2="close"]').forEach(function(b){b.onclick=closeModal2;}); m.querySelector(".modal").onclick=function(e){ if(e.target===this) closeModal2(); }; var f=m.querySelector("input"); if(f) f.focus(); }
 function closeModal2(){ document.getElementById("modal2").innerHTML=""; }
-document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ if(document.querySelector("#modal2 .modal")){ closeModal2(); return; } if(document.querySelector("#modal .modal")){ closeModal(); return; } closeBell(); closeWho(); if(S.drawerOpen){ S.drawerOpen=null; render(); } else if(S.tm){ closeTaskModal(); } } });
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ if(document.querySelector("#modal2 .modal, #modal2 .vtask")){ closeModal2(); return; } if(document.querySelector("#modal .modal")){ closeModal(); return; } closeBell(); closeWho(); if(S.drawerOpen){ S.drawerOpen=null; render(); } else if(S.tm){ closeTaskModal(); } } });
 
 /* ---------- render ---------- */
 function render(){
