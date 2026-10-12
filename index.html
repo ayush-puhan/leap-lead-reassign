@@ -113,17 +113,18 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .boostcard{border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;min-height:150px;cursor:pointer;border:1px solid transparent}
 .boostcard.red{background:linear-gradient(180deg,#fdeceb,#fbe0df)}
 .boostcard.red{border-color:#f6c9c7}
-.boostgrid.five{grid-template-columns:repeat(5,1fr)}
 .boostcard.purple{background:linear-gradient(180deg,#f4efff,#ebe2ff);border-color:#d9c9fb}
-.boostcard.purple .bhead,.recard .bhead{color:#5b2bb5}
-.boostcard.purple .bnum,.recard .bnum,.boostcard.purple .blink,.recard .blink{color:#5b2bb5}
-.recard .bnum{font-size:30px;font-weight:800;line-height:1}
+.boostcard.purple .bhead{color:#5b2bb5}
+.boostcard.purple .bnum,.boostcard.purple .blink{color:#5b2bb5}
+.rsteps{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;background:#fff}
+.rstep{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.rstep+.rstep{border-top:1px solid var(--line-soft)}
+.rn{width:22px;height:22px;border-radius:50%;border:1.5px solid #c3cad6;display:grid;place-items:center;font-size:11px;font-weight:700;color:#5b6679;flex:none}
+.rn.ok{background:#3a9d4f;border-color:#3a9d4f;color:#fff}
+.rb{flex:1;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.lbtn.sm{padding:6px 10px;font-size:12px;white-space:nowrap}
+.lbtn:disabled{opacity:.45;cursor:not-allowed}
 .newtag{background:#7c3aed;color:#fff;border-radius:4px;padding:1px 6px;font-size:9px;letter-spacing:.4px}
-.recard{display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap;border-radius:10px;padding:16px;cursor:pointer;background:linear-gradient(180deg,#f4efff,#ebe2ff);border:1px solid #d9c9fb}
-.recard .rel{display:flex;flex-direction:column;gap:6px;min-width:260px;flex:1}
-.recard .rer{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
-.callst{font-size:12px;font-weight:600;color:#5b6679;background:var(--grey-soft);border-radius:6px;padding:6px 10px}
-@media(max-width:900px){.boostgrid.five{grid-template-columns:repeat(2,1fr)}.recard .rer{align-items:flex-start}}
 .boostcard.green{background:linear-gradient(180deg,#e8f7ee,#ddf3e6);border-color:#bfe6cf}
 .boostcard .bhead{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.3px;color:#8a4a46}
 .boostcard.green .bhead{color:#276745}
@@ -545,7 +546,7 @@ function reset(){
   S={view:"vikram",route:"home",resOpen:true,notes:{},cur:"priya",focus:"priya",
      clock:"25 Sep 2026, 11:10 AM",
      tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
-     draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,tmView:null,smTab:"active",cardOpt:S&&S.cardOpt||1,assigned:{onlyRe:false},lv:{}};
+     draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,tmView:null,smTab:"active",calls:{},assigned:{onlyRe:false},lv:{}};
   S.lv.priya=leaver("priya",null,null,40210,null);
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
     {status:"approved",lwd:new Date(2026,9,9),tApp:"23 Sep 2026, 10:30 AM",appDay:new Date(2026,8,23),history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
@@ -624,10 +625,8 @@ function renderDemo(){
     '<button id="runBtn"'+(canRun?"":" disabled")+' title="Runs the job that fires at 8 PM on T-7 (7 days before the last working day)">Run 8 PM transfer</button>'+
     '<button id="skipBtn"'+(canSkip?"":" disabled")+' title="New counsellors join their students\' Leap group chats">Skip ahead 1 day (LGC joins)</button>'+
     '<button id="lwdBtn"'+(canLwd?"":" disabled")+' title="Priya is removed from the Leap group chats and her CRM login is deactivated">Jump to last working day</button>'+
-    '<label>Reassigned card <select id="optSel"><option value="1"'+(S.cardOpt===1?" selected":"")+'>Option 1 · in Boost Output</option><option value="2"'+(S.cardOpt===2?" selected":"")+'>Option 2 · own section</option></select></label>'+
     '<span class="sp"></span><button id="resetBtn">Reset</button>';
   document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; if(S.route==="assigned"){ S.route="home"; S.activeTab="tasks"; } S.tm=null; S.tmView=null; S.focus=null; S.tl.sel={}; closeBell(); closeWho(); render(); };
-  document.getElementById("optSel").onchange=function(e){ S.cardOpt=+e.target.value; S.drawerOpen=null; render(); };
   document.getElementById("runBtn").onclick=runTransfer;
   document.getElementById("skipBtn").onclick=finishRetries;
   document.getElementById("lwdBtn").onclick=jumpToLwd;
@@ -1133,27 +1132,43 @@ function lockScroll(){ document.body.style.overflow = S.tm ? "hidden" : ""; }
 /* Reassigned leads in one Boost bucket ("sti" or "deposit") for the person currently viewing (Rahul
    sees his own; Ankit sees his whole team's, for oversight). These carry the Connect with Reassigned
    Leads task and show inside the existing Boost STI / Boost Deposit drawers with a Reassigned badge. */
-/* Connect with Reassigned Leads: one touchbase task per reassigned lead that's still live (drop-offs
-   excluded), for the viewer (Rahul: his own; TL / POD / SM: their teams'). The task closes on its own
-   once a Jerry call connects, so closed ones don't show. Mock call state comes from the lead ID. */
-var RE_CHIPS=[["nosti","STI not done","b"],["nodep","Deposit not done","a"],["postdep","Post deposit","g"],["premium","Premium paid","p"]];
-function reChipOf(l){ var g=leadGroup(l); return g==="pre_sti"?"nosti":g==="sti"?"nodep":(g==="deposit_done"||g==="visa")?"postdep":null; }
-function callState(l){ var n=parseInt(l.id.replace(/\D/g,""),10); return n%5===0?"connected":n%5===1?"tried":"none"; }
+/* Connect with Reassigned Leads: one touchbase task per reassigned lead, for the viewer (Rahul: his
+   own; TL / POD / SM: their teams'). Two steps in order: join the student's WhatsApp group (the old
+   counsellor and TL stay until 8 PM on the last working day), then call the student. Call order is the
+   bucket order below; visa approved and drop-offs get no call.
+   Closes when: joined AND a connected call > 10s, OR joined AND 3 true attempts (ringing >= 30s). */
+var RE_CHIPS=[["dep","Deposit done","g"],["prem","Premium / Lock-in","p"],["sti","STI done","b"],["nosti","STI not done","a"],["visa","Visa in process","r"]];
+var VISA_WIP=["LS_VISA_FILING_STARTED","LS_VISA_WIP","LS_VISA_APPLIED","LS_VISA_PROCESS_ON_HOLD"];
+function reChipOf(l){ var g=leadGroup(l);
+  if(g==="deposit_done") return "dep";
+  if(g==="visa") return VISA_WIP.indexOf(l.stage)!==-1 ? "visa" : null;
+  if(g!=="pre_sti"&&g!=="sti") return null;
+  if(l.servicing==="PAID_SERVICE") return "prem";
+  return g==="sti" ? "sti" : "nosti"; }
+function reRank(l){ for(var i=0;i<RE_CHIPS.length;i++) if(RE_CHIPS[i][0]===reChipOf(l)) return i; return 9; }
+function isJoined(l){ var r=S.lv[l._lv].req; return !!(r.joined&&r.joined[l.id]); }
+/* Mock call log, seeded from the lead ID for leads already in the group. */
+function callRec(l){
+  if(!S.calls[l.id]){ var n=parseInt(l.id.replace(/\D/g,""),10), j=isJoined(l);
+    S.calls[l.id]={tries: j&&n%5===1?2:0, connected: j&&n%5===0}; }
+  return S.calls[l.id];
+}
+function taskClosed(l){ var c=callRec(l); return isJoined(l) && (c.connected || c.tries>=3); }
 function drawerLeads(scope){
   if(scope!=="re") return [];
   var v=S.view, oversight = v==="ankit"||v==="vikram"||v==="rohit", out=[];
   Object.keys(S.lv).forEach(function(id){ var lv=S.lv[id], r=lv.req; if(!r||r.status==="cancelled") return;
     lv.leads.forEach(function(l){
       var owner=lv.assign[l.id];
-      if(!owner || !reChipOf(l) || callState(l)==="connected") return;
+      if(!owner || !reChipOf(l)) return;
       if(!moved(r) && !(r.movedNow&&r.movedNow[l.id])) return;
       if(oversight ? !(v==="vikram" || (v==="rohit" ? podOf(owner)==="rohit" : PEOPLE[owner].tl===v)) : owner!==v) return;
-      l._lv=id; out.push(l);
+      l._lv=id; if(!taskClosed(l)) out.push(l);
     });
   });
-  return out;
+  return out.sort(function(a,b){ return reRank(a)-reRank(b) || (a.name<b.name?-1:1); });
 }
-function reChipHit(l,chip){ return chip==="all" || (chip==="premium" ? l.servicing==="PAID_SERVICE" : reChipOf(l)===chip); }
+function reChipHit(l,chip){ return chip==="all" || reChipOf(l)===chip; }
 /* A few of the counselor's own (not reassigned) Boost students, so the drawer reads like the real
    mixed pipeline and the Reassigned filter has something to filter out. Static display only. */
 /* Sample own Boost tasks (production task types), so the drawer reads like the real pipeline. */
@@ -1188,12 +1203,29 @@ function ownCardHtml(r){
 }
 function taskCardHtml(l){ return withLeaver(l._lv,function(){ return taskCardBody(l); }); }
 function taskCardBody(l){
-  var owner=PEOPLE[S.assign[l.id]];
+  var owner=PEOPLE[S.assign[l.id]], j=isJoined(l), c=callRec(l), me_=S.view===S.assign[l.id];
   var sub = l.id.replace("LD-","")+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(isOversight()?' · Assigned to '+esc(owner.name):'');
-  var extra='<span class="retag">Reassigned from '+esc(LV().name)+'</span>'+
-    (S.req.joined&&S.req.joined[l.id]?'<div class="step0 ok">&#10003; Step 0 · Joined the Leap group chat</div>':'<div class="step0">Step 0 · Join '+esc(l.first)+'\'s Leap group chat to accept this lead (WhatsApp invite sent)</div>');
-  extra+= callState(l)==="tried" ? '<div class="callst">&#128222; 2 Jerry calls · not connected yet</div>' : '';
-  return tcCard(l.name, sub, "reassigned", "Call "+l.first+" through Jerry and introduce yourself as their new counsellor. This task closes automatically once a Jerry call connects.", extra, l.id);
+  var bucket=RE_CHIPS[reRank(l)][1];
+  var attempts = c.tries ? '<small class="sub">'+c.tries+' of 3 attempts · not picked up</small>' : '';
+  var extra='<span class="retag">Reassigned from '+esc(LV().name)+' · '+bucket+'</span>'+
+    '<div class="rsteps">'+
+      '<div class="rstep"><span class="rn'+(j?" ok":"")+'">'+(j?"&#10003;":"1")+'</span><div class="rb"><b>Join WhatsApp group</b>'+wgChecks(me_?"You":"CL",j)+'</div>'+
+        (j?'':'<button class="lbtn sm" data-joinlgc="'+l._lv+'|'+l.id+'">Join LGC group</button>')+'</div>'+
+      '<div class="rstep"><span class="rn">2</span><div class="rb"><b>Call '+esc(l.first)+'</b>'+(j?attempts||'<small class="sub">Introduce yourself as the new counsellor</small>':'<small class="sub">Unlocks after you join the group</small>')+'</div>'+
+        '<button class="lbtn sm" data-callstu="'+l._lv+'|'+l.id+'"'+(j?'':' disabled title="Join the LGC group first"')+'>&#128222; Call student</button></div>'+
+    '</div>';
+  return tcCard(l.name, sub, "reassigned", "Join the student's WhatsApp group, then call them. Closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more).", extra, l.id);
+}
+/* Mock outcomes, so the closing rule can be tried in the mockup. */
+function joinLgc(lv,id){ withLeaver(lv,function(){ S.req.joined[id]=1; hist(me().name+" joined "+id+"'s Leap group chat; LGC message and email sent to the student",me().name); }); render(); toast("Joined the group. LGC message and email sent to the student"); }
+function callStudent(lv,id){
+  var l=S.lv[lv].leads.filter(function(x){return x.id===id;})[0]; l._lv=lv;
+  showModal('<h3>Calling '+esc(l.name)+' on Jerry</h3><p style="font-size:13px;color:var(--muted);margin:0">Mockup: pick how the call went.</p><div class="row" style="flex-direction:column;align-items:stretch;gap:8px">'+
+    '<button class="btn" data-co="ok">Connected, talked for over 10 seconds</button><button class="btn" data-co="ring">Rang 30s or more, not picked up (counts as an attempt)</button><button class="btn" data-co="short">Rang under 30s (doesn\'t count)</button></div><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Cancel</button></div>');
+  document.querySelectorAll("[data-co]").forEach(function(b){ b.onclick=function(){ var c=callRec(l), k=b.dataset.co;
+    if(k==="ok") c.connected=true; else if(k==="ring") c.tries++;
+    closeModal(); render();
+    toast(taskClosed(l) ? (c.connected?"Call connected. Task closed":"3 attempts made. Task closed") : k==="ring" ? "Attempt "+c.tries+" of 3 logged" : "Under 30s, not counted as an attempt"); }; });
 }
 /* View Task: the production lead page (Back, name, Templates / WhatsApp, details card). The WhatsApp
    groups row carries the membership checkboxes; for a reassigned lead the counsellor's box stays empty
@@ -1239,7 +1271,7 @@ function renderTaskDrawer(){
   var chips, list, total, due;
   if(d.scope==="re"){
     var re=drawerLeads("re"), shown=re.filter(function(l){ return reChipHit(l,d.chip) && hit(l.name,l.id); });
-    total=shown.length; due=re.filter(function(l){return callState(l)==="none";}).length;
+    total=shown.length; due=re.filter(function(l){return !callRec(l).tries;}).length;
     chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+re.length+'</span></button>'+
       RE_CHIPS.map(function(c){ return '<button class="fchip '+c[2]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+re.filter(function(l){return reChipHit(l,c[0]);}).length+'</span></button>'; }).join("");
     list = total ? shown.map(taskCardHtml).join("") : '<div class="note">No students match.</div>';
@@ -1270,6 +1302,8 @@ function bindTaskDrawer(){
   if(s){ s.oninput=function(){ d.search=s.value; render(); var ns=document.getElementById("drawerSearch"); if(ns){ ns.focus(); ns.setSelectionRange(ns.value.length,ns.value.length); } }; }
   document.querySelectorAll("[data-chip]").forEach(function(b){ b.onclick=function(){ d.chip=b.dataset.chip; render(); }; });
   document.querySelectorAll("[data-viewstudent]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
+  document.querySelectorAll("[data-joinlgc]").forEach(function(b){ b.onclick=function(){ var x=b.dataset.joinlgc.split("|"); joinLgc(x[0],x[1]); }; });
+  document.querySelectorAll("[data-callstu]").forEach(function(b){ b.onclick=function(){ var x=b.dataset.callstu.split("|"); callStudent(x[0],x[1]); }; });
   document.querySelectorAll("[data-viewtask]").forEach(function(b){ b.onclick=function(){ viewTaskPage(b.dataset.viewtask); }; });
 }
 /* Static "boost" metric card — icon/title/number/subtitle/due-today, matching the CRM's Boost
@@ -1308,28 +1342,21 @@ function reminderCard(){
     '<button type="button" class="btn p" id="saveReminderMock" style="width:100%">Save Reminder</button>';
   return '<div class="card'+(open?" open":"")+'"><button class="chead" id="remHead"><span class="ic">'+ICON.task+'</span><span class="t"><b>Add a Reminder for Yourself</b><small>Not modeled in this mockup — shown for layout reference only</small></span><span class="chev'+(open?" open":"")+'">&#8964;</span></button>'+(open?'<div class="cbody">'+body+'</div>':'')+'</div>';
 }
-/* Connect with Reassigned Leads card. Shown only while there are open touchbase tasks.
-   Option 1: first card in the Boost Output row. Option 2: its own section above Boost Output. */
-function reCardData(){ var re=drawerLeads("re"); return {n:re.length, due:re.filter(function(l){return callState(l)==="none";}).length, re:re}; }
-function reCardOpt1(){
-  var c=reCardData(); if(!c.n) return "";
-  return '<div class="boostcard purple" data-boost="re"><div class="bhead"><span>&#128222; CONNECT WITH REASSIGNED LEADS</span><span class="newtag">NEW</span></div><div class="bnum num">'+c.n+'</div><div class="bsub">'+(isOversight()?"reassigned students to call":"reassigned students to call")+'</div><div class="bdue">'+c.due+' due today</div><div class="blink">View Pipeline &rarr;</div></div>';
-}
-function reSectionOpt2(){
-  var c=reCardData(); if(!c.n) return "";
-  var parts=RE_CHIPS.map(function(x){ var n=c.re.filter(function(l){return reChipHit(l,x[0]);}).length; return '<button class="fchip '+x[2]+'" data-rechip="'+x[0]+'">'+x[1]+' <span class="cn">'+n+'</span></button>'; }).join("");
-  return '<div class="boosthead"><span class="bar" style="background:#7c3aed"></span>'+(isOversight()?"Reassigned leads · your team":"Reassigned to you")+'<span class="pill" style="background:#f1ebff;color:#6d28d9">Until every student is connected</span></div>'+
-    '<div class="recard" data-boost="re"><div class="rel"><div class="bhead"><span>&#128222; CONNECT WITH REASSIGNED LEADS</span></div><div class="row" style="gap:10px;align-items:baseline;margin:0"><span class="bnum num">'+c.n+'</span><span class="bsub">students to call · '+c.due+' due today</span></div><div class="bsub">Call each one through Jerry. A task closes on its own once the call connects.</div></div>'+
-    '<div class="rer"><div class="fchips">'+parts+'</div><div class="blink">View Pipeline &rarr;</div></div></div>';
+/* Connect with Reassigned Leads: its own section above Boost Output, same card design as the Boost
+   cards. Only while there are open tasks; otherwise the page is the existing CRM view. */
+function reSection(){
+  var re=drawerLeads("re"); if(!re.length) return "";
+  var due=re.filter(function(l){return !callRec(l).tries;}).length;
+  return '<div class="boosthead"><span class="bar" style="background:#7c3aed"></span>'+(isOversight()?"Reassigned leads · your team":"Reassigned to you")+'</div>'+
+    '<div class="boostgrid"><div class="boostcard purple" data-boost="re"><div class="bhead"><span>&#128222; CONNECT WITH REASSIGNED LEADS</span><span>&#8635;</span></div><div class="bnum num">'+re.length+'</div><div class="bsub">'+re.length+' students need a touchbase</div><div class="bdue">'+due+' due today</div><div class="blink">View Pipeline &rarr;</div></div></div>';
 }
 function tasksPerfPage(){
   var v=S.view;
-  var head='<div class="ph"><div><h1>Tasks &amp; Performance</h1><p>Layout borrowed from the counselor CRM\'s own Tasks &amp; Performance tab. Only Connect with Reassigned Leads is backed by real (mock) data here; switch its placement with "Reassigned card" in the mockup controls. The rest is static dressing.</p></div></div>';
+  var head='<div class="ph"><div><h1>Tasks &amp; Performance</h1><p>Layout borrowed from the counselor CRM\'s own Tasks &amp; Performance tab. Only Connect with Reassigned Leads is backed by real (mock) data here; it shows only while there are open tasks. The rest is static dressing.</p></div></div>';
   if(v==="priya") return '<div class="page">'+head+'<div class="note">No handover-related tasks for this role.</div></div>';
-  var o1 = S.cardOpt===1 ? reCardOpt1() : "";
-  var body = (S.cardOpt===2 ? reSectionOpt2() : "")+
+  var body = reSection()+
     '<div class="boosthead"><span class="bar"></span>Boost Output<span class="pill pill-red">Action Required</span></div>'+
-    '<div class="boostgrid'+(o1?" five":"")+'">'+o1+
+    '<div class="boostgrid">'+
       boostCard("red","&#128640;","Boost Referrals",68,"68 students can refer","0 due today","referrals")+
       boostCard("red","&#127919;","Boost STI",142,"142 students need attention","3 due today","sti")+
       boostCard("red","&#128179;","Boost Deposit",135,"135 students need attention","2 due today","deposit")+
@@ -1349,7 +1376,6 @@ function bindTasksPerf(){
     if(k==="sti"||k==="deposit"||k==="re") openTaskDrawer(k);
     else toast("Not modeled in this mockup");
   }; });
-  document.querySelectorAll("[data-rechip]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); openTaskDrawer("re"); S.drawerOpen.chip=b.dataset.rechip; render(); }; });
   document.querySelectorAll("[data-sctoggle]").forEach(function(b){ b.onclick=function(){ var k=b.dataset.sctoggle; S.boostOpen[k]=!S.boostOpen[k]; render(); }; });
   var rh=document.getElementById("remHead"); if(rh) rh.onclick=function(){ S.remOpen=!S.remOpen; render(); };
   var sr=document.getElementById("saveReminderMock"); if(sr) sr.onclick=function(){ toast("Reminder saved (not modeled in this mockup)"); };
