@@ -116,6 +116,12 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .boostcard.purple{background:linear-gradient(180deg,#f4efff,#ebe2ff);border-color:#d9c9fb}
 .boostcard.purple .bhead{color:#5b2bb5}
 .boostcard.purple .bnum,.boostcard.purple .blink{color:#5b2bb5}
+.smt td.act{text-align:right;white-space:nowrap;width:1%}
+.smt td,.smt th{padding-left:12px;padding-right:12px}
+.smt td small.sub{white-space:normal}
+.icb{display:inline-grid;place-items:center;width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:8px;color:#4b566b;padding:0}
+.rowgo{font-size:22px;color:#8a94a6;width:16px;text-align:center;line-height:1}
+.icb:hover{background:var(--grey-soft)}.icb.del{color:var(--red)}
 .rebar{display:flex;align-items:center;gap:12px;margin:18px 0 0;padding:12px 16px;border-radius:10px;cursor:pointer;background:linear-gradient(180deg,#f4efff,#ebe2ff);border:1px solid #d9c9fb;color:#5b2bb5;flex-wrap:wrap}
 .rebar b{font-size:14px}.rebar .rec{background:#fff;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:800}
 .rebar .red{font-size:12px;background:#fff;color:#5b6679;border-radius:6px;padding:2px 8px;font-weight:600}
@@ -784,31 +790,40 @@ var SORT_RANK={approved:0,transferred:1,deactivated:2,cancelled:3};
 function smRows(){
   var rows=[], past=S.smTab==="past";
   Object.keys(S.lv).forEach(function(id){ var r=S.lv[id].req; if(!r) return; if(past !== (r.status==="deactivated"||r.status==="cancelled")) return;
-    rows.push({id:id,name:PEOPLE[id].name,tl:teamName(PEOPLE[id]),lwd:r.lwd,leads:S.lv[id].leads.length,status:r.status,tApp:r.tApp,joined:r.status==="transferred"?Object.keys(r.joined).length:null,move:withLeaver(id,function(){return isShort(r)?"Immediately":fmtShort(transferDate(r))+", 8 PM";})}); });
+    rows.push({id:id,name:PEOPLE[id].name,tl:TLof(id).name,lwd:r.lwd,leads:S.lv[id].leads.length,status:r.status,tApp:r.tApp,joined:r.status==="transferred"?Object.keys(r.joined).length:null,move:withLeaver(id,function(){return isShort(r)?"Immediately":fmtShort(transferDate(r))+", 8 PM";})}); });
   SAMPLE_ROWS.forEach(function(x){ if(past) rows.push(x); });
   rows.sort(function(a,b){ return (SORT_RANK[a.status]-SORT_RANK[b.status]) || (past ? b.lwd-a.lwd : a.lwd-b.lwd); });
   return rows;
 }
+/* The row itself opens the counsellor (schedule before the move, handover after). Only edit / delete
+   sit in the row, and only until leads move. */
 function smAction(r){
-  if(!r.id) return '<button class="btn sm" data-sample="1">View</button>';
-  if(r.status==="approved") return '<div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-assignfor="'+r.id+'">Reassign leads</button>'+(movedAny(r.id)?'':'<button class="btn sm" data-editlwd="'+r.id+'">Edit</button><button class="btn sm danger-o" data-cancelreq="'+r.id+'">Delete</button>')+'</div>';
-  if(r.status==="transferred") return '<button class="btn sm" data-handover="'+r.id+'">Track handover</button>';
-  return '<button class="btn sm" data-handover="'+r.id+'">View</button>';
+  var tools = r.id && r.status==="approved" && !movedAny(r.id) ? '<button class="icb" data-editlwd="'+r.id+'" title="Edit last working day" aria-label="Edit last working day">'+IC_EDIT+'</button><button class="icb del" data-cancelreq="'+r.id+'" title="Delete last working day" aria-label="Delete last working day">'+IC_DEL+'</button>' : '';
+  return '<div class="row" style="gap:6px;flex-wrap:nowrap;justify-content:flex-end;margin:0">'+tools+'<span class="rowgo" aria-hidden="true">&rsaquo;</span></div>';
 }
 function smHome(){
   return '<div class="page">'+profileCard()+'</div>';
 }
 /* SM's Counsellor Last Working Day modal: add an LWD for anyone in the team, see everyone in progress. */
+/* One status badge and one supporting line per row, so the list scans quickly. */
+function smStatus(r){
+  if(r.status==="approved"){ var x=r.id?slaInfo(r.id):{};
+    return (x.overdue?'<span class="badge b-red" title="TL/PL missed the 24-hour deadline; '+esc(x.rm.name)+' and Debasish Sahoo were emailed">Overdue</span>':statusBadge(r.status))+'<small class="sub">Leads move '+(r.move==="Immediately"?"immediately":r.move)+'</small>'; }
+  if(r.status==="transferred") return statusBadge(r.status)+'<small class="sub"><span class="num">'+r.joined+' / '+r.leads+'</span> groups joined</small>';
+  return statusBadge(r.status);
+}
+var IC_EDIT='<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.5 2.5l2 2L6 12H4v-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+var IC_DEL='<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function smRequestsCard(){
   var rows=smRows();
-  var table = '<div class="tw"><table><thead><tr><th>Counsellor</th><th>TL</th><th>Last working day</th><th>Leads</th><th>Leads move</th><th>Status</th><th>Take action</th></tr></thead><tbody>'+
+  var table = '<div class="tw"><table class="smt"><thead><tr><th>Counsellor</th><th>TL/PL</th><th>Last working day</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>'+
     rows.map(function(r){
-      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td class="num">'+(r.move||"—")+'</td><td>'+statusBadge(r.status)+(r.id&&r.status==="approved"?' '+slaBadge(r.id):'')+(r.joined!=null?'<small class="sub"><span class="num">'+r.joined+' / '+r.leads+'</span> groups joined by CL</small>':r.tApp?'<small class="sub">Added '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
+      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td>'+smStatus(r)+'</td><td class="act">'+smAction(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>';
   if(S.tmView) return handoverHtml(S.tmView);
   var nAct=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="approved"||r.status==="transferred"); }).length;
   var nPast=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="deactivated"||r.status==="cancelled"); }).length+SAMPLE_ROWS.length;
-  return '<div class="row" style="justify-content:space-between"><p class="tmsub">Add the last working day of any counsellor in your team. Fresh lead assignment stops at once, their TL gets a task to reassign the leads, and leads move 7 days before the last working day. After the move, track the handover here until the last working day.</p><button class="btn p" id="addLwd">+ Add last working day</button></div>'+
+  return '<div class="row" style="justify-content:space-between"><p class="tmsub">Add a counsellor\'s last working day. Their leads move to the team 7 days before it.</p><button class="btn p" id="addLwd">+ Add last working day</button></div>'+
     '<div class="dchips"><button class="chip'+(S.smTab==="past"?"":" on")+'" data-smtab="active">In progress <span class="num">'+nAct+'</span></button><button class="chip'+(S.smTab==="past"?" on":"")+'" data-smtab="past">Past <span class="num">'+nPast+'</span></button></div>'+
     (rows.length?table:'<div class="note">'+(S.smTab==="past"?"Nothing here yet.":"No counsellors leaving right now.")+'</div>');
 }
@@ -1240,8 +1255,8 @@ function ownCardHtml(r){
    Call Student stays off until the counsellor has joined the group. TL / POD / SM see status only. */
 function reRowHtml(l){ return withLeaver(l._lv,function(){
   var j=isJoined(l), c=callRec(l), own=S.view===S.assign[l.id], key=l._lv+'|'+l.id;
-  var lm=leadMeta(l), oldTl=LV().tl?PEOPLE[LV().tl].name:"no TL";
-  var meta=l.id.replace("LD-","")+' · '+RE_CHIPS[reRank(l)][1]+' · '+lm.country+' · '+lm.intake+'</small><small>From '+esc(LV().name)+' (TL '+esc(oldTl)+')'+(isOversight()?' · now with '+esc(PEOPLE[S.assign[l.id]].name):'');
+  var lm=leadMeta(l);
+  var meta=l.id.replace("LD-","")+' · '+RE_CHIPS[reRank(l)][1]+' · '+lm.country+' · '+lm.intake+'</small><small>'+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name))+'</small>';
   var status=wgChecks(own?"You":"CL",j)+(c.tries?'<span class="att">'+c.tries+'/3 attempts</span>':'');
   var ctas = own ? (j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>')+
       '<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>'
