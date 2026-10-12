@@ -769,7 +769,7 @@ function smRequestsCard(){
   var rows=smRows();
   var table = '<div class="tw"><table><thead><tr><th>Counsellor</th><th>TL</th><th>Last working day</th><th>Leads</th><th>Leads move</th><th>Status</th><th>Take action</th></tr></thead><tbody>'+
     rows.map(function(r){
-      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td class="num">'+(r.move||"—")+'</td><td>'+statusBadge(r.status)+(r.joined!=null?'<small class="sub"><span class="num">'+r.joined+' / '+r.leads+'</span> groups joined by new counsellor</small>':r.tApp?'<small class="sub">Added '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
+      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td class="num">'+(r.move||"—")+'</td><td>'+statusBadge(r.status)+(r.joined!=null?'<small class="sub"><span class="num">'+r.joined+' / '+r.leads+'</span> groups joined by CL</small>':r.tApp?'<small class="sub">Added '+esc(String(r.tApp).split(",")[0])+'</small>':'')+'</td><td>'+smAction(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>';
   if(S.tmView) return handoverHtml(S.tmView);
   var nAct=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="approved"||r.status==="transferred"); }).length;
@@ -873,7 +873,7 @@ function handoverHtml(id){
 function joinListModal(id,who){
   withLeaver(id,function(){
     var ls=S.leads.filter(function(l){return S.assign[l.id]===who;}).sort(function(a,b){ var ja=S.req.joined[a.id]?1:0, jb=S.req.joined[b.id]?1:0; return ja-jb || (a.name<b.name?-1:1); });
-    var rows=ls.map(function(l){ var jn=S.req.joined[l.id]; return '<tr><td><b>Leap Scholar | '+esc(l.name)+' | '+l.id.replace("LD-","")+'</b></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+wgChecks("Counsellor",!!jn)+'</td></tr>'; }).join("");
+    var rows=ls.map(function(l){ var jn=S.req.joined[l.id]; return '<tr><td><b>Leap Scholar | '+esc(l.name)+' | '+l.id.replace("LD-","")+'</b></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+wgChecks("CL",!!jn)+'</td></tr>'; }).join("");
     showModal2('<h3>'+esc(PEOPLE[who].name)+' · leads from '+esc(LV().name)+' · <span class="num">'+ls.length+'</span></h3><div class="tw"><table><thead><tr><th>WhatsApp group</th><th>Stage</th><th>Members</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="row" style="justify-content:flex-end"><button class="btn" data-m2="close">Close</button></div>',"wide");
   });
 }
@@ -975,7 +975,7 @@ function scheduleCard(){
   function accHtml(id){
     return withLeaver(id,function(){
       var r=S.req, open=id===S.focus, asg=assignedCount(), tot=S.leads.length, tr=transferDate(r), mv=moved(r), j=Object.keys(r.joined||{}).length;
-      var prog = mv ? '<span class="prog2"><span class="num">'+j+' / '+tot+' groups joined by new counsellor</span><span class="bar"><span style="width:'+(tot?j/tot*100:0)+'%"></span></span></span>'
+      var prog = mv ? '<span class="prog2"><span class="num">'+j+' / '+tot+' groups joined by CL</span><span class="bar"><span style="width:'+(tot?j/tot*100:0)+'%"></span></span></span>'
         : '<span class="prog2"><span class="num">'+asg+' / '+tot+' scheduled</span><span class="bar"><span style="width:'+(tot?asg/tot*100:0)+'%"></span></span></span>';
       var sub = mv ? 'Leads moved '+fmtShort(isShort(r)?r.appDay:tr)+' · LWD '+fmt(r.lwd)+(r.status==="transferred"?' (leaves LGC at 8 PM)':'') : 'LWD '+fmt(r.lwd)+' · leads move '+fmtDay(tr)+', 8 PM';
       return '<div class="card acc2'+(open?" open":"")+'" id="acc-'+id+'"><button class="chead" data-acc="'+id+'" aria-expanded="'+open+'"><span class="av2">'+PEOPLE[id].name.split(" ").map(function(x){return x[0];}).join("")+'</span><span class="t"><b>'+esc(PEOPLE[id].name)+'</b><small>'+sub+'</small></span>'+
@@ -1189,7 +1189,7 @@ function findTaskLead(id){
 function viewTaskPage(id){
   var t=findTaskLead(id), l=t.l, n=parseInt(id.replace(/\D/g,""),10);
   var course=t.course||COURSES[n%COURSES.length], country=t.country||COUNTRIES[n%COUNTRIES.length];
-  var me_=S.view===t.owner, clLabel=me_?"You":esc(PEOPLE[t.owner].name);
+  var me_=S.view===t.owner, clLabel=me_?"You":"CL";
   var stamp=function(d){ return d?String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear()+" 18:52 PM":"--"; };
   var hint = t.joined ? '' : '<div class="note warn" style="margin-top:8px">'+(me_?'Join this group to accept the lead (Step 0). The WhatsApp invite has been sent to you.':esc(PEOPLE[t.owner].name)+' hasn\'t joined this group yet.')+(t.lv?' '+esc(PEOPLE[t.lv].name)+' stays in it until 8 PM on '+fmtShort(S.lv[t.lv].req.lwd)+'.':'')+'</div>';
   var el=document.getElementById("modal2");
