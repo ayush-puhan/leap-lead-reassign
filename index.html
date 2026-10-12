@@ -116,12 +116,24 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .boostcard.purple{background:linear-gradient(180deg,#f4efff,#ebe2ff);border-color:#d9c9fb}
 .boostcard.purple .bhead{color:#5b2bb5}
 .boostcard.purple .bnum,.boostcard.purple .blink{color:#5b2bb5}
-.rsteps{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;background:#fff}
-.rstep{display:flex;align-items:center;gap:10px;padding:10px 12px}
-.rstep+.rstep{border-top:1px solid var(--line-soft)}
-.rn{width:22px;height:22px;border-radius:50%;border:1.5px solid #c3cad6;display:grid;place-items:center;font-size:11px;font-weight:700;color:#5b6679;flex:none}
-.rn.ok{background:#3a9d4f;border-color:#3a9d4f;color:#fff}
-.rb{flex:1;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.rebar{display:flex;align-items:center;gap:12px;margin:18px 0 0;padding:12px 16px;border-radius:10px;cursor:pointer;background:linear-gradient(180deg,#f4efff,#ebe2ff);border:1px solid #d9c9fb;color:#5b2bb5;flex-wrap:wrap}
+.rebar b{font-size:14px}.rebar .rec{background:#fff;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:800}
+.rebar .red{font-size:12px;background:#fff;color:#5b6679;border-radius:6px;padding:2px 8px;font-weight:600}
+.rebar .rel{margin-left:auto;font-size:13px;font-weight:700}
+.defbox{border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+.defbox .def{background:#eef4ff;padding:10px 14px}.defbox .clo{background:#ecf9f0;padding:10px 14px}
+.defbox b{font-size:12px;letter-spacing:.3px}.defbox .def b,.defbox .def p{color:#2550c8}.defbox .clo b,.defbox .clo p{color:#1c7a4a}
+.defbox p{margin:4px 0 0;font-size:13px;line-height:1.5}
+.rrows{display:flex;flex-direction:column;flex:none}
+.rrow{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line-soft)}
+.rrow .rl{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rrow .rl b{font-size:14px}.rrow .rl small{color:var(--muted);font-size:12px}
+.rst{display:flex;gap:10px;align-items:center;margin-top:3px}.rst .wgk{font-size:12px}
+.att{font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:1px 8px}
+.rrow .rc{display:flex;gap:8px;flex:none}
+.wabtn{border:1px solid #9fdcb4;background:#e6f8ec;color:#1c7a4a;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
+.callbtn{border:1px solid #c9d6ff;background:#eef2ff;color:#2f3fbf;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
+.callbtn:disabled{opacity:.45;cursor:not-allowed}
 .lbtn.sm{padding:6px 10px;font-size:12px;white-space:nowrap}
 .lbtn:disabled{opacity:.45;cursor:not-allowed}
 .newtag{background:#7c3aed;color:#fff;border-radius:4px;padding:1px 6px;font-size:9px;letter-spacing:.4px}
@@ -1181,8 +1193,7 @@ var TASK_TYPES={
   complete:["Complete STI","g","Student has paid for our services, ensure filing STI to resolve this task, always update Follow-up date after confirmation with user. Always use 100ms, Jerry, Leap Group Chat for all communications with the student."],
   hold:["Clear Application Hold","a","One of your applications for this student is On-hold, check the remarks and resolve the blocker to move ahead, always update Follow-up date after confirmation with user. Always use 100ms, Jerry, Leap Group Chat for all communications with the student."],
   deposit:["Pay Deposit","g","Student has an admit, help them pay the deposit to resolve this task, always update Follow-up date after confirmation with user. Always use 100ms, Jerry, Leap Group Chat for all communications with the student."],
-  dhold:["Clear Deposit Hold","a","The deposit for this student is On-hold, check the remarks and resolve the blocker, always update Follow-up date after confirmation with user. Always use 100ms, Jerry, Leap Group Chat for all communications with the student."],
-  reassigned:["Connect with Reassigned Lead","p",""]
+  dhold:["Clear Deposit Hold","a","The deposit for this student is On-hold, check the remarks and resolve the blocker, always update Follow-up date after confirmation with user. Always use 100ms, Jerry, Leap Group Chat for all communications with the student."]
 };
 /* Category chips shown in the production drawer (static sample counts), plus Reassigned. */
 var DRAWER_CHIPS={
@@ -1201,21 +1212,17 @@ function tcCard(name,sub,typeKey,howText,extra,id){
 function ownCardHtml(r){
   return tcCard(r[0], r[1].replace("LD-","")+' · '+esc(r[3])+(isOversight()?' · Assigned to '+esc(PEOPLE[r[2]].name):''), r[4], null, '', r[1]);
 }
-function taskCardHtml(l){ return withLeaver(l._lv,function(){ return taskCardBody(l); }); }
-function taskCardBody(l){
-  var owner=PEOPLE[S.assign[l.id]], j=isJoined(l), c=callRec(l), me_=S.view===S.assign[l.id];
-  var sub = l.id.replace("LD-","")+' · '+esc(prettyEnum(l.program))+' · '+esc(prettyEnum(l.servicing))+(isOversight()?' · Assigned to '+esc(owner.name):'');
-  var bucket=RE_CHIPS[reRank(l)][1];
-  var attempts = c.tries ? '<small class="sub">'+c.tries+' of 3 attempts · not picked up</small>' : '';
-  var extra='<span class="retag">Reassigned from '+esc(LV().name)+' · '+bucket+'</span>'+
-    '<div class="rsteps">'+
-      '<div class="rstep"><span class="rn'+(j?" ok":"")+'">'+(j?"&#10003;":"1")+'</span><div class="rb"><b>Join WhatsApp group</b>'+wgChecks(me_?"You":"CL",j)+'</div>'+
-        (j?'':'<button class="lbtn sm" data-joinlgc="'+l._lv+'|'+l.id+'">Join LGC group</button>')+'</div>'+
-      '<div class="rstep"><span class="rn">2</span><div class="rb"><b>Call '+esc(l.first)+'</b>'+(j?attempts||'<small class="sub">Introduce yourself as the new counsellor</small>':'<small class="sub">Unlocks after you join the group</small>')+'</div>'+
-        '<button class="lbtn sm" data-callstu="'+l._lv+'|'+l.id+'"'+(j?'':' disabled title="Join the LGC group first"')+'>&#128222; Call student</button></div>'+
-    '</div>';
-  return tcCard(l.name, sub, "reassigned", "Join the student's WhatsApp group, then call them. Closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more).", extra, l.id);
-}
+/* One compact row per student: name, ID and bucket, the group's CL / Student ticks, then two CTAs.
+   Call Student stays off until the counsellor has joined the group. TL / POD / SM see status only. */
+function reRowHtml(l){ return withLeaver(l._lv,function(){
+  var j=isJoined(l), c=callRec(l), own=S.view===S.assign[l.id], key=l._lv+'|'+l.id;
+  var meta=l.id.replace("LD-","")+' · '+RE_CHIPS[reRank(l)][1]+(isOversight()?' · '+esc(PEOPLE[S.assign[l.id]].name):' · from '+esc(LV().name));
+  var status=wgChecks(own?"You":"CL",j)+(c.tries?'<span class="att">'+c.tries+'/3 attempts</span>':'');
+  var ctas = own ? (j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>')+
+      '<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>'
+    : '<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
+  return '<div class="rrow"><div class="rl"><b>'+esc(l.name)+'</b><small>'+meta+'</small><div class="rst">'+status+'</div></div><div class="rc">'+ctas+'</div></div>';
+}); }
 /* Mock outcomes, so the closing rule can be tried in the mockup. */
 function joinLgc(lv,id){ withLeaver(lv,function(){ S.req.joined[id]=1; hist(me().name+" joined "+id+"'s Leap group chat; LGC message and email sent to the student",me().name); }); render(); toast("Joined the group. LGC message and email sent to the student"); }
 function callStudent(lv,id){
@@ -1274,7 +1281,9 @@ function renderTaskDrawer(){
     total=shown.length; due=re.filter(function(l){return !callRec(l).tries;}).length;
     chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+re.length+'</span></button>'+
       RE_CHIPS.map(function(c){ return '<button class="fchip '+c[2]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+re.filter(function(l){return reChipHit(l,c[0]);}).length+'</span></button>'; }).join("");
-    list = total ? shown.map(taskCardHtml).join("") : '<div class="note">No students match.</div>';
+    list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>Students reassigned to you from a counsellor who is leaving. Call them in this order: deposit done, premium / lock-in, STI done, STI not done, visa in process.</p></div>'+
+      '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>Join the student\'s WhatsApp group first, then call them. Closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more).</p></div></div>'+
+      (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">No students match.</div>');
   } else {
     var own=ownBoostRows(d.scope), ownShown=own.filter(function(r){return hit(r[0],r[1]);});
     total=ownShown.length; due=d.scope==="sti"?10:4;
@@ -1347,8 +1356,7 @@ function reminderCard(){
 function reSection(){
   var re=drawerLeads("re"); if(!re.length) return "";
   var due=re.filter(function(l){return !callRec(l).tries;}).length;
-  return '<div class="boosthead"><span class="bar" style="background:#7c3aed"></span>'+(isOversight()?"Reassigned leads · your team":"Reassigned to you")+'</div>'+
-    '<div class="boostgrid"><div class="boostcard purple" data-boost="re"><div class="bhead"><span>&#128222; CONNECT WITH REASSIGNED LEADS</span><span>&#8635;</span></div><div class="bnum num">'+re.length+'</div><div class="bsub">'+re.length+' students need a touchbase</div><div class="bdue">'+due+' due today</div><div class="blink">View Pipeline &rarr;</div></div></div>';
+  return '<div class="rebar" data-boost="re" role="button" tabindex="0"><span class="rei">&#128222;</span><b>Connect with Reassigned Leads</b><span class="rec num">'+re.length+'</span><span class="red">'+due+' due today</span><span class="rel">View Pipeline &rarr;</span></div>';
 }
 function tasksPerfPage(){
   var v=S.view;
