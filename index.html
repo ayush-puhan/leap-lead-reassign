@@ -558,7 +558,7 @@ function reset(){
   S={view:"vikram",route:"home",resOpen:true,notes:{},cur:"priya",focus:"priya",
      clock:"25 Sep 2026, 11:10 AM",
      tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"next",dir:1,page:0,sel:{}},
-     draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,tmView:null,smTab:"active",calls:{},assigned:{onlyRe:false},lv:{}};
+     draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,tmView:null,smTab:"active",calls:{},observe:{},assigned:{onlyRe:false},lv:{}};
   S.lv.priya=leaver("priya",null,null,40210,null);
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
     {status:"approved",lwd:new Date(2026,9,9),tApp:"23 Sep 2026, 10:30 AM",appDay:new Date(2026,8,23),history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
@@ -1220,7 +1220,7 @@ function reRowHtml(l){ return withLeaver(l._lv,function(){
   var status=wgChecks(own?"You":"CL",j)+(c.tries?'<span class="att">'+c.tries+'/3 attempts</span>':'');
   var ctas = own ? (j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>')+
       '<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>'
-    : '<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
+    : ((S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-observe="'+l.id+'">Join WA Group</button>')+'<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>');
   return '<div class="rrow"><div class="rl"><b>'+esc(l.name)+'</b><small>'+meta+'</small><div class="rst">'+status+'</div></div><div class="rc">'+ctas+'</div></div>';
 }); }
 /* Mock outcomes, so the closing rule can be tried in the mockup. */
@@ -1281,7 +1281,7 @@ function renderTaskDrawer(){
     total=shown.length; due=re.filter(function(l){return !callRec(l).tries;}).length;
     chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+re.length+'</span></button>'+
       RE_CHIPS.map(function(c){ return '<button class="fchip '+c[2]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+re.filter(function(l){return reChipHit(l,c[0]);}).length+'</span></button>'; }).join("");
-    list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>Students reassigned to you from a counsellor who is leaving. Call them in this order: deposit done, premium / lock-in, STI done, STI not done, visa in process.</p></div>'+
+    list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students reassigned to your team's counsellors from a counsellor who is leaving. Joining a group lets you follow along; it doesn't change the CL's task. CLs call them in this order:":"Students reassigned to you from a counsellor who is leaving. Call them in this order:")+' deposit done, premium / lock-in, STI done, STI not done, visa in process.</p></div>'+
       '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>Join the student\'s WhatsApp group first, then call them. Closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more).</p></div></div>'+
       (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">No students match.</div>');
   } else {
@@ -1312,6 +1312,7 @@ function bindTaskDrawer(){
   document.querySelectorAll("[data-chip]").forEach(function(b){ b.onclick=function(){ d.chip=b.dataset.chip; render(); }; });
   document.querySelectorAll("[data-viewstudent]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
   document.querySelectorAll("[data-joinlgc]").forEach(function(b){ b.onclick=function(){ var x=b.dataset.joinlgc.split("|"); joinLgc(x[0],x[1]); }; });
+  document.querySelectorAll("[data-observe]").forEach(function(b){ b.onclick=function(){ S.observe[S.view+"|"+b.dataset.observe]=1; render(); toast("Joined the group to follow along. The CL still needs to join and call"); }; });
   document.querySelectorAll("[data-callstu]").forEach(function(b){ b.onclick=function(){ var x=b.dataset.callstu.split("|"); callStudent(x[0],x[1]); }; });
   document.querySelectorAll("[data-viewtask]").forEach(function(b){ b.onclick=function(){ viewTaskPage(b.dataset.viewtask); }; });
 }
