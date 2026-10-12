@@ -29,6 +29,7 @@ The SM drives this flow; the leaving counselor has no control. Use the yellow "M
 
 - **Vikram (SM):** Tasks & Performance → Important Business Tasks → **Counsellor Last Working Day** opens a full-page modal. **+ Add last working day**: pick a counselor and a date, see the leads affected (Open App / Post STI / Post Deposit / Drop off), confirm. Fresh lead assignment stops and the TL gets a task. **Reassign leads** opens scheduling; **Cancel** handles retention.
 - **Ankit (TL):** the **Schedule Reassigned Leads** tile opens a full-page modal with one accordion per leaver. Click rows, choose a counselor and **Schedule assignment**.
+- **Rohit (POD Leader):** gets the reassignment task when the leaving counselor has no TL (e.g. Zara Khan). Add Zara's last working day as the SM, then switch to Rohit.
 - **Run 8 PM transfer** moves the leads on T-7 (7 days before the last working day). If T-7 has already passed, leads move the moment they are scheduled.
 - **Skip ahead 1 day (LGC joins):** new counselors join each student's Leap group chat (Step 0); the LGC message and email go to the student on join.
 - **Jump to last working day:** at 8 PM the old counselor is removed from the Leap group chats and their CRM login is deactivated. Their TL is removed only from groups whose lead went to a counselor under a different TL.
