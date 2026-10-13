@@ -148,9 +148,13 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .sumstrip .sb b{color:var(--ink);font-size:14px}
 .fchip.n{color:#5b6679}.fchip.n .cn{background:var(--grey-soft);color:#5b6679}
 .att{font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:1px 8px}
-.rrow .rc{display:flex;gap:8px;flex:none}
-.wabtn{border:1px solid #9fdcb4;background:#e6f8ec;color:#1c7a4a;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
-.callbtn{border:1px solid #c9d6ff;background:#eef2ff;color:#2f3fbf;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
+.rrow .rc{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.rrow .rcp{display:flex;gap:8px}
+.rrow .rcs{display:flex;gap:6px}
+.rcs button{border:1px solid var(--line);background:#fff;color:#4b566b;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;white-space:nowrap}
+.rcs button:hover{background:#f4f6fb}
+.wabtn{border:1px solid #1c7a4a;background:#1c7a4a;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
+.callbtn{border:1px solid #2f3fbf;background:#2f3fbf;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
 .callbtn:disabled{opacity:.45;cursor:not-allowed}
 .lbtn.sm{padding:6px 10px;font-size:12px;white-space:nowrap}
 .lbtn:disabled{opacity:.45;cursor:not-allowed}
@@ -1414,21 +1418,21 @@ function ownCardHtml(r){
    TL / POD / SM see status only. */
 function reRowHtml(l){ return withLeaver(l._lv,function(){
   var j=isJoined(l), c=callRec(l), own=S.view===S.assign[l.id], key=l._lv+'|'+l.id, ng=hasNoGroup(l), ce=callEligible(l);
-  var rj=!!(S.req.rmJoined&&S.req.rmJoined[l.id]), lm=leadMeta(l), bucket=RE_CHIPS[reRank(l)][1];
-  var meta=l.id.replace("LD-","")+' · '+bucket+' · '+svcLabel(l.servicing)+(lockInOf(l)?' ('+lockInOf(l)+')':'')+' · '+lm.country+' · '+lm.intake+'</small><small>'+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name));
+  var rj=!!(S.req.rmJoined&&S.req.rmJoined[l.id]), lm=leadMeta(l);
+  var meta=l.id.replace("LD-","")+' · '+lm.country+' · '+lm.intake+'</small><small>'+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name));
   var s1 = ng ? '<span class="st skip">No WhatsApp group · introduce yourself directly</span>' : '';
   var s2 = ce ? ''
     : '<span class="st skip">Call · not needed ('+({pre:"STI not done",vdone:"visa approved",drop:"dropped off"}[reChipOf(l)])+')</span>';
   var status=(ng?"":wgChecks(own?"You":"CL",j,rj))+'<span class="subt">'+s1+s2+'</span>';
-  var ctas;
+  /* Join WA Group and Call Student are the primary actions; View Student and View Task sit below, smaller. */
+  var prim, sec='<button data-viewtask="'+l.id+'">View Student</button><button data-viewtask="'+l.id+'">View Task</button>';
   if(own){
-    ctas=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>'))+
-      (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>':'')+
-      '<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
+    prim=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>'))+
+      (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>':'');
   } else {
-    ctas=(ng?'':(S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-observe="'+l.id+'">Join WA Group</button>'))+'<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
+    prim=(ng?'':(S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-observe="'+l.id+'">Join WA Group</button>'));
   }
-  return '<div class="rrow"><div class="rl"><b>'+esc(l.name)+'</b><small>'+meta+'</small><div class="rst">'+status+'</div></div><div class="rc">'+ctas+'</div></div>';
+  return '<div class="rrow"><div class="rl"><b>'+esc(l.name)+'</b><small>'+meta+'</small><div class="rst">'+status+'</div></div><div class="rc">'+(prim?'<div class="rcp">'+prim+'</div>':'')+'<div class="rcs">'+sec+'</div></div></div>';
 }); }
 /* Mock outcomes, so the joining and closing rules can be tried in the mockup. On join the old counsellor
    and old RM leave the group (the TL too when the lead moved to another TL's team), and the student gets
