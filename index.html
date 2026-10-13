@@ -150,7 +150,7 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .att{font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:1px 8px}
 .rrow .rc{flex:none;width:208px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .rrow .rcp,.rrow .rcs{display:contents}
-.rrow .rcp button:only-child{grid-column:1/-1}
+.rrow .rcp button:only-child,.rrow .rcs button:only-child{grid-column:1/-1}
 .rcp button{width:100%;padding:7px 4px;font-size:12px}
 .rcs button{width:100%;border:0;background:#f1f4f9;color:#4b566b;border-radius:8px;padding:5px 4px;font-size:11px;font-weight:600;white-space:nowrap}
 .rcs button:hover{background:#e6ebf4}
@@ -1425,8 +1425,8 @@ function reRowHtml(l){ return withLeaver(l._lv,function(){
   var s2 = ce ? ''
     : '<span class="st skip">Call · not needed ('+({pre:"STI not done",vdone:"visa approved",drop:"dropped off"}[reChipOf(l)])+')</span>';
   var status=(ng?"":wgChecks(own?"You":"CL",j,rj))+'<span class="subt">'+s1+s2+'</span>';
-  /* Join WA Group and Call Student are the primary actions; View Student and View Task sit below, smaller. */
-  var prim, sec='<button data-viewtask="'+l.id+'">View Student</button><button data-viewtask="'+l.id+'">View Task</button>';
+  /* Join WA Group and Call Student are the primary actions; View Student sits below them, smaller. */
+  var prim, sec='<button data-viewtask="'+l.id+'">View Student</button>';
   if(own){
     prim=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>'))+
       (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>':'');
