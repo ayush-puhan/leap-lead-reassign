@@ -1428,11 +1428,10 @@ function reRowHtml(l){ return withLeaver(l._lv,function(){
   /* Top: name, details and View student. Footer: the group ticks on the left, Join group and Call student
      (the two primary actions) on the right. */
   var IC_WA='<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.8-2.2-1-1 1a5 5 0 0 1-2.5-2.5l1-1-1-2.2z" fill="currentColor"/></svg>';
-  var IC_LOCK='<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
   var prim;
   if(own){
     prim=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">'+IC_WA+'Open group</button>':'<button class="wabtn" data-joinlgc="'+key+'">'+IC_WA+'Join group</button>'))+
-      (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the group first"')+'>'+(j?'':IC_LOCK)+'Call student</button>':'');
+      (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the group first"')+'>Call student</button>':'');
   } else {
     prim=(ng?'':(S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">'+IC_WA+'Open group</button>':'<button class="wabtn" data-observe="'+l.id+'">'+IC_WA+'Join group</button>'));
   }
