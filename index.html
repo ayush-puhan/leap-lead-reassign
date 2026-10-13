@@ -1420,7 +1420,7 @@ function ownCardHtml(r){
 function reRowHtml(l){ return withLeaver(l._lv,function(){
   var j=isJoined(l), c=callRec(l), own=S.view===S.assign[l.id], key=l._lv+'|'+l.id, ng=hasNoGroup(l), ce=callEligible(l);
   var rj=!!(S.req.rmJoined&&S.req.rmJoined[l.id]), lm=leadMeta(l);
-  var meta=l.id.replace("LD-","")+' · '+lm.country+' · '+lm.intake+' · '+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name));
+  var meta=l.id.replace("LD-","")+' · '+lm.country+' · '+lm.intake+' · '+progLabel(l.program)+' · '+svcLabel(l.servicing)+'</small><small>'+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name));
   var s1 = ng ? '<span class="st skip">No WhatsApp group · introduce yourself directly</span>' : '';
   var s2 = ce ? ''
     : '<span class="st skip">Call · not needed ('+({pre:"STI not done",vdone:"visa approved",drop:"dropped off"}[reChipOf(l)])+')</span>';
