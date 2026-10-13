@@ -1517,11 +1517,8 @@ function renderTaskDrawer(){
   if(d.scope==="re"){
     var re=drawerLeads("re");
     var shown=re.filter(function(l){ return reChipHit(l,d.chip) && hit(l.name,l.id); });
-    var all=reassignedFor(), b=bands(all);
     total=shown.length; due=re.filter(function(l){return !callRec(l).tries;}).length;
-    /* What arrived: total plus the pre-STI / post-STI / visa-stage split. */
-    strip='<div class="sumstrip"><span class="n num">'+all.length+'</span><span class="lbl">reassigned to '+(isOversight()?"your team":"you")+'</span>'+
-      b.filter(function(x){return x[1]>0;}).map(function(x){ return '<span class="sb"><b class="num">'+x[1]+'</b> '+x[0]+'</span>'; }).join("")+'</div>';
+    strip="";
     chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+re.length+'</span></button>'+
       RE_CHIPS.map(function(c){ return '<button class="fchip '+c[2]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+re.filter(function(l){return reChipHit(l,c[0]);}).length+'</span></button>'; }).join("");
     list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students are reassigned from a counsellor who is leaving. Track your team's counsellors completing the tasks.":"Students are reassigned from a counsellor who is leaving. Complete the tasks.")+'</p></div>'+
