@@ -408,6 +408,9 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .fchip.a{color:#b45309;border-color:#f3d29a}.fchip.a .cn{background:#fff1d6;color:#b45309}
 .fchip.g{color:#1c7a4a;border-color:#bfe6cf}.fchip.g .cn{background:#e3f6ea;color:#1c7a4a}
 .fchip.r{color:#c0342b;border-color:#f6c9c7}.fchip.r .cn{background:#fde2e1;color:#c0342b}
+.acceptlots{display:flex;flex-direction:column;gap:8px;flex:none}
+.acceptlot{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 14px;border:1px solid #d9c9fb;border-radius:10px;background:linear-gradient(180deg,#f4efff,#ebe2ff)}
+.acceptlot .al{display:flex;flex-direction:column;gap:2px;min-width:0}.acceptlot .al b{font-size:14px;color:#5b2bb5}.acceptlot .al small{font-size:12px;color:#5b6679}
 .fchip.y{color:#0e7490;border-color:#a5e0ea}.fchip.y .cn{background:#d9f3f8;color:#0e7490}
 .fchip.p{color:#6d28d9;border-color:#ddd0fb}.fchip.p .cn{background:#f1ebff;color:#6d28d9}
 .fchip.on:not(.dark){box-shadow:0 0 0 2px currentColor inset}
@@ -529,6 +532,8 @@ var STAGE_LABEL = {}; STAGES.forEach(function(s){ STAGE_LABEL[s]=prettyEnum(s); 
    Sales Call) fall into "Other" and are only shown if actually present. */
 var GROUP_LABEL = {pre_sti:"Pre STI / Open App", sti:"STI", deposit_done:"Deposit Done", visa:"Visa", dropoff_pre_isl:"Pre ISL Drop Off", dropoff_post_isl:"Post ISL Drop Off", ungrouped:"Other"};
 var GROUP_ORDER = ["pre_sti","sti","deposit_done","visa","dropoff_pre_isl","dropoff_post_isl","ungrouped"];
+/* The Group filter lists the real groups only; "Other" (ungrouped stages) is not offered as an option. */
+var GROUP_PICK = GROUP_ORDER.filter(function(k){ return k!=="ungrouped"; });
 var STAGE_GROUP = {};
 [
   ["pre_sti",["LS_PAYMENT_DONE","LS_COLLEGE_SHORTLISTED","LS_COLLEGE_FINALIZED","LS_APPLICATION_PROCESS_STARTED","LS_APPLICATION_PROCESS_ON_HOLD","LS_APPLICATION_IN_PROCESS","LS_APPLICATION_SUBMITTED_TO_AGGREGATOR","LS_APPLICATION_ON_HOLD_BY_AGGREGATOR","LS_APPLICATION_REJECTED_BY_AGGREGATOR"]],
@@ -594,7 +599,7 @@ function makeLeads(stageN,split,idStart){
 var LEAD_PAGE=500, LEAD_CAP=2000; /* the lead list loads 500 at a time; past 2,000 it throws */
 var S;
 function leaver(id,stageN,split,idStart,req){ return {id:id,leads:makeLeads(stageN,split,idStart),assign:{},req:req,phase:"before"}; }
-function newReq(status,lwd,tApp,appDay){ return {status:status,lwd:lwd,tApp:tApp,appDay:appDay,history:[],changedFrom:null,msgs:null,movedNow:{},joined:{},rmJoined:{},noGroup:{}}; }
+function newReq(status,lwd,tApp,appDay){ return {status:status,lwd:lwd,tApp:tApp,appDay:appDay,history:[],changedFrom:null,msgs:null,movedNow:{},joined:{},rmJoined:{},noGroup:{},accepted:{}}; }
 /* Students with no WhatsApp group (mock: every 13th Lead ID). Nothing is sent for them and there is no
    group to join; the new counsellor introduces themselves directly. */
 function noGroup(l){ return parseInt(l.id.replace(/\D/g,""),10)%13===0; }
@@ -611,7 +616,7 @@ function reset(){
   seed=7;
   S={view:"vikram",route:"home",resOpen:true,notes:{},cur:"priya",focus:"priya",
      clock:"25 Sep 2026, 11:10 AM",
-     tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:[],score:[],intake:[],country:[],menu:"",program:"All",show:"All",sort:"stage",dir:1,loaded:LEAD_PAGE,sel:{}},
+     tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:[],lockin:[],score:[],intake:[],country:[],menu:"",program:"All",show:"All",sort:"stage",dir:1,loaded:LEAD_PAGE,sel:{}},
      draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,tmView:null,smTab:"active",calls:{},observe:{},assigned:{onlyRe:false},lv:{}};
   S.lv.priya=leaver("priya",null,null,40210,null); /* applied, request not raised: the live walk-through */
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
@@ -1101,6 +1106,7 @@ function filtered(){
   var rows=serverLeads().slice(0,loadedCount()).filter(function(l){
     var lm=leadMeta(l);
     if(t.servicing.length&&t.servicing.indexOf(l.servicing)===-1) return false;
+    if(t.lockin.length&&t.lockin.indexOf(lockInOf(l)||"NONE")===-1) return false;
     if(t.score.length&&t.score.indexOf(scoreOf(l))===-1) return false;
     if(t.intake.length&&t.intake.indexOf(lm.intake)===-1) return false;
     if(t.country.length&&t.country.indexOf(lm.country)===-1) return false;
@@ -1115,7 +1121,7 @@ function filtered(){
 /* Already-reassigned leads are locked: a reassignment can't be undone. */
 function assignRowHtml(l,locked){
   var a=S.assign[l.id], sel=!!S.tl.sel[l.id], lm=leadMeta(l), off=locked||!!a;
-  return '<tr class="'+(off?"":"cl ")+(sel?"sel":"")+'"'+(off?'':' data-rowsel="'+l.id+'"')+'><td><input type="checkbox" data-sel="'+l.id+'"'+(sel?" checked":"")+(off?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+svcLabel(l.servicing)+'</td><td>'+(lockInOf(l)||'<span style="color:var(--faint)">—</span>')+'</td><td>'+esc(lm.intake)+'</td><td>'+esc(lm.country)+'</td><td>'+progLabel(l.program)+'</td><td>'+l.id+'</td><td><b>'+esc(l.name)+'</b></td><td>'+(a?'<span class="badge b-green">Moved to '+esc(PEOPLE[a].name)+'</span>':'<span class="badge b-amber">Unassigned</span>')+'</td></tr>';
+  return '<tr class="'+(off?"":"cl ")+(sel?"sel":"")+'"'+(off?'':' data-rowsel="'+l.id+'"')+'><td><input type="checkbox" data-sel="'+l.id+'"'+(sel?" checked":"")+(off?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td><b>'+esc(l.name)+'</b><small class="sub">'+l.id+'</small></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+svcLabel(l.servicing)+'</td><td>'+(lockInOf(l)||'<span style="color:var(--faint)">—</span>')+'</td><td>'+esc(lm.intake)+'</td><td>'+esc(lm.country)+'</td><td>'+progLabel(l.program)+'</td><td>'+(a?'<span class="badge b-green">Moved to '+esc(PEOPLE[a].name)+'</span>':'<span class="badge b-amber">Unassigned</span>')+'</td></tr>';
 }
 /* Leavers this viewer reassigns leads for: the TL sees their own team's, the SM sees everyone's. */
 function assignLeavers(){
@@ -1135,9 +1141,9 @@ function assignBody(){
     tot>LEAD_CAP ? '<div class="note bad"><b>'+tot+' leads is more than the '+LEAD_CAP.toLocaleString("en-US")+' this list can load.</b> The lead cleanup has to bring this counsellor under the limit before their leads can be reassigned here.</div>' :
     r.blocked ? '<div class="note bad"><b>The last working day has passed.</b> '+(tot-asg)+' leads are unassigned, so the login can\'t be deactivated. Reassign them now.</div>' :
     '<div class="note">Each approved assignment moves its leads <b>immediately</b> and can\'t be undone. Anything still unassigned at 8 PM on <b>'+fmtShort(r.lwd)+'</b> stops the login from being deactivated and alerts the SM, the reporting manager and Debasish Sahoo.</div>';
-  var foot='<div class="pag"><span>Loaded <b class="num">'+loadedN+'</b> of <b class="num">'+srv.length+'</b> leads'+(srv.length!==tot?' matching Stage / Group':'')+'. Servicing type, Lead score, Intake, Country, UG / PG and Show filter the loaded leads only.</span>'+
+  var foot='<div class="pag"><span>Loaded <b class="num">'+loadedN+'</b> of <b class="num">'+srv.length+'</b> leads'+(srv.length!==tot?' matching Stage / Group':'')+'. Servicing type, Lock in, Lead score, Intake, Country, UG / PG and Show filter the loaded leads only.</span>'+
     (loadedN<cap?'<button class="btn sm" id="loadMore">Load next '+Math.min(LEAD_PAGE,cap-loadedN)+'</button>':'')+'</div>';
-  var table = rows.length ? '<div class="tw"><table class="asgt"><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all unassigned shown"'+(allShownSel?" checked":"")+(locked||!open.length?" disabled":"")+'></th>'+th("stage","Stage")+th("servicing","Servicing type")+th("lockin","Lock in details")+th("intake","Intake")+th("country","Country")+th("program","UG / PG")+th("uid","User ID")+th("name","Student name")+th("to","Status")+'</tr></thead><tbody>'+
+  var table = rows.length ? '<div class="tw"><table class="asgt"><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all unassigned shown"'+(allShownSel?" checked":"")+(locked||!open.length?" disabled":"")+'></th>'+th("name","Student")+th("stage","Stage")+th("servicing","Servicing type")+th("lockin","Lock in details")+th("intake","Intake")+th("country","Country")+th("program","UG / PG")+th("to","Status")+'</tr></thead><tbody>'+
     rows.map(function(l){ return assignRowHtml(l,locked); }).join("")+'</tbody></table></div>'
     : '<div class="note">No loaded leads match these filters.'+(loadedN<cap?' Load more leads, or change the filters.':'')+'</div>';
   var stageLabel = (!t.stage.length || t.stage.length===STAGES.length) ? "All stages" : (t.stage.length===1 ? prettyEnum(t.stage[0]) : t.stage.length+" stages selected");
@@ -1147,11 +1153,11 @@ function assignBody(){
       STAGES.map(function(s){return '<label><input type="checkbox" data-stagechk="'+s+'"'+(t.stage.indexOf(s)!==-1?" checked":"")+'> '+esc(prettyEnum(s))+'</label>';}).join("")+
       '</div>' : '')+
     '</div></div>';
-  var grpLabel = (!t.grp.length || t.grp.length===GROUP_ORDER.length) ? "All groups" : (t.grp.length===1 ? GROUP_LABEL[t.grp[0]] : t.grp.length+" groups selected");
+  var grpLabel = (!t.grp.length || t.grp.length===GROUP_PICK.length) ? "All groups" : (t.grp.length===1 ? GROUP_LABEL[t.grp[0]] : t.grp.length+" groups selected");
   var groupPicker = '<div class="f"><span>Group</span><div class="stagepick"><button type="button" class="btn sm" id="grpBtn"><span>'+esc(grpLabel)+'</span>'+CHEV+'</button>'+
     (t.grpMenuOpen ? '<div class="panel"><div class="hdr"><span>Group (select any number)</span><button type="button" class="btn sm" id="grpClear">Clear</button></div>'+
-      '<label class="all"><input type="checkbox" id="grpAll"'+(t.grp.length===GROUP_ORDER.length?" checked":"")+'> Select all</label>'+
-      GROUP_ORDER.map(function(k){return '<label><input type="checkbox" data-grpchk="'+k+'"'+(t.grp.indexOf(k)!==-1?" checked":"")+'> '+esc(GROUP_LABEL[k])+'</label>';}).join("")+
+      '<label class="all"><input type="checkbox" id="grpAll"'+(t.grp.length===GROUP_PICK.length?" checked":"")+'> Select all</label>'+
+      GROUP_PICK.map(function(k){return '<label><input type="checkbox" data-grpchk="'+k+'"'+(t.grp.indexOf(k)!==-1?" checked":"")+'> '+esc(GROUP_LABEL[k])+'</label>';}).join("")+
       '</div>' : '')+
     '</div></div>';
   function msPicker(key,label,opts){ var sel=t[key], names=opts.filter(function(o){return sel.indexOf(o[0])!==-1;}).map(function(o){return o[1];});
@@ -1161,7 +1167,7 @@ function assignBody(){
         '<label class="all"><input type="checkbox" data-msall="'+key+'"'+(sel.length===opts.length?" checked":"")+'> Select all</label>'+
         opts.map(function(o){return '<label><input type="checkbox" data-mschk="'+key+'" value="'+esc(o[0])+'"'+(sel.indexOf(o[0])!==-1?" checked":"")+'> '+esc(o[1])+'</label>';}).join("")+'</div>' : '')+
       '</div></div>'; }
-  var msBar = msPicker("servicing","Servicing type",[["FREE_SERVICE","Free"],["PAID_SERVICE","Paid"]])+msPicker("score","Lead score",[["HOT","Hot"],["COLD","Cold"]])+
+  var msBar = msPicker("servicing","Servicing type",[["FREE_SERVICE","Free"],["PAID_SERVICE","Paid"]])+msPicker("lockin","Lock in",LOCKINS.map(function(x){return [x,x];}).concat([["NONE","Not locked in"]]))+msPicker("score","Lead score",[["HOT","Hot"],["COLD","Cold"]])+
     msPicker("intake","Intake",INTAKES.map(function(x){return [x,x];}))+msPicker("country","Country",COUNTRIES.map(function(x){return [x,x];}));
   var selbar = !locked ? '<div class="selbar">'+(nsel?'<b class="num">'+nsel+' selected</b><button class="btn sm danger-o" id="selClear">Clear selection</button>':'<span style="color:var(--muted)">Click rows to select them, then pick who gets them.</span>')+
     '</div>' : '';
@@ -1225,7 +1231,7 @@ function assignNow(id,ids,who){
     picked.forEach(function(l){ placeLead(id,l,who,day); });
     sum=bandText(picked);
     hist("Reassigned "+n+" leads to "+q.name+" ("+sum+"). Tasks and follow-ups moved; assignment logged; RM "+RM_NAMES[q.rm]+" tasked to join the groups",me().name);
-    notify(who,"You received "+n+" leads from "+LV().name+": "+sum+". Join each student's WhatsApp group; call post-STI leads until their visa is approved, and every locked-in student.",{label:"Open tasks",route:"home",tab:"tasks",drawer:"re"});
+    notify(who,"You received "+n+" leads from "+LV().name+": "+sum+". Accept them to start the handover tasks.",{label:"Open tasks",route:"home",tab:"tasks",drawer:"re"});
     syncStatus(id);
   });
   S.tl.sel={}; closeModal(); render(); toast(n+" leads moved to "+q.name);
@@ -1248,7 +1254,7 @@ function bindAssign(){
   }; });
   on("grpBtn","onclick",function(){ var o=!t.grpMenuOpen; closeMenus(); t.grpMenuOpen=o; render(); });
   on("grpClear","onclick",function(){ t.grp=[]; t.loaded=LEAD_PAGE; render(); });
-  on("grpAll","onchange",function(e){ t.grp=e.target.checked?GROUP_ORDER.slice():[]; t.loaded=LEAD_PAGE; render(); });
+  on("grpAll","onchange",function(e){ t.grp=e.target.checked?GROUP_PICK.slice():[]; t.loaded=LEAD_PAGE; render(); });
   document.querySelectorAll("[data-grpchk]").forEach(function(c){ c.onchange=function(){
     var v=c.dataset.grpchk, i=t.grp.indexOf(v);
     if(c.checked){ if(i===-1) t.grp.push(v); } else if(i!==-1) t.grp.splice(i,1);
@@ -1269,7 +1275,7 @@ function bindAssign(){
   /* Whole row toggles selection, not just the checkbox. */
   document.querySelectorAll("[data-rowsel]").forEach(function(tr){ tr.onclick=function(){ var k=tr.dataset.rowsel; if(t.sel[k]) delete t.sel[k]; else t.sel[k]=1; render(); }; });
   on("selClear","onclick",function(){ t.sel={}; render(); });
-  document.querySelectorAll("[data-acc]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.acc; closeMenus(); if(S.focus===id){ S.focus=null; t.sel={}; render(); } else { t.stage=[]; t.grp=[]; t.servicing=[]; t.score=[]; t.intake=[]; t.country=[]; t.menu=""; t.program="All"; t.show="All"; openSchedule(id); } }; });
+  document.querySelectorAll("[data-acc]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.acc; closeMenus(); if(S.focus===id){ S.focus=null; t.sel={}; render(); } else { t.stage=[]; t.grp=[]; t.servicing=[]; t.lockin=[]; t.score=[]; t.intake=[]; t.country=[]; t.menu=""; t.program="All"; t.show="All"; openSchedule(id); } }; });
   /* Select all picks the unassigned leads that are loaded and match the filters. */
   function toggleAll(){ var rows=filtered().filter(function(l){return !S.assign[l.id];}); var all=rows.length&&rows.every(function(l){return t.sel[l.id];}); if(all) t.sel={}; else rows.forEach(function(l){t.sel[l.id]=1;}); render(); }
   on("selAll","onchange",toggleAll);
@@ -1380,6 +1386,17 @@ function callRec(l){
     S.calls[l.id]={tries: j&&n%5===1?2:0, connected: j&&n%5===0}; }
   return S.calls[l.id];
 }
+/* Step 1 of Connect with Reassigned Leads: the new counsellor accepts each lot (per old counsellor). Leads that
+   were already joined before this step existed count as accepted; students with no group still need it. */
+function acceptedIn(r,id){ return !!((r.accepted&&r.accepted[id]) || (r.joined&&r.joined[id]&&!(r.noGroup&&r.noGroup[id]))); }
+function isAccepted(l){ return acceptedIn(S.lv[l._lv].req,l.id); }
+function acceptLot(lv){
+  var v=S.view, n=0, picked=[];
+  withLeaver(lv,function(){ var r=S.req; if(!r.accepted) r.accepted={};
+    S.leads.forEach(function(l){ if(S.assign[l.id]===v && r.movedNow && r.movedNow[l.id] && !acceptedIn(r,l.id)){ r.accepted[l.id]=1; n++; picked.push(l); } });
+    hist(PEOPLE[v].name+" accepted "+n+" reassigned leads ("+bandText(picked)+")",PEOPLE[v].name); });
+  render(); toast("Accepted "+n+" leads from "+PEOPLE[lv].name+". Join each student's WhatsApp group to start");
+}
 function taskClosed(l){ var c=callRec(l); return isJoined(l) && (!callEligible(l) || c.connected || c.tries>=3); }
 /* Every lead reassigned to the viewer (or to their team, for TL / POD / SM), with its leaver in _lv. */
 function reassignedFor(){
@@ -1437,16 +1454,17 @@ function reRowHtml(l){ return withLeaver(l._lv,function(){
   var j=isJoined(l), c=callRec(l), own=S.view===S.assign[l.id], key=l._lv+'|'+l.id, ng=hasNoGroup(l), ce=callEligible(l);
   var rj=!!(S.req.rmJoined&&S.req.rmJoined[l.id]), lm=leadMeta(l), bucket=RE_CHIPS[reRank(l)][1];
   var meta=l.id.replace("LD-","")+' · '+bucket+' · '+svcLabel(l.servicing)+(lockInOf(l)?' ('+lockInOf(l)+')':'')+' · '+lm.country+' · '+lm.intake+'</small><small>'+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name));
-  var s1 = ng ? '<span class="st skip">&#9312; No WhatsApp group · introduce yourself directly</span>'
-    : '<span class="st'+(j?" done":"")+'">&#9312; WhatsApp group · '+(j?"joined":"to join")+'</span>';
-  var s2 = ce ? '<span class="st'+(c.connected?" done":"")+'">&#9313; Call · '+(c.connected?"connected":c.tries+"/3 attempts")+'</span>'
-    : '<span class="st skip">&#9313; Call · not needed ('+({pre:"STI not done",vdone:"visa approved",drop:"dropped off"}[reChipOf(l)])+')</span>';
+  var s1 = ng ? '<span class="st skip">No WhatsApp group · introduce yourself directly</span>' : '';
+  var s2 = ce ? '<span class="st'+(c.connected?" done":"")+'">Call · '+(c.connected?"connected":c.tries+"/3 attempts")+'</span>'
+    : '<span class="st skip">Call · not needed ('+({pre:"STI not done",vdone:"visa approved",drop:"dropped off"}[reChipOf(l)])+')</span>';
   var status=(ng?"":wgChecks(own?"You":"CL",j,rj))+'<span class="subt">'+s1+s2+'</span>';
   var ctas;
   if(own){
     ctas=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>'))+
       (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>':'');
     if(!ctas) ctas='<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
+  } else if(!isAccepted(l)) {
+    ctas='<span class="badge b-grey">Awaiting acceptance</span>';
   } else {
     ctas=(ng?'':(S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-observe="'+l.id+'">Join WA Group</button>'))+'<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
   }
@@ -1529,17 +1547,24 @@ function renderTaskDrawer(){
   function hit(name,id){ return !q || name.toLowerCase().indexOf(q)!==-1 || id.toLowerCase().indexOf(q)!==-1; }
   var chips, list, total, due, strip="";
   if(d.scope==="re"){
-    var re=drawerLeads("re"), shown=re.filter(function(l){ return reChipHit(l,d.chip) && hit(l.name,l.id); });
+    var reAll=drawerLeads("re"), over=isOversight();
+    var pend=over?[]:reAll.filter(function(l){return !isAccepted(l);});
+    var re=over?reAll:reAll.filter(isAccepted);
+    var shown=re.filter(function(l){ return reChipHit(l,d.chip) && hit(l.name,l.id); });
     var all=reassignedFor(), b=bands(all);
-    total=shown.length; due=re.filter(function(l){return !callRec(l).tries;}).length;
+    total=shown.length; due=re.filter(function(l){return isAccepted(l) && !callRec(l).tries;}).length;
+    /* Step 1: one notification per old counsellor with an Accept button. */
+    var byLv={}, lvOrder=[]; pend.forEach(function(l){ if(!byLv[l._lv]){ byLv[l._lv]=[]; lvOrder.push(l._lv); } byLv[l._lv].push(l); });
+    var lots=lvOrder.map(function(id){ var ls=byLv[id], p=PEOPLE[id];
+      return '<div class="acceptlot"><div class="al"><b>You have '+ls.length+' leads from '+esc(p.name)+'</b><small>Old TL: '+esc(p.tl?PEOPLE[p.tl].name:"No TL")+' · '+esc(bandText(ls))+'</small></div><button class="btn p" data-acceptlot="'+id+'">Accept</button></div>'; }).join("");
     /* What arrived: total plus the pre-STI / post-STI / visa-stage split. */
     strip='<div class="sumstrip"><span class="n num">'+all.length+'</span><span class="lbl">reassigned to '+(isOversight()?"your team":"you")+'</span>'+
       b.filter(function(x){return x[1]>0;}).map(function(x){ return '<span class="sb"><b class="num">'+x[1]+'</b> '+x[0]+'</span>'; }).join("")+'</div>';
     chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+re.length+'</span></button>'+
       RE_CHIPS.map(function(c){ return '<button class="fchip '+c[2]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+re.filter(function(l){return reChipHit(l,c[0]);}).length+'</span></button>'; }).join("");
-    list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students reassigned to your team's counsellors from a counsellor who is leaving. One task per student. Joining a group lets you follow along; it doesn't change the counsellor's task.":"Students reassigned to you from a counsellor who is leaving. One task per student, two sub-tasks: &#9312; join the student's WhatsApp group (every lead), &#9313; call the student (post-STI leads excluding visa approved, and every locked-in student). Call in this order: deposit done, premium / lock-in, STI done, STI not done, visa in process. No calls for visa approved or dropped off.")+'</p></div>'+
+    list = (lots?'<div class="acceptlots">'+lots+'</div>':'')+'<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students reassigned to your team's counsellors from a counsellor who is leaving. One task per student. Joining a group lets you follow along; it doesn't change the counsellor's task.":"Students reassigned to you from a counsellor who is leaving. You are first notified per counsellor and accept the lot; each student then shows Join WA Group and Call Student. One task per student, two sub-tasks: &#9312; join the student's WhatsApp group (every lead), &#9313; call the student (post-STI leads excluding visa approved, and every locked-in student). Call in this order: deposit done, premium / lock-in, STI done, STI not done, visa in process. No calls for visa approved or dropped off.")+'</p></div>'+
       '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>&#9312; is done when you join the group; if the student has no group, introduce yourself directly (nothing to join). &#9313; closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more); it can\'t be closed without a call attempt.</p></div></div>'+
-      (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">'+(re.length?"No students match.":"No open handover tasks.")+'</div>');
+      (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">'+(re.length?"No students match.":(pend.length?"Accept the leads above to see their tasks.":"No open handover tasks."))+'</div>');
   } else {
     var own=ownBoostRows(d.scope), ownShown=own.filter(function(r){return hit(r[0],r[1]);});
     total=ownShown.length; due=d.scope==="sti"?10:4;
@@ -1567,6 +1592,7 @@ function bindTaskDrawer(){
   if(s){ s.oninput=function(){ d.search=s.value; render(); var ns=document.getElementById("drawerSearch"); if(ns){ ns.focus(); ns.setSelectionRange(ns.value.length,ns.value.length); } }; }
   document.querySelectorAll("[data-chip]").forEach(function(b){ b.onclick=function(){ d.chip=b.dataset.chip; render(); }; });
   document.querySelectorAll("[data-viewstudent]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
+  document.querySelectorAll("[data-acceptlot]").forEach(function(b){ b.onclick=function(){ acceptLot(b.dataset.acceptlot); }; });
   document.querySelectorAll("[data-joinlgc]").forEach(function(b){ b.onclick=function(){ var x=b.dataset.joinlgc.split("|"); joinLgc(x[0],x[1]); }; });
   document.querySelectorAll("[data-observe]").forEach(function(b){ b.onclick=function(){ S.observe[S.view+"|"+b.dataset.observe]=1; render(); toast("Joined the group to follow along. The CL still needs to join and call"); }; });
   document.querySelectorAll("[data-callstu]").forEach(function(b){ b.onclick=function(){ var x=b.dataset.callstu.split("|"); callStudent(x[0],x[1]); }; });
@@ -1612,8 +1638,9 @@ function reminderCard(){
    cards. Only while there are open tasks; otherwise the page is the existing CRM view. */
 function reSection(){
   var re=drawerLeads("re"); if(!re.length) return "";
-  var due=re.filter(function(l){return !callRec(l).tries;}).length;
-  return '<div class="rebar" data-boost="re" role="button" tabindex="0"><span class="rei">&#128222;</span><b>Connect with Reassigned Leads</b><span class="rec num">'+re.length+'</span><span class="red">'+due+' due today</span><span class="rel">View Pipeline &rarr;</span></div>';
+  var pend=isOversight()?0:re.filter(function(l){return !isAccepted(l);}).length;
+  var due=re.filter(function(l){return isAccepted(l) && !callRec(l).tries;}).length;
+  return '<div class="rebar" data-boost="re" role="button" tabindex="0"><span class="rei">&#128222;</span><b>Connect with Reassigned Leads</b><span class="rec num">'+re.length+'</span>'+(pend?'<span class="red" style="background:#5b2bb5;color:#fff">'+pend+' to accept</span>':'')+'<span class="red">'+due+' due today</span><span class="rel">View Pipeline &rarr;</span></div>';
 }
 function tasksPerfPage(){
   var v=S.view;
@@ -1739,20 +1766,21 @@ function assignedPage(){
   Object.keys(S.lv).forEach(function(id){ withLeaver(id,function(){ var r=S.req; if(!r) return;
     S.leads.forEach(function(l){ if(S.assign[l.id]===v && r.movedNow && r.movedNow[l.id]){
       if(!by[id]){ by[id]={id:id,leads:[]}; order.push(id); }
-      by[id].leads.push({l:l,on:r.movedNow[l.id],joined:!!(r.joined&&r.joined[l.id]),ng:!!(r.noGroup&&r.noGroup[l.id]),rj:!!(r.rmJoined&&r.rmJoined[l.id])}); } }); }); });
+      by[id].leads.push({l:l,on:r.movedNow[l.id],joined:!!(r.joined&&r.joined[l.id]),acc:acceptedIn(r,l.id),ng:!!(r.noGroup&&r.noGroup[l.id]),rj:!!(r.rmJoined&&r.rmJoined[l.id])}); } }); }); });
   var a=S.assigned, all=[]; order.forEach(function(id){ by[id].leads.forEach(function(x){ all.push(x.l); }); });
   var b=bands(all);
   var dash='<span style="color:var(--faint)">—</span>';
-  function wa(x){ return x.ng?'<span class="badge b-grey">No WhatsApp group</span><small class="sub">Introduce yourself directly</small>':wgChecks("You",x.joined)+(x.joined?'':'<small class="sub">Join to accept this lead</small>'); }
-  var head='<thead><tr><th>Lead stage</th><th>Servicing type</th><th>Lock in details</th><th>Intake</th><th>Country</th><th>UG / PG</th><th>User ID</th><th>Student name</th><th>WhatsApp group</th></tr></thead>';
+  function wa(x){ if(!x.acc) return '<span class="badge b-grey">Awaiting your accept</span><small class="sub">Accept in Connect with Reassigned Leads</small>';
+    return x.ng?'<span class="badge b-grey">No WhatsApp group</span><small class="sub">Introduce yourself directly</small>':wgChecks("You",x.joined)+(x.joined?'':'<small class="sub">Join to accept this lead</small>'); }
+  var head='<thead><tr><th>Student</th><th>Lead stage</th><th>Servicing type</th><th>Lock in details</th><th>Intake</th><th>Country</th><th>UG / PG</th><th>WhatsApp group</th></tr></thead>';
   /* One block per old counsellor: old counsellor name, old TL name and number of leads, then the lot. */
   var lots = order.map(function(id){ var g=by[id], p=PEOPLE[id], tl=p.tl?PEOPLE[p.tl].name:"No TL";
     var rows=g.leads.map(function(x){ var l=x.l, lm=leadMeta(l);
-      return '<tr><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+svcLabel(l.servicing)+'</td><td>'+(lockInOf(l)||dash)+'</td><td>'+esc(lm.intake)+'</td><td>'+esc(lm.country)+'</td><td>'+progLabel(l.program)+'</td><td>'+l.id+'</td><td><b>'+esc(l.name)+'</b></td><td>'+wa(x)+'</td></tr>'; }).join("");
+      return '<tr><td><b>'+esc(l.name)+'</b><small class="sub">'+l.id+'</small></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+svcLabel(l.servicing)+'</td><td>'+(lockInOf(l)||dash)+'</td><td>'+esc(lm.intake)+'</td><td>'+esc(lm.country)+'</td><td>'+progLabel(l.program)+'</td><td>'+wa(x)+'</td></tr>'; }).join("");
     return '<div class="card" style="padding:0"><div class="row" style="justify-content:space-between;padding:12px 14px;margin:0"><span><b>'+esc(p.name)+'</b> <small class="sub" style="display:inline">Old TL: '+esc(tl)+'</small></span><span class="badge b-blue"><span class="num">'+g.leads.length+'</span> leads</span></div>'+
       '<div class="tw"><table>'+head+'<tbody>'+rows+'</tbody></table></div></div>'; }).join("");
-  var own = !a.onlyRe ? '<div class="card" style="padding:0"><div class="row" style="justify-content:space-between;padding:12px 14px;margin:0"><b>Your own leads</b><span class="badge b-grey"><span class="num">'+OWN_LEADS.length+'</span> leads</span></div><div class="tw"><table><thead><tr><th>Lead stage</th><th>User ID</th><th>Student name</th></tr></thead><tbody>'+
-    OWN_LEADS.map(function(o){ return '<tr><td>'+esc(STAGE_LABEL[o[2]])+'</td><td>'+o[1]+'</td><td><b>'+esc(o[0])+'</b></td></tr>'; }).join("")+'</tbody></table></div></div>' : '';
+  var own = !a.onlyRe ? '<div class="card" style="padding:0"><div class="row" style="justify-content:space-between;padding:12px 14px;margin:0"><b>Your own leads</b><span class="badge b-grey"><span class="num">'+OWN_LEADS.length+'</span> leads</span></div><div class="tw"><table><thead><tr><th>Student</th><th>Lead stage</th></tr></thead><tbody>'+
+    OWN_LEADS.map(function(o){ return '<tr><td><b>'+esc(o[0])+'</b><small class="sub">'+o[1]+'</small></td><td>'+esc(STAGE_LABEL[o[2]])+'</td></tr>'; }).join("")+'</tbody></table></div></div>' : '';
   var strip = all.length ? '<div class="sumstrip"><span class="n num">'+all.length+'</span><span class="lbl">reassigned to you</span>'+b.filter(function(x){return x[1]>0;}).map(function(x){ return '<span class="sb"><b class="num">'+x[1]+'</b> '+x[0]+'</span>'; }).join("")+'</div>' : '';
   return '<div class="page"><button class="back" data-tasks>&larr; Back</button><div class="ph"><div><h1>My assigned leads</h1><p>Fresh reassignments are listed counsellor-wise. Join each student\'s WhatsApp group to accept a reassigned lead.</p></div></div>'+strip+
     '<div class="dchips"><button class="chip'+(a.onlyRe?"":" on")+'" data-asg="0">All</button><button class="chip'+(a.onlyRe?" on":"")+'" data-asg="1">Reassigned <span class="num">'+all.length+'</span></button></div>'+
