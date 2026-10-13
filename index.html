@@ -616,7 +616,7 @@ function reset(){
   seed=7;
   S={view:"vikram",route:"home",resOpen:true,notes:{},cur:"priya",focus:"priya",
      clock:"25 Sep 2026, 11:10 AM",
-     tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:[],lockin:[],score:[],intake:[],country:[],menu:"",program:"All",show:"All",sort:"stage",dir:1,loaded:LEAD_PAGE,sel:{}},
+     tl:{grp:[],grpMenuOpen:false,servicing:[],lockin:[],score:[],intake:[],country:[],menu:"",program:"All",show:"All",sort:"stage",dir:1,loaded:LEAD_PAGE,sel:{}},
      draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,tmView:null,smTab:"active",calls:{},observe:{},assigned:{onlyRe:false},lv:{}};
   S.lv.priya=leaver("priya",null,null,40210,null); /* no request yet: the SM raises it in the live walk-through */
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
@@ -953,7 +953,7 @@ function confirmApprove(id){
   showModal('<div class="dhdr"><b>Approve '+esc(p.name)+'\'s last working day?</b><span>Fresh lead assignment to them stops now.</span></div>'+
     '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li>'+
     '<li><b>'+esc(tl.name)+'</b>'+(p.tl?'':' (POD leader — '+esc(p.name)+' has no TL)')+' gets a task to reassign the <b>'+n+'</b> leads; you can reassign them too. The lead list opens now.</li>'+
-    '<li>Every approved assignment moves its leads <b>immediately</b> and can\'t be undone. Each new counsellor gets a WhatsApp-group task per lead, plus a call task for post-STI leads (excluding visa approved) and locked-in students. Their RM is tasked to join the group as well.</li>'+
+    '<li>Every approved assignment moves its leads <b>immediately</b> and can\'t be undone.</li>'+
     '<li>At 8 PM on '+fmtShort(lwd)+', '+esc(p.name)+'\'s login is deactivated <b>only if every lead has been reassigned</b>. Otherwise it stays active and you and '+esc(tl.name)+' are alerted.</li>'+
     '<li>If leads are still unassigned, or a new counsellor has joined none of their groups, by 11 PM on '+fmtShort(addDays(lwd,-1))+', an alert email goes to you, the reporting manager and Debasish Sahoo'+(lwd<=addDays(TODAY,1)?' (the last working day is tomorrow, so that is tonight)':'')+'.</li></ul>'+
     '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn danger" id="caGo">Yes, approve</button></div>',"danger");
@@ -1075,12 +1075,11 @@ function eligible(){ return Object.keys(PEOPLE).map(function(k){return PEOPLE[k]
   return p.role==="Counselor" && p.sm==="vikram" && p.id!==LV().id && !p.leaves && !(r && r.status!=="cancelled"); }); }
 function svcLabel(x){ return x==="PAID_SERVICE"?"Paid":"Free"; }
 function progLabel(x){ return x==="MASTERS"?"PG":"UG"; }
-/* Stage and Group run on the server, so they narrow the whole book. The list then loads 500 at a time and
+/* Group stage runs on the server, so it narrows the whole book. The list then loads 500 at a time and
    Servicing type / Program / Show only filter the leads already loaded (they run locally on the page). */
 function serverLeads(){
   var t=S.tl;
   return S.leads.filter(function(l){
-    if(t.stage.length&&t.stage.indexOf(l.stage)===-1) return false;
     if(t.grp.length&&t.grp.indexOf(leadGroup(l))===-1) return false;
     return true; });
 }
@@ -1134,21 +1133,14 @@ function assignBody(){
     tot>LEAD_CAP ? '<div class="note bad"><b>'+tot+' leads is more than the '+LEAD_CAP.toLocaleString("en-US")+' this list can load.</b> The lead cleanup has to bring this counsellor under the limit before their leads can be reassigned here.</div>' :
     r.blocked ? '<div class="note bad"><b>The last working day has passed.</b> '+(tot-asg)+' leads are unassigned, so the login can\'t be deactivated. Reassign them now.</div>' :
     '<div class="note">Each approved assignment moves its leads <b>immediately</b> and can\'t be undone. Anything still unassigned at 8 PM on <b>'+fmtShort(r.lwd)+'</b> stops the login from being deactivated and alerts the SM, the reporting manager and Debasish Sahoo.</div>';
-  var foot='<div class="pag"><span>Loaded <b class="num">'+loadedN+'</b> of <b class="num">'+srv.length+'</b> leads'+(srv.length!==tot?' matching Stage / Group':'')+'. Servicing type, Lock in, Lead score, Intake, Country, UG / PG and Show filter the loaded leads only.</span>'+
+  var foot='<div class="pag"><span>Loaded <b class="num">'+loadedN+'</b> of <b class="num">'+srv.length+'</b> leads'+(srv.length!==tot?' matching Group stage':'')+'. Servicing type, Lock in, Lead score, Intake, Country, UG / PG and Show filter the loaded leads only.</span>'+
     (loadedN<cap?'<button class="btn sm" id="loadMore">Load next '+Math.min(LEAD_PAGE,cap-loadedN)+'</button>':'')+'</div>';
   var table = rows.length ? '<div class="tw"><table class="asgt"><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all unassigned shown"'+(allShownSel?" checked":"")+(locked||!open.length?" disabled":"")+'></th>'+th("name","Student")+th("stage","Stage")+th("servicing","Servicing type")+th("lockin","Lock in details")+th("intake","Intake")+th("country","Country")+th("program","UG / PG")+th("to","Status")+'</tr></thead><tbody>'+
     rows.map(function(l){ return assignRowHtml(l,locked); }).join("")+'</tbody></table></div>'
     : '<div class="note">No loaded leads match these filters.'+(loadedN<cap?' Load more leads, or change the filters.':'')+'</div>';
-  var stageLabel = (!t.stage.length || t.stage.length===STAGES.length) ? "All stages" : (t.stage.length===1 ? prettyEnum(t.stage[0]) : t.stage.length+" stages selected");
-  var stagePicker = '<div class="f"><span>Stage</span><div class="stagepick"><button type="button" class="btn sm" id="stageBtn"><span>'+esc(stageLabel)+'</span>'+CHEV+'</button>'+
-    (t.stageMenuOpen ? '<div class="panel"><div class="hdr"><span>Stage (select any number)</span><button type="button" class="btn sm" id="stageClear">Clear</button></div>'+
-      '<label class="all"><input type="checkbox" id="stageAll"'+(t.stage.length===STAGES.length?" checked":"")+'> Select all</label>'+
-      STAGES.map(function(s){return '<label><input type="checkbox" data-stagechk="'+s+'"'+(t.stage.indexOf(s)!==-1?" checked":"")+'> '+esc(prettyEnum(s))+'</label>';}).join("")+
-      '</div>' : '')+
-    '</div></div>';
-  var grpLabel = (!t.grp.length || t.grp.length===GROUP_PICK.length) ? "All groups" : (t.grp.length===1 ? GROUP_LABEL[t.grp[0]] : t.grp.length+" groups selected");
-  var groupPicker = '<div class="f"><span>Group</span><div class="stagepick"><button type="button" class="btn sm" id="grpBtn"><span>'+esc(grpLabel)+'</span>'+CHEV+'</button>'+
-    (t.grpMenuOpen ? '<div class="panel"><div class="hdr"><span>Group (select any number)</span><button type="button" class="btn sm" id="grpClear">Clear</button></div>'+
+  var grpLabel = (!t.grp.length || t.grp.length===GROUP_PICK.length) ? "All" : (t.grp.length===1 ? GROUP_LABEL[t.grp[0]] : t.grp.length+" selected");
+  var groupPicker = '<div class="f"><span>Group stage</span><div class="stagepick"><button type="button" class="btn sm" id="grpBtn"><span>'+esc(grpLabel)+'</span>'+CHEV+'</button>'+
+    (t.grpMenuOpen ? '<div class="panel"><div class="hdr"><span>Group stage (select any number)</span><button type="button" class="btn sm" id="grpClear">Clear</button></div>'+
       '<label class="all"><input type="checkbox" id="grpAll"'+(t.grp.length===GROUP_PICK.length?" checked":"")+'> Select all</label>'+
       GROUP_PICK.map(function(k){return '<label><input type="checkbox" data-grpchk="'+k+'"'+(t.grp.indexOf(k)!==-1?" checked":"")+'> '+esc(GROUP_LABEL[k])+'</label>';}).join("")+
       '</div>' : '')+
@@ -1165,7 +1157,7 @@ function assignBody(){
   var selbar = !locked ? '<div class="selbar">'+(nsel?'<b class="num">'+nsel+' selected</b><button class="btn sm danger-o" id="selClear">Clear selection</button>':'<span style="color:var(--muted)">Click rows to select them, then pick who gets them.</span>')+
     '</div>' : '';
   return banner+
-    '<div class="fbar">'+stagePicker+groupPicker+msBar+'<label class="f">UG / PG<select class="in" id="fProg">'+optList([["UNDER_GRADUATION","UG"],["MASTERS","PG"]],t.program)+'</select></label>'+
+    '<div class="fbar">'+groupPicker+msBar+'<label class="f">UG / PG<select class="in" id="fProg">'+optList([["UNDER_GRADUATION","UG"],["MASTERS","PG"]],t.program)+'</select></label>'+
     '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Show<div class="seg">'+["All","Unassigned","Assigned"].map(function(s){return '<button data-show="'+s+'" class="'+(t.show===s?"on":"")+'">'+s+'</button>';}).join("")+'</div></div></div>'+
     selbar+table+foot;
 }
@@ -1210,7 +1202,7 @@ function bottomBar(){
     var picked=S.leads.filter(function(l){return ids.indexOf(l.id)!==-1;});
     showModal('<h3>Are you sure?</h3><p style="color:var(--red);font-weight:700;margin:0">This action is irreversible.</p>'+
       '<div class="kv"><div><small>Reassign to</small><b>'+esc(q.name)+'</b></div><div><small>Leads</small><b class="num">'+ids.length+' of '+esc(LV().name)+'\'s</b></div><div><small>Mix</small><b>'+esc(bandText(picked))+'</b></div><div><small>New RM</small><b>'+esc(RM_NAMES[q.rm])+'</b></div></div>'+
-      '<div class="note warn">These leads move to '+esc(q.name)+' <b>now</b>, with their open tasks and follow-ups. '+esc(q.name)+' gets a task per student to join the WhatsApp group (and to call post-STI leads excluding visa approved, and locked-in students), and '+esc(RM_NAMES[q.rm])+' is tasked to join too.</div>'+
+      '<div class="note warn">These leads move to '+esc(q.name)+' <b>now</b>, with their open tasks and follow-ups.</div>'+
       '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Back</button><button class="btn danger" id="schGo">Yes, approve assignment</button></div>',"danger");
     document.getElementById("schGo").onclick=function(){ assignNow(id,ids,who); };
   };
@@ -1233,18 +1225,10 @@ function bindAssign(){
   var t=S.tl;
   function on(id,ev,fn){ var e=document.getElementById(id); if(e) e[ev]=fn; }
   /* Only one filter panel open at a time: opening one, or using any other filter, closes the rest. */
-  function closeMenus(){ t.stageMenuOpen=false; t.grpMenuOpen=false; t.menu=""; }
+  function closeMenus(){ t.grpMenuOpen=false; t.menu=""; }
   /* Close without a re-render, so the click that triggered it still reaches its target. */
-  function dropMenus(){ if(!t.stageMenuOpen&&!t.grpMenuOpen&&!t.menu) return; closeMenus(); document.querySelectorAll(".stagepick .panel").forEach(function(p){p.remove();}); }
-  /* Stage and Group are server-side: changing them reloads the first 500. */
-  on("stageBtn","onclick",function(){ var o=!t.stageMenuOpen; closeMenus(); t.stageMenuOpen=o; render(); });
-  on("stageClear","onclick",function(){ t.stage=[]; t.loaded=LEAD_PAGE; render(); });
-  on("stageAll","onchange",function(e){ t.stage=e.target.checked?STAGES.slice():[]; t.loaded=LEAD_PAGE; render(); });
-  document.querySelectorAll("[data-stagechk]").forEach(function(c){ c.onchange=function(){
-    var v=c.dataset.stagechk, i=t.stage.indexOf(v);
-    if(c.checked){ if(i===-1) t.stage.push(v); } else if(i!==-1) t.stage.splice(i,1);
-    t.loaded=LEAD_PAGE; render();
-  }; });
+  function dropMenus(){ if(!t.grpMenuOpen&&!t.menu) return; closeMenus(); document.querySelectorAll(".stagepick .panel").forEach(function(p){p.remove();}); }
+  /* Group stage is server-side: changing it reloads the first 500. */
   on("grpBtn","onclick",function(){ var o=!t.grpMenuOpen; closeMenus(); t.grpMenuOpen=o; render(); });
   on("grpClear","onclick",function(){ t.grp=[]; t.loaded=LEAD_PAGE; render(); });
   on("grpAll","onchange",function(e){ t.grp=e.target.checked?GROUP_PICK.slice():[]; t.loaded=LEAD_PAGE; render(); });
@@ -1268,7 +1252,7 @@ function bindAssign(){
   /* Whole row toggles selection, not just the checkbox. */
   document.querySelectorAll("[data-rowsel]").forEach(function(tr){ tr.onclick=function(){ var k=tr.dataset.rowsel; if(t.sel[k]) delete t.sel[k]; else t.sel[k]=1; render(); }; });
   on("selClear","onclick",function(){ t.sel={}; render(); });
-  document.querySelectorAll("[data-acc]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.acc; closeMenus(); if(S.focus===id){ S.focus=null; t.sel={}; render(); } else { t.stage=[]; t.grp=[]; t.servicing=[]; t.lockin=[]; t.score=[]; t.intake=[]; t.country=[]; t.menu=""; t.program="All"; t.show="All"; openSchedule(id); } }; });
+  document.querySelectorAll("[data-acc]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.acc; closeMenus(); if(S.focus===id){ S.focus=null; t.sel={}; render(); } else { t.grp=[]; t.servicing=[]; t.lockin=[]; t.score=[]; t.intake=[]; t.country=[]; t.menu=""; t.program="All"; t.show="All"; openSchedule(id); } }; });
   /* Select all picks the unassigned leads that are loaded and match the filters. */
   function toggleAll(){ var rows=filtered().filter(function(l){return !S.assign[l.id];}); var all=rows.length&&rows.every(function(l){return t.sel[l.id];}); if(all) t.sel={}; else rows.forEach(function(l){t.sel[l.id]=1;}); render(); }
   on("selAll","onchange",toggleAll);
