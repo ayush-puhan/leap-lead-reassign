@@ -1423,8 +1423,8 @@ function reRowHtml(l){ return withLeaver(l._lv,function(){
   var ctas;
   if(own){
     ctas=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>'))+
-      (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>':'');
-    if(!ctas) ctas='<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
+      (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>':'')+
+      '<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
   } else {
     ctas=(ng?'':(S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-observe="'+l.id+'">Join WA Group</button>'))+'<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
   }
