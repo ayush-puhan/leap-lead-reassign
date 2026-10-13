@@ -1431,7 +1431,7 @@ function reRowHtml(l){ return withLeaver(l._lv,function(){
   var rj=!!(S.req.rmJoined&&S.req.rmJoined[l.id]), lm=leadMeta(l), bucket=RE_CHIPS[reRank(l)][1];
   var meta=l.id.replace("LD-","")+' · '+bucket+' · '+svcLabel(l.servicing)+(lockInOf(l)?' ('+lockInOf(l)+')':'')+' · '+lm.country+' · '+lm.intake+'</small><small>'+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name));
   var s1 = ng ? '<span class="st skip">No WhatsApp group · introduce yourself directly</span>' : '';
-  var s2 = ce ? '<span class="st'+(c.connected?" done":"")+'">Call · '+(c.connected?"connected":c.tries+"/3 attempts")+'</span>'
+  var s2 = ce ? ''
     : '<span class="st skip">Call · not needed ('+({pre:"STI not done",vdone:"visa approved",drop:"dropped off"}[reChipOf(l)])+')</span>';
   var status=(ng?"":wgChecks(own?"You":"CL",j,rj))+'<span class="subt">'+s1+s2+'</span>';
   var ctas;
@@ -1539,7 +1539,7 @@ function renderTaskDrawer(){
     chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+re.length+'</span></button>'+
       RE_CHIPS.map(function(c){ return '<button class="fchip '+c[2]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+re.filter(function(l){return reChipHit(l,c[0]);}).length+'</span></button>'; }).join("");
     list = (lots?'<div class="acceptlots">'+lots+'</div>':'')+'<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students reassigned to your team's counsellors from a counsellor who is leaving. One task per student. Joining a group lets you follow along; it doesn't change the counsellor's task.":"Students reassigned to you from a counsellor who is leaving. You are first notified per counsellor and accept the lot; each student then shows Join WA Group and Call Student. One task per student, two sub-tasks: &#9312; join the student's WhatsApp group (every lead), &#9313; call the student (post-STI leads excluding visa approved, and every locked-in student). Call in this order: deposit done, premium / lock-in, STI done, STI not done, visa in process. No calls for visa approved or dropped off.")+'</p></div>'+
-      '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>&#9312; is done when you join the group; if the student has no group, introduce yourself directly (nothing to join). &#9313; closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more); it can\'t be closed without a call attempt.</p></div></div>'+
+      '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>Join LGC and speak to the student to close the task.</p></div></div>'+
       (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">'+(re.length?"No students match.":(pend.length?"Accept the leads above to see their tasks.":"No open handover tasks."))+'</div>');
   } else {
     var own=ownBoostRows(d.scope), ownShown=own.filter(function(r){return hit(r[0],r[1]);});
