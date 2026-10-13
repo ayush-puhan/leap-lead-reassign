@@ -408,9 +408,6 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .fchip.a{color:#b45309;border-color:#f3d29a}.fchip.a .cn{background:#fff1d6;color:#b45309}
 .fchip.g{color:#1c7a4a;border-color:#bfe6cf}.fchip.g .cn{background:#e3f6ea;color:#1c7a4a}
 .fchip.r{color:#c0342b;border-color:#f6c9c7}.fchip.r .cn{background:#fde2e1;color:#c0342b}
-.acceptlots{display:flex;flex-direction:column;gap:8px;flex:none}
-.acceptlot{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 14px;border:1px solid #d9c9fb;border-radius:10px;background:linear-gradient(180deg,#f4efff,#ebe2ff)}
-.acceptlot .al{display:flex;flex-direction:column;gap:2px;min-width:0}.acceptlot .al b{font-size:14px;color:#5b2bb5}.acceptlot .al small{font-size:12px;color:#5b6679}
 .fchip.y{color:#0e7490;border-color:#a5e0ea}.fchip.y .cn{background:#d9f3f8;color:#0e7490}
 .fchip.p{color:#6d28d9;border-color:#ddd0fb}.fchip.p .cn{background:#f1ebff;color:#6d28d9}
 .fchip.on:not(.dark){box-shadow:0 0 0 2px currentColor inset}
@@ -599,7 +596,7 @@ function makeLeads(stageN,split,idStart){
 var LEAD_PAGE=500, LEAD_CAP=2000; /* the lead list loads 500 at a time; past 2,000 it throws */
 var S;
 function leaver(id,stageN,split,idStart,req){ return {id:id,leads:makeLeads(stageN,split,idStart),assign:{},req:req,phase:"before"}; }
-function newReq(status,lwd,tApp,appDay){ return {status:status,lwd:lwd,tApp:tApp,appDay:appDay,history:[],changedFrom:null,msgs:null,movedNow:{},joined:{},rmJoined:{},noGroup:{},accepted:{}}; }
+function newReq(status,lwd,tApp,appDay){ return {status:status,lwd:lwd,tApp:tApp,appDay:appDay,history:[],changedFrom:null,msgs:null,movedNow:{},joined:{},rmJoined:{},noGroup:{}}; }
 /* Students with no WhatsApp group (mock: every 13th Lead ID). Nothing is sent for them and there is no
    group to join; the new counsellor introduces themselves directly. */
 function noGroup(l){ return parseInt(l.id.replace(/\D/g,""),10)%13===0; }
@@ -1216,7 +1213,7 @@ function assignNow(id,ids,who){
     picked.forEach(function(l){ placeLead(id,l,who,day); });
     sum=bandText(picked);
     hist("Reassigned "+n+" leads to "+q.name+" ("+sum+"). Tasks and follow-ups moved; assignment logged; RM "+RM_NAMES[q.rm]+" tasked to join the groups",me().name);
-    notify(who,"You received "+n+" leads from "+LV().name+": "+sum+". Accept them to start the handover tasks.",{label:"Open tasks",route:"home",tab:"tasks",drawer:"re"});
+    notify(who,"You received "+n+" leads from "+LV().name+": "+sum+". Open your handover tasks.",{label:"Open tasks",route:"home",tab:"tasks",drawer:"re"});
     syncStatus(id);
   });
   S.tl.sel={}; closeModal(); render(); toast(n+" leads moved to "+q.name);
@@ -1362,17 +1359,6 @@ function callRec(l){
     S.calls[l.id]={tries: j&&n%5===1?2:0, connected: j&&n%5===0}; }
   return S.calls[l.id];
 }
-/* Step 1 of Connect with Reassigned Leads: the new counsellor accepts each lot (per old counsellor). Leads that
-   were already joined before this step existed count as accepted; students with no group still need it. */
-function acceptedIn(r,id){ return !!((r.accepted&&r.accepted[id]) || (r.joined&&r.joined[id]&&!(r.noGroup&&r.noGroup[id]))); }
-function isAccepted(l){ return acceptedIn(S.lv[l._lv].req,l.id); }
-function acceptLot(lv){
-  var v=S.view, n=0, picked=[];
-  withLeaver(lv,function(){ var r=S.req; if(!r.accepted) r.accepted={};
-    S.leads.forEach(function(l){ if(S.assign[l.id]===v && r.movedNow && r.movedNow[l.id] && !acceptedIn(r,l.id)){ r.accepted[l.id]=1; n++; picked.push(l); } });
-    hist(PEOPLE[v].name+" accepted "+n+" reassigned leads ("+bandText(picked)+")",PEOPLE[v].name); });
-  render(); toast("Accepted "+n+" leads from "+PEOPLE[lv].name+". Join each student's WhatsApp group to start");
-}
 function taskClosed(l){ var c=callRec(l); return isJoined(l) && (!callEligible(l) || c.connected || c.tries>=3); }
 /* Every lead reassigned to the viewer (or to their team, for TL / POD / SM), with its leaver in _lv. */
 function reassignedFor(){
@@ -1439,8 +1425,6 @@ function reRowHtml(l){ return withLeaver(l._lv,function(){
     ctas=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>'))+
       (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>':'');
     if(!ctas) ctas='<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
-  } else if(!isAccepted(l)) {
-    ctas='<span class="badge b-grey">Awaiting acceptance</span>';
   } else {
     ctas=(ng?'':(S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-observe="'+l.id+'">Join WA Group</button>'))+'<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
   }
@@ -1523,24 +1507,18 @@ function renderTaskDrawer(){
   function hit(name,id){ return !q || name.toLowerCase().indexOf(q)!==-1 || id.toLowerCase().indexOf(q)!==-1; }
   var chips, list, total, due, strip="";
   if(d.scope==="re"){
-    var reAll=drawerLeads("re"), over=isOversight();
-    var pend=over?[]:reAll.filter(function(l){return !isAccepted(l);});
-    var re=over?reAll:reAll.filter(isAccepted);
+    var re=drawerLeads("re");
     var shown=re.filter(function(l){ return reChipHit(l,d.chip) && hit(l.name,l.id); });
     var all=reassignedFor(), b=bands(all);
-    total=shown.length; due=re.filter(function(l){return isAccepted(l) && !callRec(l).tries;}).length;
-    /* Step 1: one notification per old counsellor with an Accept button. */
-    var byLv={}, lvOrder=[]; pend.forEach(function(l){ if(!byLv[l._lv]){ byLv[l._lv]=[]; lvOrder.push(l._lv); } byLv[l._lv].push(l); });
-    var lots=lvOrder.map(function(id){ var ls=byLv[id], p=PEOPLE[id];
-      return '<div class="acceptlot"><div class="al"><b>You have '+ls.length+' leads from '+esc(p.name)+'</b><small>Old TL: '+esc(p.tl?PEOPLE[p.tl].name:"No TL")+' · '+esc(bandText(ls))+'</small></div><button class="btn p" data-acceptlot="'+id+'">Accept</button></div>'; }).join("");
+    total=shown.length; due=re.filter(function(l){return !callRec(l).tries;}).length;
     /* What arrived: total plus the pre-STI / post-STI / visa-stage split. */
     strip='<div class="sumstrip"><span class="n num">'+all.length+'</span><span class="lbl">reassigned to '+(isOversight()?"your team":"you")+'</span>'+
       b.filter(function(x){return x[1]>0;}).map(function(x){ return '<span class="sb"><b class="num">'+x[1]+'</b> '+x[0]+'</span>'; }).join("")+'</div>';
     chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+re.length+'</span></button>'+
       RE_CHIPS.map(function(c){ return '<button class="fchip '+c[2]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+re.filter(function(l){return reChipHit(l,c[0]);}).length+'</span></button>'; }).join("");
-    list = (lots?'<div class="acceptlots">'+lots+'</div>':'')+'<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students are reassigned from a counsellor who is leaving. Track your team's counsellors accepting the leads and completing the tasks.":"Students are reassigned from a counsellor who is leaving. Accept the leads and complete the tasks.")+'</p></div>'+
+    list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students are reassigned from a counsellor who is leaving. Track your team's counsellors completing the tasks.":"Students are reassigned from a counsellor who is leaving. Complete the tasks.")+'</p></div>'+
       '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>Join LGC and speak to the student to close the task.</p></div></div>'+
-      (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">'+(re.length?"No students match.":(pend.length?"Accept the leads above to see their tasks.":"No open handover tasks."))+'</div>');
+      (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">'+(re.length?"No students match.":"No open handover tasks.")+'</div>');
   } else {
     var own=ownBoostRows(d.scope), ownShown=own.filter(function(r){return hit(r[0],r[1]);});
     total=ownShown.length; due=d.scope==="sti"?10:4;
@@ -1568,7 +1546,6 @@ function bindTaskDrawer(){
   if(s){ s.oninput=function(){ d.search=s.value; render(); var ns=document.getElementById("drawerSearch"); if(ns){ ns.focus(); ns.setSelectionRange(ns.value.length,ns.value.length); } }; }
   document.querySelectorAll("[data-chip]").forEach(function(b){ b.onclick=function(){ d.chip=b.dataset.chip; render(); }; });
   document.querySelectorAll("[data-viewstudent]").forEach(function(b){ b.onclick=function(){ toast("Not modeled in this mockup"); }; });
-  document.querySelectorAll("[data-acceptlot]").forEach(function(b){ b.onclick=function(){ acceptLot(b.dataset.acceptlot); }; });
   document.querySelectorAll("[data-joinlgc]").forEach(function(b){ b.onclick=function(){ var x=b.dataset.joinlgc.split("|"); joinLgc(x[0],x[1]); }; });
   document.querySelectorAll("[data-observe]").forEach(function(b){ b.onclick=function(){ S.observe[S.view+"|"+b.dataset.observe]=1; render(); toast("Joined the group to follow along. The CL still needs to join and call"); }; });
   document.querySelectorAll("[data-callstu]").forEach(function(b){ b.onclick=function(){ var x=b.dataset.callstu.split("|"); callStudent(x[0],x[1]); }; });
@@ -1614,9 +1591,8 @@ function reminderCard(){
    cards. Only while there are open tasks; otherwise the page is the existing CRM view. */
 function reSection(){
   var re=drawerLeads("re"); if(!re.length) return "";
-  var pend=isOversight()?0:re.filter(function(l){return !isAccepted(l);}).length;
-  var due=re.filter(function(l){return isAccepted(l) && !callRec(l).tries;}).length;
-  return '<div class="rebar" data-boost="re" role="button" tabindex="0"><span class="rei">&#128222;</span><b>Connect with Reassigned Leads</b><span class="rec num">'+re.length+'</span>'+(pend?'<span class="red" style="background:#5b2bb5;color:#fff">'+pend+' to accept</span>':'')+'<span class="red">'+due+' due today</span><span class="rel">View Pipeline &rarr;</span></div>';
+  var due=re.filter(function(l){return !callRec(l).tries;}).length;
+  return '<div class="rebar" data-boost="re" role="button" tabindex="0"><span class="rei">&#128222;</span><b>Connect with Reassigned Leads</b><span class="rec num">'+re.length+'</span>'+'<span class="red">'+due+' due today</span><span class="rel">View Pipeline &rarr;</span></div>';
 }
 function tasksPerfPage(){
   var v=S.view;
@@ -1742,12 +1718,11 @@ function assignedPage(){
   Object.keys(S.lv).forEach(function(id){ withLeaver(id,function(){ var r=S.req; if(!r) return;
     S.leads.forEach(function(l){ if(S.assign[l.id]===v && r.movedNow && r.movedNow[l.id]){
       if(!by[id]){ by[id]={id:id,leads:[]}; order.push(id); }
-      by[id].leads.push({l:l,on:r.movedNow[l.id],joined:!!(r.joined&&r.joined[l.id]),acc:acceptedIn(r,l.id),ng:!!(r.noGroup&&r.noGroup[l.id]),rj:!!(r.rmJoined&&r.rmJoined[l.id])}); } }); }); });
+      by[id].leads.push({l:l,on:r.movedNow[l.id],joined:!!(r.joined&&r.joined[l.id]),ng:!!(r.noGroup&&r.noGroup[l.id]),rj:!!(r.rmJoined&&r.rmJoined[l.id])}); } }); }); });
   var a=S.assigned, all=[]; order.forEach(function(id){ by[id].leads.forEach(function(x){ all.push(x.l); }); });
   var b=bands(all);
   var dash='<span style="color:var(--faint)">—</span>';
-  function wa(x){ if(!x.acc) return '<span class="badge b-grey">Awaiting your accept</span><small class="sub">Accept in Connect with Reassigned Leads</small>';
-    return x.ng?'<span class="badge b-grey">No WhatsApp group</span><small class="sub">Introduce yourself directly</small>':wgChecks("You",x.joined)+(x.joined?'':'<small class="sub">Join to accept this lead</small>'); }
+  function wa(x){ return x.ng?'<span class="badge b-grey">No WhatsApp group</span><small class="sub">Introduce yourself directly</small>':wgChecks("You",x.joined)+(x.joined?'':'<small class="sub">Join to accept this lead</small>'); }
   var head='<thead><tr><th>Student</th><th>Lead stage</th><th>Servicing type</th><th>Lock in details</th><th>Intake</th><th>Country</th><th>UG / PG</th><th>WhatsApp group</th></tr></thead>';
   /* One block per old counsellor: old counsellor name, old TL name and number of leads, then the lot. */
   var lots = order.map(function(id){ var g=by[id], p=PEOPLE[id], tl=p.tl?PEOPLE[p.tl].name:"No TL";
