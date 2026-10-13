@@ -131,11 +131,11 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .defbox .def{background:#eef4ff;padding:10px 14px}.defbox .clo{background:#ecf9f0;padding:10px 14px}
 .defbox b{font-size:12px;letter-spacing:.3px}.defbox .def b,.defbox .def p{color:#2550c8}.defbox .clo b,.defbox .clo p{color:#1c7a4a}
 .defbox p{margin:4px 0 0;font-size:13px;line-height:1.5}
-.rrows{display:flex;flex-direction:column;flex:none}
-.rrow{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line-soft)}
-.rrow .rl{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rrows{display:flex;flex-direction:column;gap:10px;flex:none}
+.rrow{display:flex;flex-direction:column;gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.rrow .rl{min-width:0;display:flex;flex-direction:column;gap:2px}
 .rrow .rl b{font-size:14px}.rrow .rl small{color:var(--muted);font-size:12px}
-.rst{display:flex;gap:10px;align-items:center;margin-top:3px}.rst .wgk{font-size:12px}
+.rst{display:flex;gap:10px;align-items:center;margin-top:8px}.rst .wgk{font-size:12px}
 .subt{display:flex;flex-wrap:wrap;gap:6px}
 .st{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--amber-soft);color:var(--amber);white-space:nowrap}
 .st.done{background:var(--green-soft);color:var(--green)}
@@ -148,11 +148,12 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .sumstrip .sb b{color:var(--ink);font-size:14px}
 .fchip.n{color:#5b6679}.fchip.n .cn{background:var(--grey-soft);color:#5b6679}
 .att{font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:1px 8px}
-.rrow .rc{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
-.rrow .rcp{display:flex;gap:8px}
-.rrow .rcs{display:flex;gap:6px}
-.rcs button{border:1px solid var(--line);background:#fff;color:#4b566b;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;white-space:nowrap}
-.rcs button:hover{background:#f4f6fb}
+.rrow .rc{display:flex;flex-direction:column;gap:8px}
+.rrow .rcp,.rrow .rcs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rrow .rcp button:only-child{grid-column:1/-1}
+.rcp button{width:100%;padding:10px 12px}
+.rcs button{width:100%;border:0;background:#f1f4f9;color:#4b566b;border-radius:8px;padding:5px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.rcs button:hover{background:#e6ebf4}
 .wabtn{border:1px solid #1c7a4a;background:#1c7a4a;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
 .callbtn{border:1px solid #2f3fbf;background:#2f3fbf;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
 .callbtn:disabled{opacity:.45;cursor:not-allowed}
