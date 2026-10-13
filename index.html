@@ -131,16 +131,21 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .defbox .def{background:#eef4ff;padding:10px 14px}.defbox .clo{background:#ecf9f0;padding:10px 14px}
 .defbox b{font-size:12px;letter-spacing:.3px}.defbox .def b,.defbox .def p{color:#2550c8}.defbox .clo b,.defbox .clo p{color:#1c7a4a}
 .defbox p{margin:4px 0 0;font-size:13px;line-height:1.5}
-.rrows{display:flex;flex-direction:column;gap:8px;flex:none}
-.rrow{display:flex;flex-direction:row;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
-.rrow .rl{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
-.rrow .rl b{font-size:14px}.rrow .rl small{color:var(--muted);font-size:12px}
-.rst{display:flex;gap:10px;align-items:center;margin-top:4px}.rst .wgk{font-size:12px}
+.rrows{display:flex;flex-direction:column;gap:10px;flex:none}
+.rrow{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.rtop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 14px}
+.rrow .rl{min-width:0;display:flex;flex-direction:column;gap:3px}
+.rrow .rl b{font-size:15px;font-weight:700}.rrow .rl small{color:var(--muted);font-size:12px;line-height:1.4}
+.rview{border:0;background:none;color:#4a3df0;font-size:13px;font-weight:700;white-space:nowrap;padding:2px 0;cursor:pointer}
+.rview:hover{text-decoration:underline}
+.rfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:9px 14px;background:#f8f9fc;border-top:1px solid var(--line-soft)}
+.rst{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.rst .wgk{font-size:12px}
+.rrow .ck{border-radius:50%;width:16px;height:16px}
+.racts{display:flex;gap:8px;margin-left:auto}
 .subt{display:flex;flex-wrap:wrap;gap:6px}
 .st{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--amber-soft);color:var(--amber);white-space:nowrap}
 .st.done{background:var(--green-soft);color:var(--green)}
 .st.skip{background:var(--grey-soft);color:#5b6679}
-.rst{flex-wrap:wrap}
 .sumstrip{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#fff;margin-bottom:10px}
 .sumstrip .n{font-size:22px;font-weight:800;line-height:1}
 .sumstrip .lbl{font-size:13px;font-weight:600;color:#39445a}
@@ -148,15 +153,10 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .sumstrip .sb b{color:var(--ink);font-size:14px}
 .fchip.n{color:#5b6679}.fchip.n .cn{background:var(--grey-soft);color:#5b6679}
 .att{font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:1px 8px}
-.rrow .rc{flex:none;width:208px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.rrow .rcp,.rrow .rcs{display:contents}
-.rrow .rcp button:only-child,.rrow .rcs button:only-child{grid-column:1/-1}
-.rcp button{width:100%;padding:7px 4px;font-size:12px}
-.rcs button{width:100%;border:0;background:#f1f4f9;color:#4b566b;border-radius:8px;padding:5px 4px;font-size:11px;font-weight:600;white-space:nowrap}
-.rcs button:hover{background:#e6ebf4}
-.wabtn{border:1px solid #1c7a4a;background:#1c7a4a;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
-.callbtn{border:1px solid #2f3fbf;background:#2f3fbf;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
-.callbtn:disabled{opacity:.45;cursor:not-allowed}
+.wabtn,.callbtn{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap;border:1px solid transparent;cursor:pointer}
+.wabtn{background:#2f5a2a;border-color:#2f5a2a;color:#fff}
+.callbtn{background:#2f3fbf;border-color:#2f3fbf;color:#fff}
+.callbtn:disabled{background:#e0e2ea;border-color:#e0e2ea;color:#8b90a6;cursor:not-allowed}
 .lbtn.sm{padding:6px 10px;font-size:12px;white-space:nowrap}
 .lbtn:disabled{opacity:.45;cursor:not-allowed}
 .newtag{background:#7c3aed;color:#fff;border-radius:4px;padding:1px 6px;font-size:9px;letter-spacing:.4px}
@@ -1420,20 +1420,24 @@ function ownCardHtml(r){
 function reRowHtml(l){ return withLeaver(l._lv,function(){
   var j=isJoined(l), c=callRec(l), own=S.view===S.assign[l.id], key=l._lv+'|'+l.id, ng=hasNoGroup(l), ce=callEligible(l);
   var rj=!!(S.req.rmJoined&&S.req.rmJoined[l.id]), lm=leadMeta(l);
-  var meta=l.id.replace("LD-","")+' · '+lm.country+' · '+lm.intake+'</small><small>'+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name));
+  var meta=l.id.replace("LD-","")+' · '+lm.country+' · '+lm.intake+' · '+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name));
   var s1 = ng ? '<span class="st skip">No WhatsApp group · introduce yourself directly</span>' : '';
   var s2 = ce ? ''
     : '<span class="st skip">Call · not needed ('+({pre:"STI not done",vdone:"visa approved",drop:"dropped off"}[reChipOf(l)])+')</span>';
   var status=(ng?"":wgChecks(own?"You":"CL",j,rj))+'<span class="subt">'+s1+s2+'</span>';
-  /* Join WA Group and Call Student are the primary actions; View Student sits below them, smaller. */
-  var prim, sec='<button data-viewtask="'+l.id+'">View Student</button>';
+  /* Top: name, details and View student. Footer: the group ticks on the left, Join group and Call student
+     (the two primary actions) on the right. */
+  var IC_WA='<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.8-2.2-1-1 1a5 5 0 0 1-2.5-2.5l1-1-1-2.2z" fill="currentColor"/></svg>';
+  var IC_LOCK='<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+  var prim;
   if(own){
-    prim=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>'))+
-      (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>':'');
+    prim=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">'+IC_WA+'Open group</button>':'<button class="wabtn" data-joinlgc="'+key+'">'+IC_WA+'Join group</button>'))+
+      (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the group first"')+'>'+(j?'':IC_LOCK)+'Call student</button>':'');
   } else {
-    prim=(ng?'':(S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-observe="'+l.id+'">Join WA Group</button>'));
+    prim=(ng?'':(S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">'+IC_WA+'Open group</button>':'<button class="wabtn" data-observe="'+l.id+'">'+IC_WA+'Join group</button>'));
   }
-  return '<div class="rrow"><div class="rl"><b>'+esc(l.name)+'</b><small>'+meta+'</small><div class="rst">'+status+'</div></div><div class="rc">'+(prim?'<div class="rcp">'+prim+'</div>':'')+'<div class="rcs">'+sec+'</div></div></div>';
+  return '<div class="rrow"><div class="rtop"><div class="rl"><b>'+esc(l.name)+'</b><small>'+meta+'</small></div><button class="rview" data-viewtask="'+l.id+'">View student <span aria-hidden="true">&rsaquo;</span></button></div>'+
+    '<div class="rfoot"><div class="rst">'+status+'</div>'+(prim?'<div class="racts">'+prim+'</div>':'')+'</div></div>';
 }); }
 /* Mock outcomes, so the joining and closing rules can be tried in the mockup. On join the old counsellor
    and old RM leave the group (the TL too when the lead moved to another TL's team), and the student gets
