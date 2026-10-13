@@ -463,7 +463,7 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 "use strict";
 /* ---------- sample data (all fictional) ---------- */
 var PEOPLE = {
-  priya:{id:"priya",name:"Priya Rao",role:"Counselor",tl:"ankit",sm:"vikram",rm:"nikita",applied:true,phone:"+91 98200 11234",email:"priya.rao@leapfinance.com",open:0},
+  priya:{id:"priya",name:"Priya Rao",role:"Counselor",tl:"ankit",sm:"vikram",rm:"nikita",leaves:true,phone:"+91 98200 11234",email:"priya.rao@leapfinance.com",open:0},
   ankit:{id:"ankit",name:"Ankit Sharma",role:"TL",pod:"rohit",sm:"vikram",phone:"+91 98200 22110",email:"ankit.sharma@leapfinance.com"},
   meera:{id:"meera",name:"Meera Iyer",role:"TL",pod:"rohit",sm:"vikram",phone:"+91 98200 22440",email:"meera.iyer@leapfinance.com"},
   rohit:{id:"rohit",name:"Rohit Kapoor",role:"POD",sm:"vikram",phone:"+91 98200 25010",email:"rohit.kapoor@leapfinance.com"},
@@ -477,13 +477,13 @@ var PEOPLE = {
   rhea:{id:"rhea",name:"Rhea Bhat",role:"Counselor",tl:"ankit",sm:"vikram",rm:"sameer",phone:"+91 98200 41005",email:"rhea.bhat@leapfinance.com",open:0},
   imran:{id:"imran",name:"Imran Sheikh",role:"Counselor",tl:"ankit",sm:"vikram",rm:"pooja",phone:"+91 98200 41006",email:"imran.sheikh@leapfinance.com",open:0},
   neha:{id:"neha",name:"Neha Joshi",role:"Counselor",tl:"meera",sm:"vikram",rm:"sameer",phone:"+91 98200 42002",email:"neha.joshi@leapfinance.com",open:130},
-  kabir:{id:"kabir",name:"Kabir Anand",role:"Counselor",tl:"meera",sm:"vikram",rm:"pooja",applied:true,phone:"+91 98200 42003",email:"kabir.anand@leapfinance.com",open:0},
+  kabir:{id:"kabir",name:"Kabir Anand",role:"Counselor",tl:"meera",sm:"vikram",rm:"pooja",leaves:true,phone:"+91 98200 42003",email:"kabir.anand@leapfinance.com",open:0},
   vivek:{id:"vivek",name:"Vivek Sethi",role:"Counselor",tl:"meera",sm:"vikram",rm:"nikita",phone:"+91 98200 42004",email:"vivek.sethi@leapfinance.com",open:0},
   mohit:{id:"mohit",name:"Mohit Arora",role:"Counselor",tl:"meera",sm:"vikram",rm:"sameer",phone:"+91 98200 42005",email:"mohit.arora@leapfinance.com",open:0}
 };
 /* Every counsellor is mapped to a Relationship Manager (RM). When a student's counsellor changes, the
    student's RM changes with it: the new RM is tasked to join the WhatsApp group, and the old RM is removed
-   when the new counsellor joins. `applied` = has applied to resign; the SM raises their request. */
+   when the new counsellor joins. `leaves` = mock-only marker for a counsellor the SM will raise a request for, so they are not offered leads. */
 var RM_NAMES={nikita:"Nikita Rao",sameer:"Sameer Joshi",pooja:"Pooja Menon"};
 var VIEWS = [
   {id:"vikram",label:"Vikram Mehta (SM)"},
@@ -591,7 +591,7 @@ function makeLeads(stageN,split,idStart){
    screen is about; S.req / S.leads / S.assign / S.phase read and write that leaver. Priya
    is the live, fully clickable flow; Karan (Ankit's team, already approved) and Neha (Meera's team,
    pending) exist so the SM list and the TL's per-leaver accordions show more than one person. */
-/* Revised flow: the SM raises a request for a counsellor who has applied to resign and approves it; the TL
+/* Revised flow: the SM raises a request for a counsellor who is leaving and approves it; the TL
    or SM then reassigns leads. Every approved assignment moves its leads immediately (no schedule, no T-7).
    The new counsellor gets one handover task per lead: join the student's WhatsApp group and, for post-STI
    pre-visa-approved leads, call the student. The old counsellor's login is deactivated at 8 PM on the last
@@ -618,7 +618,7 @@ function reset(){
      clock:"25 Sep 2026, 11:10 AM",
      tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:[],lockin:[],score:[],intake:[],country:[],menu:"",program:"All",show:"All",sort:"stage",dir:1,loaded:LEAD_PAGE,sel:{}},
      draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,tmView:null,smTab:"active",calls:{},observe:{},assigned:{onlyRe:false},lv:{}};
-  S.lv.priya=leaver("priya",null,null,40210,null); /* applied, request not raised: the live walk-through */
+  S.lv.priya=leaver("priya",null,null,40210,null); /* no request yet: the SM raises it in the live walk-through */
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
     newReq("approved",new Date(2026,9,9),"23 Sep 2026, 10:30 AM",new Date(2026,8,23)));
   S.lv.neha=leaver("neha",{LS_COLLEGE_SHORTLISTED:60,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:30,LS_ADMIT_ACCEPTED:18,LS_VISA_GRANTED:10,LS_LEAD_DROP_OFF:12},{LS_LEAD_DROP_OFF:{pre:8,post:4}},62300,
@@ -693,7 +693,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&am
 function toast(t){ var el=document.getElementById("toast"); el.innerHTML='<div class="toast">'+esc(t)+'</div>'; clearTimeout(toast._t); toast._t=setTimeout(function(){el.innerHTML="";},2600); }
 function assignedCount(){ return Object.keys(S.assign).length; }
 function statusBadge(st){
-  var m={applied:["Applied","b-grey"],pending:["Pending approval","b-amber"],approved:["Assigning leads","b-blue"],transferred:["Leads reassigned","b-green"],deactivated:["Completed","b-grey"],cancelled:["Deleted","b-grey"]};
+  var m={pending:["Pending approval","b-amber"],approved:["Assigning leads","b-blue"],transferred:["Leads reassigned","b-green"],deactivated:["Completed","b-grey"],cancelled:["Deleted","b-grey"]};
   var x=m[st]; return '<span class="badge '+x[1]+'">'+x[0]+'</span>';
 }
 var ICON={res:"&#128682;",book:"&#128214;",cap:"&#127891;",list:"&#128203;",task:"&#9745;"};
@@ -844,19 +844,14 @@ var SAMPLE_ROWS=[
   {name:"Farhan Ali",tl:"Meera Iyer",lwd:new Date(2026,8,30),leads:288,status:"deactivated",tApp:"16 Sep 2026"},
   {name:"Dev Khanna",tl:"Meera Iyer",lwd:new Date(2026,9,20),leads:302,status:"cancelled",tApp:"18 Sep 2026"}
 ];
-var SORT_RANK={applied:0,pending:1,approved:2,transferred:3,deactivated:4,cancelled:5};
-/* One row per counsellor the SM has to deal with: those who have applied (no request yet), requests
-   waiting for approval, leads being reassigned, and handovers being tracked. Past holds finished and
+var SORT_RANK={pending:1,approved:2,transferred:3,deactivated:4,cancelled:5};
+/* One row per request the SM has to deal with: requests waiting for approval, leads being reassigned, and handovers being tracked. Past holds finished and
    deleted ones. */
 function smRows(){
   var rows=[], past=S.smTab==="past";
   Object.keys(S.lv).forEach(function(id){ var r=S.lv[id].req; if(!r) return; if(past !== (r.status==="deactivated"||r.status==="cancelled")) return;
     var lv=S.lv[id];
     rows.push({id:id,name:PEOPLE[id].name,tl:TLof(id).name,lwd:r.lwd,leads:lv.leads.length,status:r.status,tApp:r.tApp,moved:Object.keys(lv.assign).length,joined:Object.keys(r.joined).filter(function(k){return lv.assign[k];}).length}); });
-  if(!past) Object.keys(PEOPLE).forEach(function(id){ var p=PEOPLE[id];
-    if(!p.applied || (S.lv[id]&&S.lv[id].req)) return;
-    ensureLeaver(id);
-    rows.push({id:id,name:p.name,tl:TLof(id).name,lwd:null,leads:S.lv[id].leads.length,status:"applied",moved:0,joined:0}); });
   SAMPLE_ROWS.forEach(function(x){ if(past) rows.push(x); });
   rows.sort(function(a,b){ return (SORT_RANK[a.status]-SORT_RANK[b.status]) || (past ? b.lwd-a.lwd : (a.lwd||0)-(b.lwd||0)); });
   return rows;
@@ -867,8 +862,7 @@ var IC_DEL='<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><
    offered while no lead has moved, because a reassignment can't be undone. */
 function smAction(r){
   var tools="";
-  if(r.id && r.status==="applied") tools='<button class="btn sm p" data-raise="'+r.id+'">Raise request</button>';
-  else if(r.id){
+  if(r.id){
     if(r.status==="pending") tools+='<button class="btn sm p" data-review="'+r.id+'">Approve</button>';
     if(["pending","approved"].indexOf(r.status)!==-1) tools+='<button class="icb" data-editlwd="'+r.id+'" title="Change last working day" aria-label="Change last working day">'+IC_CAL+'</button>';
     if((r.status==="pending"||r.status==="approved") && !movedCount(r.id)) tools+='<button class="icb del" data-cancelreq="'+r.id+'" title="Delete last working day" aria-label="Delete last working day">'+IC_DEL+'</button>';
@@ -880,7 +874,6 @@ function smHome(){
 }
 /* One status badge and one supporting line per row, so the list scans quickly. */
 function smStatus(r){
-  if(r.status==="applied") return statusBadge("applied")+'<small class="sub">Request not raised yet</small>';
   if(r.status==="pending") return statusBadge("pending")+'<small class="sub">Raised · waiting for your approval</small>';
   if(r.status==="approved"){ var x=r.id?slaInfo(r.id):{}, blocked=r.id&&S.lv[r.id].req.blocked;
     return (blocked?'<span class="badge b-red" title="Last working day passed with unassigned leads, so the login could not be deactivated">Deactivation blocked</span>'
@@ -898,9 +891,9 @@ function smRequestsCard(){
   if(S.tmView) return handoverHtml(S.tmView);
   var nAct=lwdActiveIds().length;
   var nPast=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="deactivated"||r.status==="cancelled"); }).length+SAMPLE_ROWS.length;
-  return '<div class="row" style="justify-content:space-between"><p class="tmsub">Counsellors who have applied to resign. Raise a request with their last working day, then approve it. After that the TL or you reassign their leads, and every approved assignment moves the leads straight away.</p><button class="btn" id="addLwd">+ Raise for another counsellor</button></div>'+
+  return '<div class="row" style="justify-content:space-between"><p class="tmsub">Raise a request for a counsellor with their last working day, then approve it. After that the TL or you reassign their leads, and every approved assignment moves the leads straight away.</p><button class="btn p" id="addLwd">+ Raise request</button></div>'+
     '<div class="dchips"><button class="chip'+(S.smTab==="past"?"":" on")+'" data-smtab="active">In progress <span class="num">'+nAct+'</span></button><button class="chip'+(S.smTab==="past"?" on":"")+'" data-smtab="past">Past <span class="num">'+nPast+'</span></button></div>'+
-    (rows.length?table:'<div class="note">'+(S.smTab==="past"?"Nothing here yet.":"No counsellors have applied right now.")+'</div>');
+    (rows.length?table:'<div class="note">'+(S.smTab==="past"?"Nothing here yet.":"No requests in progress. Use + Raise request to add one.")+'</div>');
 }
 function bindSmHome(){
   var a=document.getElementById("addLwd"); if(a) a.onclick=function(){ raiseModal("",""); };
@@ -926,7 +919,7 @@ function ensureLeaver(id){ if(!S.lv[id]){ var n=0; for(var i=0;i<id.length;i++) 
 /* Step 1 — raise: pick the counsellor and the exit date. Leads are counted but stay hidden until approval. */
 function raiseModal(id,dt){
   var ids=addableCounsellors(); if(id && ids.indexOf(id)===-1) ids.unshift(id);
-  var opts='<option value="">Pick a counsellor…</option>'+ids.map(function(k){ var p=PEOPLE[k]; return '<option value="'+k+'"'+(k===id?" selected":"")+'>'+esc(p.name)+' · '+esc(teamName(p))+(p.applied?" · applied":"")+'</option>'; }).join("");
+  var opts='<option value="">Pick a counsellor…</option>'+ids.map(function(k){ var p=PEOPLE[k]; return '<option value="'+k+'"'+(k===id?" selected":"")+'>'+esc(p.name)+' · '+esc(teamName(p))+'</option>'; }).join("");
   var body="";
   if(id && dt){
     ensureLeaver(id);
@@ -1076,10 +1069,10 @@ function bindHandover(){
 
 /* ---------- Reassign leads (TL, POD leader or SM) ---------- */
 /* Who can receive leads: active counsellors under the same SM, excluding the leaver, anyone who has
-   applied to resign, and anyone with a live request of their own. */
+   leaving, and anyone with a live request of their own. */
 function eligible(){ return Object.keys(PEOPLE).map(function(k){return PEOPLE[k];}).filter(function(p){
   var r=S.lv[p.id]&&S.lv[p.id].req;
-  return p.role==="Counselor" && p.sm==="vikram" && p.id!==LV().id && !p.applied && !(r && r.status!=="cancelled"); }); }
+  return p.role==="Counselor" && p.sm==="vikram" && p.id!==LV().id && !p.leaves && !(r && r.status!=="cancelled"); }); }
 function svcLabel(x){ return x==="PAID_SERVICE"?"Paid":"Free"; }
 function progLabel(x){ return x==="MASTERS"?"PG":"UG"; }
 /* Stage and Group run on the server, so they narrow the whole book. The list then loads 500 at a time and
@@ -1299,10 +1292,9 @@ var IBT_STATIC={
 };
 /* Tile counts: leavers still needing something — reassigning, or new counsellors yet to join their groups. */
 function pendingJoins(id){ var lv=S.lv[id], r=lv.req; return ["approved","transferred"].indexOf(r.status)!==-1 && Object.keys(lv.assign).some(function(k){ return !r.joined[k]; }); }
-/* The SM's tile: everyone in progress — applied (no request yet), pending approval, reassigning, or tracking. */
+/* The SM's bar: every request in progress — pending approval, reassigning, or tracking. */
 function lwdActiveIds(){
   var a=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="pending"||r.status==="approved"||r.status==="transferred"); });
-  Object.keys(PEOPLE).forEach(function(id){ if(PEOPLE[id].applied && !(S.lv[id]&&S.lv[id].req)) a.push(id); });
   return a;
 }
 function scheduleTaskIds(){ return assignLeavers().filter(function(id){ var r=S.lv[id].req; return (r.status==="approved" && !slaInfo(id).done) || pendingJoins(id); }); }

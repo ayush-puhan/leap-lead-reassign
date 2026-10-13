@@ -47,15 +47,14 @@ Scale: ~260 counsellors exited in the last 3 months. After the cleanup, about 50
 
 | # | Who | What happens | Status after |
 |---|---|---|---|
-| 1 | Counsellor | Applies to resign. Appears in the SM's list. | Applied |
-| 2 | SM | Selects the counsellor, raises the request with the LWD. | Pending approval |
-| 3 | SM | Approves. Fresh leads stop going to the counsellor. The TL gets a task. The lead list opens. | Assigning leads |
-| 4 | TL or SM | Selects leads (one by one, select all, or by stage), picks a new counsellor, clicks **Approve Assignment**, confirms. Leads move immediately. Repeat until none are left. | Assigning leads (x / y) |
-| 5 | CRM | Each new counsellor gets one handover task per lead. The RM is tasked to join the group. | — |
-| 6 | New counsellor | Joins the student's WhatsApp group. Old counsellor and old RM are removed; the student gets the WhatsApp message and email. | — |
-| 7 | New counsellor | Calls the student (post-STI, pre-visa-approved only). | — |
-| 8 | CRM | The last lead is reassigned; the SM and TL are told. | Leads reassigned |
-| 9 | CRM | 8 PM on the LWD: login deactivated, only if every lead is reassigned. | Completed |
+| 1 | SM | Raises the request for the counsellor with the LWD. The counsellor has no part in this. | Pending approval |
+| 2 | SM | Approves. Fresh leads stop going to the counsellor. The TL gets a task. The lead list opens. | Assigning leads |
+| 3 | TL or SM | Selects leads (one by one, select all, or by stage), picks a new counsellor, clicks **Approve Assignment**, confirms. Leads move immediately. Repeat until none are left. | Assigning leads (x / y) |
+| 4 | CRM | Each new counsellor gets one handover task per lead. The RM is tasked to join the group. | — |
+| 5 | New counsellor | Joins the student's WhatsApp group. Old counsellor and old RM are removed; the student gets the WhatsApp message and email. | — |
+| 6 | New counsellor | Calls the student (post-STI, pre-visa-approved only). | — |
+| 7 | CRM | The last lead is reassigned; the SM and TL are told. | Leads reassigned |
+| 8 | CRM | 8 PM on the LWD: login deactivated, only if every lead is reassigned. | Completed |
 
 Side paths: **Deleted** (before any lead has moved) and **Deactivation blocked** (LWD passed with unassigned leads).
 
@@ -64,7 +63,7 @@ Side paths: **Deleted** (before any lead has moved) and **Deactivation blocked**
 ### 1. SM — Counsellor Last Working Day
 
 - The entry point is always visible to the SM: Tasks & Performance › Important Business Tasks › **Counsellor Last Working Day**.
-- It lists every counsellor who has applied to resign, with TL/PL, LWD, lead count and status. In progress and Past are separate tabs.
+- It lists every request, with TL/PL, LWD, lead count and status. In progress and Past are separate tabs.
 - **Raise request** (step 1): pick the counsellor and the LWD (tomorrow or later). The SM sees the lead counts (Open App / Post STI / Post Deposit / Drop off) but **not** the lead list.
 - **Approve** (step 2): a review then a red confirm. It states: fresh lead assignment stops; the TL gets a task; every approved assignment moves leads immediately and can't be undone; new counsellors and RMs get tasks; the login is deactivated at 8 PM on the LWD only if every lead is reassigned; and the 11 PM alert.
 - **Change last working day:** from a calendar, at any time before the LWD, including after leads have moved. Leads already reassigned stay where they are. The deactivation and alert move to the new date.
@@ -80,7 +79,7 @@ Side paths: **Deleted** (before any lead has moved) and **Deactivation blocked**
 - **Filters:** Stage and Group (server-side, over the whole book); Servicing type, UG / PG and Show (All / Unassigned / Assigned), which run locally on the leads already loaded.
 - **Lazy load:** 500 leads per page, **Load next 500**. The list holds up to 2,000 leads; above that the screen says so and reassignment waits for the cleanup.
 - **Select:** click rows, or the header checkbox (selects the unassigned leads that are loaded and match the filters). Reassigned rows are locked.
-- **Assign:** pick a counsellor (active, under the same SM, with their existing open leads shown; not anyone who has applied or has their own request) and click **Approve Assignment**.
+- **Assign:** pick a counsellor (active, under the same SM, with their existing open leads shown; not anyone who is leaving or has their own request) and click **Approve Assignment**.
 - **Confirm:** "Are you sure? This action is irreversible." It shows the new counsellor, the lead count, the pre-STI / post-STI / visa-stage split and the new RM.
 - **On confirm:** the leads move immediately with open tasks and follow-ups. Past calls and notes stay on the lead. The old owner is recorded. The assignment is written to the counsellor assignment log (used for incentives and commission). The new counsellor gets a bell: "You received [N] leads from [Name]: [pre-STI, post-STI, visa-stage]".
 - When the last lead is reassigned the status becomes **Leads reassigned**, and the SM and TL are told.
@@ -181,7 +180,7 @@ No TL: the email drops the Team Lead line.
 
 ## Statuses
 
-Applied › Pending approval (amber) › Assigning leads (blue, with x / y reassigned) › Leads reassigned (green) › Completed. Side paths: Deleted (grey) and **Deactivation blocked** (red). Statuses never go backwards.
+Pending approval (amber) › Assigning leads (blue, with x / y reassigned) › Leads reassigned (green) › Completed. Side paths: Deleted (grey) and **Deactivation blocked** (red). Statuses never go backwards.
 
 ## Stage Groups
 
