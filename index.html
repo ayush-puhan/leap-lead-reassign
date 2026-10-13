@@ -386,6 +386,13 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 .ibt .ibl{font-size:13px;font-weight:700;line-height:1.35;color:#b42318}
 .ibt.zero{background:linear-gradient(180deg,#e9f8ef,#ddf3e6);border-color:#bfe6cf}
 .ibt.zero b,.ibt.zero .ibl{color:#1c7a4a}
+.ibbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%;text-align:left;padding:12px 16px;border-radius:10px;cursor:pointer;background:linear-gradient(180deg,#fdf1f0,#fbe7e6);border:1px solid #f3d3d1;color:#b42318}
+.ibbar:hover{border-color:#eeb3b0;box-shadow:0 2px 8px rgba(180,35,24,.08)}
+.ibbar .ibi{font-size:18px;line-height:1}.ibbar b{font-size:14px}
+.ibbar .rec{background:#fff;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:800}
+.ibbar .red{font-size:12px;background:#fff;color:#5b6679;border-radius:6px;padding:2px 8px;font-weight:600}
+.ibbar .rel{margin-left:auto;font-size:13px;font-weight:700}
+.ibbar.zero{background:linear-gradient(180deg,#e9f8ef,#ddf3e6);border-color:#bfe6cf;color:#1c7a4a}
 /* Boost drawer — production layout */
 .drawer{width:min(560px,100vw)}
 .drawer .dtop{padding:12px 16px 14px;border-bottom:1px solid var(--line-soft);display:flex;flex-direction:column;gap:12px;flex:none}
@@ -945,7 +952,7 @@ function confirmApprove(id){
   showModal('<div class="dhdr"><b>Approve '+esc(p.name)+'\'s last working day?</b><span>Fresh lead assignment to them stops now.</span></div>'+
     '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li>'+
     '<li><b>'+esc(tl.name)+'</b>'+(p.tl?'':' (POD leader — '+esc(p.name)+' has no TL)')+' gets a task to reassign the <b>'+n+'</b> leads; you can reassign them too. The lead list opens now.</li>'+
-    '<li>Every approved assignment moves its leads <b>immediately</b> and can\'t be undone. Each new counsellor gets a WhatsApp-group task per lead, plus a call task for post-STI, pre-visa-approved leads. Their RM is tasked to join the group as well.</li>'+
+    '<li>Every approved assignment moves its leads <b>immediately</b> and can\'t be undone. Each new counsellor gets a WhatsApp-group task per lead, plus a call task for post-STI, pre-visa-approved leads and Paid students. Their RM is tasked to join the group as well.</li>'+
     '<li>At 8 PM on '+fmtShort(lwd)+', '+esc(p.name)+'\'s login is deactivated <b>only if every lead has been reassigned</b>. Otherwise it stays active and you and '+esc(tl.name)+' are alerted.</li>'+
     '<li>If a new counsellor has joined none of their groups by 11 PM on '+fmtShort(addDays(lwd,-1))+', an alert email goes to you'+(lwd<=addDays(TODAY,1)?' (the last working day is tomorrow, so that is tonight)':'')+'.</li></ul>'+
     '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn danger" id="caGo">Yes, approve</button></div>',"danger");
@@ -992,10 +999,10 @@ function cancelReq(id){
    and the WhatsApp message and email go to the student. Students with no group aren't messaged; the new
    counsellor introduces themselves directly. */
 /* WhatsApp group membership, shown like the production lead page: a checkbox per member. The student is
-   already in their group; the boxes that change are the new counsellor's and the new RM's. */
+   already in their group; the box that changes is the new counsellor's. */
 function wgChecks(clLabel,clIn,rmIn){
   function ck(on,label){ return '<span class="wgk"><span class="ck'+(on?" on":"")+'">'+(on?"&#10003;":"")+'</span>'+label+'</span>'; }
-  return '<span class="wg">'+ck(clIn,clLabel)+(rmIn===undefined?"":ck(rmIn,"RM"))+ck(true,"Student")+'</span>';
+  return '<span class="wg">'+ck(clIn,clLabel)+ck(true,"Student")+'</span>';
 }
 function lgcByOwner(){
   var by={};
@@ -1065,7 +1072,7 @@ function bindHandover(){
 function eligible(){ return Object.keys(PEOPLE).map(function(k){return PEOPLE[k];}).filter(function(p){
   var r=S.lv[p.id]&&S.lv[p.id].req;
   return p.role==="Counselor" && p.sm==="vikram" && p.id!==LV().id && !p.applied && !(r && r.status!=="cancelled"); }); }
-function svcLabel(x){ return x==="PAID_SERVICE"?"Premium":"Free"; }
+function svcLabel(x){ return x==="PAID_SERVICE"?"Paid":"Free"; }
 function progLabel(x){ return x==="MASTERS"?"PG":"UG"; }
 /* Stage and Group run on the server, so they narrow the whole book. The list then loads 500 at a time and
    Servicing type / Program / Show only filter the leads already loaded (they run locally on the page). */
@@ -1141,7 +1148,7 @@ function assignBody(){
   var selbar = !locked ? '<div class="selbar">'+(nsel?'<b class="num">'+nsel+' selected</b><button class="btn sm danger-o" id="selClear">Clear selection</button>':'<span style="color:var(--muted)">Click rows to select them, then pick who gets them.</span>')+
     '</div>' : '';
   return banner+
-    '<div class="fbar">'+stagePicker+groupPicker+'<label class="f">Servicing type<select class="in" id="fServicing">'+optList([["FREE_SERVICE","Free"],["PAID_SERVICE","Premium"]],t.servicing)+'</select></label><label class="f">UG / PG<select class="in" id="fProg">'+optList([["UNDER_GRADUATION","UG"],["MASTERS","PG"]],t.program)+'</select></label>'+
+    '<div class="fbar">'+stagePicker+groupPicker+'<label class="f">Servicing type<select class="in" id="fServicing">'+optList([["FREE_SERVICE","Free"],["PAID_SERVICE","Paid"]],t.servicing)+'</select></label><label class="f">UG / PG<select class="in" id="fProg">'+optList([["UNDER_GRADUATION","UG"],["MASTERS","PG"]],t.program)+'</select></label>'+
     '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Show<div class="seg">'+["All","Unassigned","Assigned"].map(function(s){return '<button data-show="'+s+'" class="'+(t.show===s?"on":"")+'">'+s+'</button>';}).join("")+'</div></div></div>'+
     selbar+table+foot;
 }
@@ -1186,7 +1193,7 @@ function bottomBar(){
     var picked=S.leads.filter(function(l){return ids.indexOf(l.id)!==-1;});
     showModal('<h3>Are you sure?</h3><p style="color:var(--red);font-weight:700;margin:0">This action is irreversible.</p>'+
       '<div class="kv"><div><small>Reassign to</small><b>'+esc(q.name)+'</b></div><div><small>Leads</small><b class="num">'+ids.length+' of '+esc(LV().name)+'\'s</b></div><div><small>Mix</small><b>'+esc(bandText(picked))+'</b></div><div><small>New RM</small><b>'+esc(RM_NAMES[q.rm])+'</b></div></div>'+
-      '<div class="note warn">These leads move to '+esc(q.name)+' <b>now</b>, with their open tasks and follow-ups. '+esc(q.name)+' gets a task per student to join the WhatsApp group (and to call post-STI, pre-visa-approved leads), and '+esc(RM_NAMES[q.rm])+' is tasked to join too.</div>'+
+      '<div class="note warn">These leads move to '+esc(q.name)+' <b>now</b>, with their open tasks and follow-ups. '+esc(q.name)+' gets a task per student to join the WhatsApp group (and to call post-STI, pre-visa-approved and Paid students), and '+esc(RM_NAMES[q.rm])+' is tasked to join too.</div>'+
       '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Back</button><button class="btn danger" id="schGo">Yes, approve assignment</button></div>',"danger");
     document.getElementById("schGo").onclick=function(){ assignNow(id,ids,who); };
   };
@@ -1253,9 +1260,8 @@ function tlHome(){
 }
 
 /* ---------- Important Business Tasks (TL / SM, Tasks & Performance) ----------
-   The two Last Working Day tasks sit in the existing Important Business Tasks grid next to Drop Off
-   Approval etc., and open the same kind of side drawer (Definition, Task Closure, item list). The
-   other tiles are static sample counts. */
+   The existing 8 tiles are static sample counts. Counsellor Last Working Day is one horizontal bar
+   under them (same bar style as Connect with Reassigned Leads) and opens a large task modal. */
 /* Existing Important Business Tasks tiles, same set and order as production (sample counts). */
 var IBT_STATIC={
   rohit:[["&#128196;","Review Docs For Conditional Admit",64],["&#9989;","Verify the Probable Conditions marked in the Expected Outcome",31],["&#128179;","Deposit Payment Verification",44],["&#128172;","Applicant Feedback",102],["&#128706;","Visa Drop Request",3],["&#128228;","Drop Off Approval / Revival",210],["&#128221;","Ops Tasks",88],["&#128221;","ISL Reviews Pending",1]],
@@ -1278,16 +1284,18 @@ function ibtTile(key,icon,label,n){
 function ibtSection(){
   var v=S.view; if(v!=="ankit"&&v!=="vikram"&&v!=="rohit") return "";
   var items=[];
-  if(v==="vikram") items.push(["lwd","&#128197;","Counsellor Last Working Day",lwdActiveIds().length]);
-  items.push(["sched","&#128101;","Reassign Leads",scheduleTaskIds().length]);
   IBT_STATIC[v].forEach(function(x){ items.push(["static",x[0],x[1],x[2]]); });
-  var pending=items.reduce(function(a,x){return a+x[3];},0), busy=items.filter(function(x){return x[3]>0;}).length;
+  /* One horizontal bar under the tiles: the SM's request list (raise, approve, reassign, track) or the
+     TL / POD leader's reassign list. */
+  var lwdKey = v==="vikram" ? "lwd" : "sched", lwdN = v==="vikram" ? lwdActiveIds().length : scheduleTaskIds().length, toDo = scheduleTaskIds().length;
+  var pending=items.reduce(function(a,x){return a+x[3];},0)+lwdN, busy=items.filter(function(x){return x[3]>0;}).length+(lwdN>0?1:0), total=items.length+1;
   return '<div class="boosthead"><span class="bar"></span>&#128203; Important Business Tasks'+(v==="vikram"?" — TL &amp; POD rollup":v==="rohit"?" — POD":"")+'</div>'+
-    '<div class="ibtwrap"><div class="ibthead"><span>&#128203; <span class="num">'+pending+'</span> pending across <span class="num">'+busy+'/'+items.length+'</span> categories</span><span class="ibtref" title="Refresh">&#8635;</span></div>'+
-    '<div class="ibtgrid">'+items.map(function(x){ return ibtTile(x[0],x[1],x[2],x[3]); }).join("")+'</div></div>';
+    '<div class="ibtwrap"><div class="ibthead"><span>&#128203; <span class="num">'+pending+'</span> pending across <span class="num">'+busy+'/'+total+'</span> categories</span><span class="ibtref" title="Refresh">&#8635;</span></div>'+
+    '<div class="ibtgrid">'+items.map(function(x){ return ibtTile(x[0],x[1],x[2],x[3]); }).join("")+'</div>'+
+    '<button class="ibbar'+(lwdN===0?" zero":"")+'" data-ibt="'+lwdKey+'"><span class="ibi">&#128197;</span><b>Counsellor Last Working Day</b><span class="rec num">'+lwdN+'</span>'+(toDo?'<span class="red">'+toDo+' with leads to reassign or join</span>':'')+'<span class="rel">View &rarr;</span></button></div>';
 }
-/* Tiles open the flow in a large task modal (S.tm): "lwd" = Last Working Day requests, "sched" =
-   Reassign Leads. Raise / approve / assignment confirms open on top of it. */
+/* The Counsellor Last Working Day bar opens a large task modal (S.tm): "lwd" = the SM's request list,
+   "sched" = the lead reassignment list (TL / POD leader; the SM reaches it from a request row). Raise / approve / assignment confirms open on top of it. */
 function bindIbt(){
   document.querySelectorAll("[data-ibt]").forEach(function(b){ b.onclick=function(){
     var k=b.dataset.ibt;
@@ -1298,12 +1306,12 @@ function renderTaskModal(){
   var el=document.getElementById("taskModal"), k=S.tm;
   if(!k || S.route!=="home" || S.activeTab!=="tasks"){ el.innerHTML=""; return; }
   var prev=el.querySelector(".tmscroll"), keep=prev?prev.scrollTop:0;
-  var title = k==="lwd" ? (S.tmView?"Track handover":"Counsellor Last Working Day") : "Reassign Leads";
+  var title = (k==="lwd" && S.tmView) ? "Track handover" : "Counsellor Last Working Day";
   var body = k==="lwd" ? smRequestsCard() : reassignCard();
   el.innerHTML='<div class="tmodal" id="tmBg"><div class="tmbox" role="dialog" aria-modal="true"><div class="tmhead"><button class="ib" id="tmBack" aria-label="Back to Tasks &amp; Performance" title="Back to Tasks &amp; Performance"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M15 9H3.5M8 4 3 9l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>'+title+'</b><button class="ib" id="tmClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div><div class="tmscroll"><div class="tmbody">'+body+'</div></div><div id="tmFoot"></div></div></div>';
   el.querySelector(".tmscroll").scrollTop=keep;
   document.getElementById("tmClose").onclick=closeTaskModal;
-  document.getElementById("tmBack").onclick=function(){ if(S.tmView){ S.tmView=null; render(); } else closeTaskModal(); };
+  document.getElementById("tmBack").onclick=function(){ if(S.tmView){ S.tmView=null; render(); } else if(S.tm==="sched" && S.view==="vikram"){ S.tm="lwd"; S.focus=null; S.tl.sel={}; render(); } else closeTaskModal(); };
 }
 function closeTaskModal(){ S.tm=null; S.tmView=null; S.focus=null; S.tl.sel={}; render(); }
 function lockScroll(){ document.body.style.overflow = S.tm ? "hidden" : ""; }
@@ -1322,7 +1330,8 @@ function lockScroll(){ document.body.style.overflow = S.tm ? "hidden" : ""; }
    TL / POD / SM: their teams'). Two sub-tasks:
    1. Join the student's WhatsApp group — every lead. If the student has no group, nothing is sent and the
       counsellor introduces themselves directly (nothing to join).
-   2. Call the student — only post-STI, pre-visa-approved leads (STI, Deposit Done, Visa until approved).
+   2. Call the student — post-STI, pre-visa-approved leads (STI, Deposit Done, Visa until approved) and every
+      Paid-service student, in any stage.
       Closes on a connected call (over 10 seconds) or after 3 unanswered attempts (each ringing 30s or
       more). There is no way to close it without a call attempt. After the unanswered attempts the student
       also gets an email and an LGC notification as fallback.
@@ -1337,7 +1346,8 @@ function reChipOf(l){ var g=leadGroup(l);
   if(g==="pre_sti") return "pre";
   return "drop"; }
 function reRank(l){ for(var i=0;i<RE_CHIPS.length;i++) if(RE_CHIPS[i][0]===reChipOf(l)) return i; return 9; }
-function callEligible(l){ var c=reChipOf(l); return c==="dep"||c==="sti"||c==="visa"; }
+/* Post-STI, pre-visa-approved leads, and every Paid-service student whatever their stage. */
+function callEligible(l){ var c=reChipOf(l); return c==="dep"||c==="sti"||c==="visa"||l.servicing==="PAID_SERVICE"; }
 function isJoined(l){ var r=S.lv[l._lv].req; return !!(r.joined&&r.joined[l.id]); }
 function hasNoGroup(l){ var r=S.lv[l._lv].req; return !!(r.noGroup&&r.noGroup[l.id]); }
 /* Mock call log, seeded from the lead ID for leads already in the group. */
@@ -1396,7 +1406,7 @@ function tcCard(name,sub,typeKey,howText,extra,id){
 function ownCardHtml(r){
   return tcCard(r[0], r[1].replace("LD-","")+' · '+esc(r[3])+(isOversight()?' · Assigned to '+esc(PEOPLE[r[2]].name):''), r[4], null, '', r[1]);
 }
-/* One compact row per student: name, ID, bucket and country · intake, the group's CL / RM / Student ticks,
+/* One compact row per student: name, ID, bucket and country · intake, the group's CL / Student ticks,
    the two sub-tasks with their state, then the CTAs. Call Student stays off until sub-task 1 is done.
    TL / POD / SM see status only. */
 function reRowHtml(l){ return withLeaver(l._lv,function(){
@@ -1497,8 +1507,8 @@ function renderTaskDrawer(){
       b.filter(function(x){return x[1]>0;}).map(function(x){ return '<span class="sb"><b class="num">'+x[1]+'</b> '+x[0]+'</span>'; }).join("")+'</div>';
     chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+re.length+'</span></button>'+
       RE_CHIPS.map(function(c){ return '<button class="fchip '+c[2]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+re.filter(function(l){return reChipHit(l,c[0]);}).length+'</span></button>'; }).join("");
-    list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students reassigned to your team's counsellors from a counsellor who is leaving. One task per student. Joining a group lets you follow along; it doesn't change the counsellor's task.":"Students reassigned to you from a counsellor who is leaving. One task per student, two sub-tasks: &#9312; join the student's WhatsApp group (every lead), &#9313; call the student (post-STI, pre-visa-approved only). Call in this order: deposit done, STI done, visa in process.")+'</p></div>'+
-      '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>&#9312; is done when you join the group; if the student has no group, introduce yourself directly (nothing to join). &#9313; closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more); it can\'t be closed without a call attempt, and the student gets an email and an LGC notification if they don\'t pick up. Pre-STI, visa-approved and dropped-off leads only need &#9312;.</p></div></div>'+
+    list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students reassigned to your team's counsellors from a counsellor who is leaving. One task per student. Joining a group lets you follow along; it doesn't change the counsellor's task.":"Students reassigned to you from a counsellor who is leaving. One task per student, two sub-tasks: &#9312; join the student's WhatsApp group (every lead), &#9313; call the student (post-STI, pre-visa-approved and Paid students). Call in this order: deposit done, STI done, visa in process.")+'</p></div>'+
+      '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>&#9312; is done when you join the group; if the student has no group, introduce yourself directly (nothing to join). &#9313; closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more); it can\'t be closed without a call attempt.</p></div></div>'+
       (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">'+(re.length?"No students match.":"No open handover tasks.")+'</div>');
   } else {
     var own=ownBoostRows(d.scope), ownShown=own.filter(function(r){return hit(r[0],r[1]);});
