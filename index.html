@@ -136,6 +136,17 @@ h2.sec{margin:6px 0 0;font-size:18px;letter-spacing:.3px}
 .rrow .rl{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .rrow .rl b{font-size:14px}.rrow .rl small{color:var(--muted);font-size:12px}
 .rst{display:flex;gap:10px;align-items:center;margin-top:3px}.rst .wgk{font-size:12px}
+.subt{display:flex;flex-wrap:wrap;gap:6px}
+.st{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--amber-soft);color:var(--amber);white-space:nowrap}
+.st.done{background:var(--green-soft);color:var(--green)}
+.st.skip{background:var(--grey-soft);color:#5b6679}
+.rst{flex-wrap:wrap}
+.sumstrip{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#fff;margin-bottom:10px}
+.sumstrip .n{font-size:22px;font-weight:800;line-height:1}
+.sumstrip .lbl{font-size:13px;font-weight:600;color:#39445a}
+.sumstrip .sb{font-size:12px;color:var(--muted)}
+.sumstrip .sb b{color:var(--ink);font-size:14px}
+.fchip.n{color:#5b6679}.fchip.n .cn{background:var(--grey-soft);color:#5b6679}
 .att{font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:1px 8px}
 .rrow .rc{display:flex;gap:8px;flex:none}
 .wabtn{border:1px solid #9fdcb4;background:#e6f8ec;color:#1c7a4a;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;white-space:nowrap}
@@ -441,21 +452,28 @@ td small.sub{display:block;color:var(--faint);font-size:11px;margin-top:2px}
 "use strict";
 /* ---------- sample data (all fictional) ---------- */
 var PEOPLE = {
-  priya:{id:"priya",name:"Priya Rao",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 11234",email:"priya.rao@leapfinance.com",open:0},
+  priya:{id:"priya",name:"Priya Rao",role:"Counselor",tl:"ankit",sm:"vikram",rm:"nikita",applied:true,phone:"+91 98200 11234",email:"priya.rao@leapfinance.com",open:0},
   ankit:{id:"ankit",name:"Ankit Sharma",role:"TL",pod:"rohit",sm:"vikram",phone:"+91 98200 22110",email:"ankit.sharma@leapfinance.com"},
   meera:{id:"meera",name:"Meera Iyer",role:"TL",pod:"rohit",sm:"vikram",phone:"+91 98200 22440",email:"meera.iyer@leapfinance.com"},
   rohit:{id:"rohit",name:"Rohit Kapoor",role:"POD",sm:"vikram",phone:"+91 98200 25010",email:"rohit.kapoor@leapfinance.com"},
-  zara:{id:"zara",name:"Zara Khan",role:"Counselor",tl:null,pod:"rohit",sm:"vikram",phone:"+91 98200 43001",email:"zara.khan@leapfinance.com",open:105},
+  zara:{id:"zara",name:"Zara Khan",role:"Counselor",tl:null,pod:"rohit",sm:"vikram",rm:"sameer",phone:"+91 98200 43001",email:"zara.khan@leapfinance.com",open:105},
   vikram:{id:"vikram",name:"Vikram Mehta",role:"SM",phone:"+91 98200 30001",email:"vikram.mehta@leapfinance.com"},
-  rahul:{id:"rahul",name:"Rahul Verma",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41001",email:"rahul.verma@leapfinance.com",open:140},
-  sneha:{id:"sneha",name:"Sneha Kulkarni",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41002",email:"sneha.kulkarni@leapfinance.com",open:95},
-  karan:{id:"karan",name:"Karan Gill",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41003",email:"karan.gill@leapfinance.com",open:120},
-  arjun:{id:"arjun",name:"Arjun Nair",role:"Counselor",tl:"meera",sm:"vikram",phone:"+91 98200 42001",email:"arjun.nair@leapfinance.com",open:110},
-  tanvi:{id:"tanvi",name:"Tanvi Desai",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41004",email:"tanvi.desai@leapfinance.com",open:0},
-  rhea:{id:"rhea",name:"Rhea Bhat",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41005",email:"rhea.bhat@leapfinance.com",open:0},
-  imran:{id:"imran",name:"Imran Sheikh",role:"Counselor",tl:"ankit",sm:"vikram",phone:"+91 98200 41006",email:"imran.sheikh@leapfinance.com",open:0},
-  neha:{id:"neha",name:"Neha Joshi",role:"Counselor",tl:"meera",sm:"vikram",phone:"+91 98200 42002",email:"neha.joshi@leapfinance.com",open:130}
+  rahul:{id:"rahul",name:"Rahul Verma",role:"Counselor",tl:"ankit",sm:"vikram",rm:"sameer",phone:"+91 98200 41001",email:"rahul.verma@leapfinance.com",open:140},
+  sneha:{id:"sneha",name:"Sneha Kulkarni",role:"Counselor",tl:"ankit",sm:"vikram",rm:"pooja",phone:"+91 98200 41002",email:"sneha.kulkarni@leapfinance.com",open:95},
+  karan:{id:"karan",name:"Karan Gill",role:"Counselor",tl:"ankit",sm:"vikram",rm:"nikita",phone:"+91 98200 41003",email:"karan.gill@leapfinance.com",open:120},
+  arjun:{id:"arjun",name:"Arjun Nair",role:"Counselor",tl:"meera",sm:"vikram",rm:"pooja",phone:"+91 98200 42001",email:"arjun.nair@leapfinance.com",open:110},
+  tanvi:{id:"tanvi",name:"Tanvi Desai",role:"Counselor",tl:"ankit",sm:"vikram",rm:"nikita",phone:"+91 98200 41004",email:"tanvi.desai@leapfinance.com",open:0},
+  rhea:{id:"rhea",name:"Rhea Bhat",role:"Counselor",tl:"ankit",sm:"vikram",rm:"sameer",phone:"+91 98200 41005",email:"rhea.bhat@leapfinance.com",open:0},
+  imran:{id:"imran",name:"Imran Sheikh",role:"Counselor",tl:"ankit",sm:"vikram",rm:"pooja",phone:"+91 98200 41006",email:"imran.sheikh@leapfinance.com",open:0},
+  neha:{id:"neha",name:"Neha Joshi",role:"Counselor",tl:"meera",sm:"vikram",rm:"sameer",phone:"+91 98200 42002",email:"neha.joshi@leapfinance.com",open:130},
+  kabir:{id:"kabir",name:"Kabir Anand",role:"Counselor",tl:"meera",sm:"vikram",rm:"pooja",applied:true,phone:"+91 98200 42003",email:"kabir.anand@leapfinance.com",open:0},
+  vivek:{id:"vivek",name:"Vivek Sethi",role:"Counselor",tl:"meera",sm:"vikram",rm:"nikita",phone:"+91 98200 42004",email:"vivek.sethi@leapfinance.com",open:0},
+  mohit:{id:"mohit",name:"Mohit Arora",role:"Counselor",tl:"meera",sm:"vikram",rm:"sameer",phone:"+91 98200 42005",email:"mohit.arora@leapfinance.com",open:0}
 };
+/* Every counsellor is mapped to a Relationship Manager (RM). When a student's counsellor changes, the
+   student's RM changes with it: the new RM is tasked to join the WhatsApp group, and the old RM is removed
+   when the new counsellor joins. `applied` = has applied to resign; the SM raises their request. */
+var RM_NAMES={nikita:"Nikita Rao",sameer:"Sameer Joshi",pooja:"Pooja Menon"};
 var VIEWS = [
   {id:"vikram",label:"Vikram Mehta (SM)"},
   {id:"priya",label:"Priya Rao (Counselor, leaving)"},
@@ -560,45 +578,72 @@ function makeLeads(stageN,split,idStart){
    screen is about; S.req / S.leads / S.assign / S.phase read and write that leaver. Priya
    is the live, fully clickable flow; Karan (Ankit's team, already approved) and Neha (Meera's team,
    pending) exist so the SM list and the TL's per-leaver accordions show more than one person. */
-var OVERLAP_DAYS = 7; /* leads move this many days before LWD; config value, DS may change to 14 */
+/* Revised flow: the SM raises a request for a counsellor who has applied to resign and approves it; the TL
+   or SM then reassigns leads. Every approved assignment moves its leads immediately (no schedule, no T-7).
+   The new counsellor gets one handover task per lead: join the student's WhatsApp group and, for post-STI
+   pre-visa-approved leads, call the student. The old counsellor's login is deactivated at 8 PM on the last
+   working day, but only once every lead has been reassigned. */
+var LEAD_PAGE=500, LEAD_CAP=2000; /* the lead list loads 500 at a time; past 2,000 it throws */
 var S;
 function leaver(id,stageN,split,idStart,req){ return {id:id,leads:makeLeads(stageN,split,idStart),assign:{},req:req,phase:"before"}; }
+function newReq(status,lwd,tApp,appDay){ return {status:status,lwd:lwd,tApp:tApp,appDay:appDay,history:[],changedFrom:null,msgs:null,movedNow:{},joined:{},rmJoined:{},noGroup:{}}; }
+/* Students with no WhatsApp group (mock: every 13th Lead ID). Nothing is sent for them and there is no
+   group to join; the new counsellor introduces themselves directly. */
+function noGroup(l){ return parseInt(l.id.replace(/\D/g,""),10)%13===0; }
+/* Move one lead to its new counsellor now. Assignments are final, so assigning and moving are one event. */
+function placeLead(id,l,who,day){ var lv=S.lv[id], r=lv.req; lv.assign[l.id]=who; r.movedNow[l.id]=day;
+  if(noGroup(l)){ r.noGroup[l.id]=1; r.joined[l.id]=1; r.rmJoined[l.id]=1; } }
+/* Pre-STI / post-STI / visa-stage / dropped-off, the split the new counsellor sees on arrival. */
+function bands(leads){ var g=groupCounts(leads);
+  return [["Pre-STI",g.pre_sti.total],["Post-STI",g.sti.total+g.deposit_done.total],["Visa",g.visa.total],["Dropped off",g.dropoff_pre_isl.total+g.dropoff_post_isl.total+g.ungrouped.total]]; }
+function bandText(leads){ var w={"Pre-STI":"pre-STI","Post-STI":"post-STI","Visa":"visa-stage","Dropped off":"dropped off"};
+  return bands(leads).filter(function(b){return b[1]>0;}).map(function(b){return b[1]+" "+w[b[0]];}).join(", "); }
+var PRE_APP=["LS_PAYMENT_DONE","LS_COLLEGE_SHORTLISTED","LS_COLLEGE_FINALIZED"]; /* before the application starts */
 function reset(){
   seed=7;
   S={view:"vikram",route:"home",resOpen:true,notes:{},cur:"priya",focus:"priya",
      clock:"25 Sep 2026, 11:10 AM",
-     tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"stage",dir:1,page:0,sel:{}},
+     tl:{stage:[],stageMenuOpen:false,grp:[],grpMenuOpen:false,servicing:"All",program:"All",show:"All",sort:"stage",dir:1,loaded:LEAD_PAGE,sel:{}},
      draftDate:"",formErr:"",activeTab:"tasks",boostOpen:{},remOpen:false,drawerOpen:null,tm:null,tmView:null,smTab:"active",calls:{},observe:{},assigned:{onlyRe:false},lv:{}};
-  S.lv.priya=leaver("priya",null,null,40210,null);
+  S.lv.priya=leaver("priya",null,null,40210,null); /* applied, request not raised: the live walk-through */
   S.lv.karan=leaver("karan",{LS_COLLEGE_SHORTLISTED:40,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:20,LS_CONDITIONAL_ADMIT_RECEIVED:12,LS_DEPOSIT_PAID:8,LS_VISA_APPLIED:6,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},51200,
-    {status:"approved",lwd:new Date(2026,9,9),tApp:"23 Sep 2026, 10:30 AM",appDay:new Date(2026,8,23),history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
+    newReq("approved",new Date(2026,9,9),"23 Sep 2026, 10:30 AM",new Date(2026,8,23)));
   S.lv.neha=leaver("neha",{LS_COLLEGE_SHORTLISTED:60,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:30,LS_ADMIT_ACCEPTED:18,LS_VISA_GRANTED:10,LS_LEAD_DROP_OFF:12},{LS_LEAD_DROP_OFF:{pre:8,post:4}},62300,
-    {status:"approved",lwd:new Date(2026,9,12),tApp:"24 Sep 2026, 6:20 PM",appDay:new Date(2026,8,24),history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
-  S.lv.karan.leads.slice(0,30).forEach(function(l){ S.lv.karan.assign[l.id]="sneha"; });
-  S.lv.karan.req.history=[{text:"Scheduled 30 leads for Sneha Kulkarni",by:"Ankit Sharma",at:"24 Sep 2026, 12:15 PM"},{text:"Last working day 09 Oct 2026 added. Fresh lead assignment to Karan Gill stopped; task created for Ankit Sharma",by:"Vikram Mehta",at:"23 Sep 2026, 10:30 AM"}];
-  S.lv.neha.req.history=[{text:"Last working day 12 Oct 2026 added. Fresh lead assignment to Neha Joshi stopped; task created for Meera Iyer",by:"Vikram Mehta",at:"24 Sep 2026, 6:20 PM"}];
+    newReq("approved",new Date(2026,9,12),"24 Sep 2026, 6:20 PM",new Date(2026,8,24)));
+  /* Karan: approved, 30 of his leads already reassigned to Sneha by Ankit. */
+  S.lv.karan.leads.slice(0,30).forEach(function(l){ placeLead("karan",l,"sneha","24 Sep"); });
+  S.lv.karan.req.history=[{text:"Reassigned 30 leads to Sneha Kulkarni ("+bandText(S.lv.karan.leads.slice(0,30))+"). Tasks and follow-ups moved; assignment logged; RM Pooja Menon tasked to join the groups",by:"Ankit Sharma",at:"24 Sep 2026, 12:15 PM"},{text:"Last working day 09 Oct 2026 raised and approved. Fresh lead assignment to Karan Gill stopped; task created for Ankit Sharma",by:"Vikram Mehta",at:"23 Sep 2026, 10:30 AM"}];
+  S.lv.neha.req.history=[{text:"Last working day 12 Oct 2026 raised and approved. Fresh lead assignment to Neha Joshi stopped; task created for Meera Iyer",by:"Vikram Mehta",at:"24 Sep 2026, 6:20 PM"}];
+  /* Vivek: 640 leads, nothing reassigned yet. More than one 500-lead page, so the list lazy-loads. */
+  S.lv.vivek=leaver("vivek",{LS_COLLEGE_SHORTLISTED:240,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:150,LS_CONDITIONAL_ADMIT_RECEIVED:60,LS_DEPOSIT_PAID:40,LS_VISA_APPLIED:30,LS_VISA_GRANTED:20,LS_LEAD_DROP_OFF:100},{LS_LEAD_DROP_OFF:{pre:60,post:40}},90000,
+    newReq("approved",new Date(2026,9,16),"25 Sep 2026, 9:40 AM",TODAY));
+  S.lv.vivek.req.history=[{text:"Last working day 16 Oct 2026 raised and approved. Fresh lead assignment to Vivek Sethi stopped; task created for Meera Iyer",by:"Vikram Mehta",at:"25 Sep 2026, 9:40 AM"}];
+  /* Mohit: request raised, waiting for the SM's approval; leads stay hidden until then. */
+  S.lv.mohit=leaver("mohit",{LS_COLLEGE_SHORTLISTED:34,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:16,LS_DEPOSIT_PAID:6,LS_VISA_GRANTED:4},null,91000,
+    newReq("pending",new Date(2026,9,14),"25 Sep 2026, 10:05 AM",TODAY));
+  S.lv.mohit.req.history=[{text:"Last working day 14 Oct 2026 raised; waiting for approval",by:"Vikram Mehta",at:"25 Sep 2026, 10:05 AM"}];
   /* One seeded leaver per post-move state, so every view exists on load:
-     Rhea  — leads moved, some new counsellors still to join LGC (Ankit)
-     Tanvi — leads moved, everyone joined LGC (Ankit)
+     Rhea  — leads reassigned, some new counsellors still to join the group (Ankit)
+     Tanvi — leads reassigned, everyone joined (Ankit)
      Imran — completed: left, a few leads went to Meera's team, 2 groups never joined (Ankit)
-     Zara  — no TL, so Rohit (POD) schedules; short notice, so leads move as scheduled */
-  function seedMoved(id,stageN,idStart,lwd,added,to,joinedEvery,status){
-    var lv=S.lv[id]=leaver(id,stageN,null,idStart,{status:status,lwd:lwd,tApp:fmt(added)+", 11:00 AM",appDay:added,history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
+     Zara  — no TL, so Rohit (POD) reassigns; 12 leads already moved */
+  function seedMoved(id,stageN,idStart,lwd,added,to,joinedEvery,status,movedOn){
+    var lv=S.lv[id]=leaver(id,stageN,null,idStart,newReq(status,lwd,fmt(added)+", 11:00 AM",added));
     lv.phase="done";
-    lv.leads.forEach(function(l,i){ lv.assign[l.id]=to[i%to.length]; if(joinedEvery(i)) lv.req.joined[l.id]=1; });
-    var mv=addDays(lwd,-OVERLAP_DAYS), j=Object.keys(lv.req.joined).length, n=lv.leads.length;
-    lv.req.history=(status==="deactivated"?[{text:PEOPLE[id].name+" removed from "+n+" Leap group chats; CRM login deactivated",by:"System",at:fmt(lwd)+", 8:00 PM"}]:[]).concat([
-      {text:j+" of "+n+" new counsellors joined their students' Leap group chats; LGC message and email sent on each join",by:"System",at:fmt(addDays(mv,1))+", 8:00 PM"},
-      {text:"Moved "+n+" leads with open tasks, follow-ups and history",by:"System",at:fmt(mv)+", 8:00 PM"},
-      {text:"Last working day "+fmt(lwd)+" added. Fresh lead assignment to "+PEOPLE[id].name+" stopped; task created for "+TLof(id).name,by:"Vikram Mehta",at:fmt(added)+", 11:00 AM"}]);
+    lv.leads.forEach(function(l,i){ placeLead(id,l,to[i%to.length],fmtShort(movedOn)); if(joinedEvery(i)){ lv.req.joined[l.id]=1; if(i%6!==1) lv.req.rmJoined[l.id]=1; } });
+    var j=Object.keys(lv.req.joined).length, n=lv.leads.length;
+    lv.req.history=(status==="deactivated"?[{text:PEOPLE[id].name+"'s CRM login deactivated. "+(n-j)+" students never got their new counsellor in the group, so "+PEOPLE[id].name+" stays in those groups as fallback",by:"System",at:fmt(lwd)+", 8:00 PM"}]:[]).concat([
+      {text:j+" of "+n+" new counsellors joined their students' WhatsApp groups; "+PEOPLE[id].name+" and the old RM removed on each join",by:"System",at:fmt(addDays(movedOn,1))+", 8:00 PM"},
+      {text:"Reassigned "+n+" leads to "+to.filter(function(x,i){return to.indexOf(x)===i;}).length+" counsellors ("+bandText(lv.leads)+"). Tasks and follow-ups moved; assignments logged",by:TLof(id).name,at:fmt(movedOn)+", 3:30 PM"},
+      {text:"Last working day "+fmt(lwd)+" raised and approved. Fresh lead assignment to "+PEOPLE[id].name+" stopped; task created for "+TLof(id).name,by:"Vikram Mehta",at:fmt(added)+", 11:00 AM"}]);
   }
-  seedMoved("rhea",{LS_COLLEGE_SHORTLISTED:22,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:14,LS_DEPOSIT_PAID:6,LS_VISA_APPLIED:4},81000,new Date(2026,8,29),new Date(2026,8,12),["rahul","sneha"],function(i){return i%4!==0;},"transferred");
-  seedMoved("tanvi",{LS_COLLEGE_SHORTLISTED:18,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:12,LS_CONDITIONAL_ADMIT_RECEIVED:6,LS_DEPOSIT_PAID:4},82000,new Date(2026,9,1),new Date(2026,8,14),["sneha","rahul"],function(){return true;},"transferred");
-  seedMoved("imran",{LS_COLLEGE_SHORTLISTED:20,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:10,LS_VISA_APPLIED:6},83000,new Date(2026,8,22),new Date(2026,8,5),["rahul","sneha","sneha","arjun"],function(i){return i!==3&&i!==7;},"deactivated");
+  seedMoved("rhea",{LS_COLLEGE_SHORTLISTED:22,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:14,LS_DEPOSIT_PAID:6,LS_VISA_APPLIED:4},81000,new Date(2026,8,29),new Date(2026,8,12),["rahul","sneha"],function(i){return i%4!==0;},"transferred",new Date(2026,8,22));
+  seedMoved("tanvi",{LS_COLLEGE_SHORTLISTED:18,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:12,LS_CONDITIONAL_ADMIT_RECEIVED:6,LS_DEPOSIT_PAID:4},82000,new Date(2026,9,1),new Date(2026,8,14),["sneha","rahul"],function(){return true;},"transferred",new Date(2026,8,24));
+  seedMoved("imran",{LS_COLLEGE_SHORTLISTED:20,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:10,LS_VISA_APPLIED:6},83000,new Date(2026,8,22),new Date(2026,8,5),["rahul","sneha","sneha","arjun"],function(i){return i!==3&&i!==7;},"deactivated",new Date(2026,8,15));
   S.lv.zara=leaver("zara",{LS_COLLEGE_SHORTLISTED:25,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:12,LS_DEPOSIT_PAID:5},null,84000,
-    {status:"approved",lwd:new Date(2026,8,29),tApp:"24 Sep 2026, 4:00 PM",appDay:new Date(2026,8,24),history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}});
-  S.lv.zara.leads.slice(0,12).forEach(function(l){ S.lv.zara.assign[l.id]="sneha"; S.lv.zara.req.movedNow[l.id]=1; });
-  S.lv.zara.req.history=[{text:"Moved 12 leads to Sneha Kulkarni immediately (short notice); tasks and follow-ups moved",by:"Rohit Kapoor",at:"24 Sep 2026, 6:10 PM"},{text:"Last working day 29 Sep 2026 added. Fresh lead assignment to Zara Khan stopped; task created for Rohit Kapoor (POD leader, no TL)",by:"Vikram Mehta",at:"24 Sep 2026, 4:00 PM"}];
+    newReq("approved",new Date(2026,8,29),"24 Sep 2026, 4:00 PM",new Date(2026,8,24)));
+  S.lv.zara.leads.slice(0,12).forEach(function(l){ placeLead("zara",l,"sneha","24 Sep"); });
+  S.lv.zara.req.history=[{text:"Reassigned 12 leads to Sneha Kulkarni ("+bandText(S.lv.zara.leads.slice(0,12))+"). Tasks and follow-ups moved; assignment logged; RM Pooja Menon tasked to join the groups",by:"Rohit Kapoor",at:"24 Sep 2026, 6:10 PM"},{text:"Last working day 29 Sep 2026 raised and approved. Fresh lead assignment to Zara Khan stopped; task created for Rohit Kapoor (POD leader, no TL)",by:"Vikram Mehta",at:"24 Sep 2026, 4:00 PM"}];
   ["req","leads","assign","phase"].forEach(function(k){
     Object.defineProperty(S,k,{get:function(){return S.lv[S.cur][k];},set:function(v){S.lv[S.cur][k]=v;}});
   });
@@ -611,20 +656,16 @@ function TLof(id){ var p=PEOPLE[id]; return PEOPLE[p.tl] || PEOPLE[p.pod]; }
 function podOf(id){ var p=PEOPLE[id]; return p.pod || (p.tl && PEOPLE[p.tl].pod) || null; }
 function teamName(p){ return p.tl ? PEOPLE[p.tl].name : (p.pod ? PEOPLE[p.pod].name+" (POD, no TL)" : "—"); }
 function fmtDay(d){ return d.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short",year:"numeric"}); }
-/* Leads move at 8 PM on T-7 (OVERLAP_DAYS before LWD). If T-7 is already today or past when the SM adds
-   the LWD (short notice), there is no wait: each lead moves the moment it is scheduled. */
-function isShort(r){ return addDays(r.lwd,-OVERLAP_DAYS) <= (r.appDay||TODAY); }
-function transferDate(r){ return isShort(r) ? (r.appDay||TODAY) : addDays(r.lwd,-OVERLAP_DAYS); }
-function moveWhen(r){ return isShort(r) ? "immediately once scheduled" : fmtDay(transferDate(r))+", 8 PM"; }
-function moved(r){ return r && (r.status==="transferred"||r.status==="deactivated"); }
+function movedCount(id){ var r=S.lv[id]&&S.lv[id].req; return r ? Object.keys(r.movedNow||{}).length : 0; }
+function moved(r){ return r && (r.status==="transferred"||r.status==="deactivated"); } /* every lead reassigned */
 function activeReq(id){ var r=S.lv[id]&&S.lv[id].req; return !!r && ["approved","transferred","deactivated"].indexOf(r.status)!==-1; }
 function withLeaver(id,fn){ var prev=S.cur; S.cur=id; try{ return fn(); } finally { S.cur=prev; } }
 function now(){ return S.clock; }
 var MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Sept:8,Oct:9,Nov:10,Dec:11};
 function parseStamp(t){ var m=String(t).match(/(\d+) (\w+) (\d{4}), (\d+):(\d+) (AM|PM)/); if(!m) return null; var h=+m[4]%12+(m[6]==="PM"?12:0); return new Date(+m[3],MON[m[2]],+m[1],h,+m[5]); }
 function fmtStamp(d){ var h=d.getHours(), ap=h>=12?"PM":"AM"; h=h%12||12; return fmtShort(d)+", "+h+":"+String(d.getMinutes()).padStart(2,"0")+" "+ap; }
-/* Swapnil's PRD: the TL / PL closes the scheduling task within 24 hrs of assignment (all leads
-   scheduled), else an email goes to their reporting manager and Debasish Sahoo. */
+/* Swapnil's PRD: the TL / PL closes the reassignment task within 24 hrs of assignment (all leads
+   reassigned), else an email goes to their reporting manager and Debasish Sahoo. */
 function slaInfo(id){ var r=S.lv[id].req, at=parseStamp(r.tApp), due=at&&new Date(at.getTime()+864e5), owner=TLof(id), rm=PEOPLE[owner.pod||owner.sm||"vikram"];
   var done=withLeaver(id,function(){ return assignedCount()===S.leads.length; });
   return {due:due, done:done, overdue:!done && due && parseStamp(S.clock)>due, rm:rm}; }
@@ -637,33 +678,31 @@ function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&am
 function toast(t){ var el=document.getElementById("toast"); el.innerHTML='<div class="toast">'+esc(t)+'</div>'; clearTimeout(toast._t); toast._t=setTimeout(function(){el.innerHTML="";},2600); }
 function assignedCount(){ return Object.keys(S.assign).length; }
 function statusBadge(st){
-  var m={approved:["Scheduling leads","b-blue"],transferred:["Leads transferred","b-green"],deactivated:["Completed","b-grey"],cancelled:["Deleted","b-grey"]};
+  var m={applied:["Applied","b-grey"],pending:["Pending approval","b-amber"],approved:["Assigning leads","b-blue"],transferred:["Leads reassigned","b-green"],deactivated:["Completed","b-grey"],cancelled:["Deleted","b-grey"]};
   var x=m[st]; return '<span class="badge '+x[1]+'">'+x[0]+'</span>';
 }
 var ICON={res:"&#128682;",book:"&#128214;",cap:"&#127891;",list:"&#128203;",task:"&#9745;"};
 
 /* ---------- demo bar ---------- */
-/* Controls drive Priya's live request: the 8 PM transfer job (OVERLAP_DAYS before LWD), the
-   delivery retries, and the jump to her last working day when she leaves the LGCs and her login closes. */
+/* Controls drive Priya's live request: new counsellors joining their students' WhatsApp groups, the 11 PM
+   alert on the day before her last working day, and the last working day itself at 8 PM. */
 function renderDemo(){
   var opts=VIEWS.map(function(v){return '<option value="'+v.id+'"'+(S.view===v.id?" selected":"")+'>'+v.label+'</option>';}).join("");
-  var r=S.lv.priya.req, ph=S.lv.priya.phase;
-  var canRun = r && r.status==="approved" && ph==="before";
-  var canSkip = ph==="joining";
-  var canLwd = r && r.status==="transferred";
+  var lv=S.lv.priya, r=lv.req, live=!!r && (r.status==="approved"||r.status==="transferred");
+  var waiting=live && Object.keys(lv.assign).some(function(k){ return !r.joined[k]; });
   document.getElementById("demo").innerHTML =
     '<b>Mockup controls</b><label>View as <select id="viewSel">'+opts+'</select></label>'+
     '<span class="clock">Clock: '+esc(S.clock)+'</span>'+
-    '<button id="runBtn"'+(canRun?"":" disabled")+' title="Runs the job that fires at 8 PM on T-7 (7 days before the last working day)">Run 8 PM transfer</button>'+
-    '<button id="skipBtn"'+(canSkip?"":" disabled")+' title="New counsellors join their students\' Leap group chats">Skip ahead 1 day (LGC joins)</button>'+
-    '<button id="lwdBtn"'+(canLwd?"":" disabled")+' title="Priya is removed from the Leap group chats and her CRM login is deactivated">Jump to last working day</button>'+
+    '<button id="skipBtn"'+(waiting?"":" disabled")+' title="Every new counsellor of Priya\'s leads joins their students\' WhatsApp groups; the old counsellor and old RM are removed on each join">New counsellors join groups</button>'+
+    '<button id="alertBtn"'+(live?"":" disabled")+' title="11 PM on the day before the last working day: alert email to the SM for any new counsellor who has joined none of their groups">Jump to last working day − 1, 11 PM</button>'+
+    '<button id="lwdBtn"'+(live?"":" disabled")+' title="8 PM on the last working day: login deactivated if every lead is reassigned, otherwise blocked and escalated">Jump to last working day, 8 PM</button>'+
     '<span class="sp"></span><button id="resetBtn">Reset</button>';
   document.getElementById("viewSel").onchange=function(e){ S.view=e.target.value; if(S.route==="assigned"){ S.route="home"; S.activeTab="tasks"; } S.tm=null; S.tmView=null; S.focus=null; S.tl.sel={}; closeBell(); closeWho(); render(); };
-  document.getElementById("runBtn").onclick=runTransfer;
-  document.getElementById("skipBtn").onclick=finishRetries;
+  document.getElementById("skipBtn").onclick=joinAll;
+  document.getElementById("alertBtn").onclick=lwdAlert;
   document.getElementById("lwdBtn").onclick=jumpToLwd;
   document.getElementById("resetBtn").onclick=function(){ reset(); closeBell(); render(); toast("Mockup reset"); };
-  ["runBtn","skipBtn","lwdBtn"].forEach(function(id){ var b=document.getElementById(id); if(b.disabled) b.style.opacity=".5"; });
+  ["skipBtn","alertBtn","lwdBtn"].forEach(function(id){ var b=document.getElementById(id); if(b.disabled) b.style.opacity=".5"; });
 }
 
 /* ---------- top bar + bell ---------- */
@@ -705,7 +744,7 @@ document.getElementById("bellBtn").onclick=function(){
   }).join(""):'<div class="empty">No notifications.</div>');
   list.forEach(function(n){n.read=true;});
   panel.hidden=false; renderTop();
-  panel.querySelectorAll("[data-na]").forEach(function(b){ b.onclick=function(){ var a=list[+b.dataset.na].action; closeBell(); if(a.focus) S.focus=a.focus; if(a.tab) S.activeTab=a.tab; if(a.tm) S.tm=a.tm; S.tmView=a.tmView||null; S.route=a.route; render(); var sec=a.focus&&document.getElementById("acc-"+a.focus); if(sec) sec.scrollIntoView({block:"start"}); }; });
+  panel.querySelectorAll("[data-na]").forEach(function(b){ b.onclick=function(){ var a=list[+b.dataset.na].action; closeBell(); if(a.focus) S.focus=a.focus; if(a.tab) S.activeTab=a.tab; if(a.tm) S.tm=a.tm; S.tmView=a.tmView||null; S.route=a.route; if(a.drawer) S.drawerOpen={scope:a.drawer,search:"",chip:"all",today:false}; render(); var sec=a.focus&&document.getElementById("acc-"+a.focus); if(sec) sec.scrollIntoView({block:"start"}); }; });
 };
 
 /* ---------- common blocks ---------- */
@@ -737,11 +776,11 @@ function leadListModal(id){
     var g={}; S.leads.forEach(function(l){ var k=leadGroup(l); (g[k]=g[k]||[]).push(l); });
     var body=GROUP_ORDER.filter(function(k){return g[k];}).map(function(k){
       var rows=g[k].slice().sort(function(a,b){return a.name<b.name?-1:1;}).map(function(l){
-        return '<tr data-q="'+esc((l.name+" "+l.id).toLowerCase())+'"><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.program))+'</td><td class="num">'+fmtShort(l.next)+'</td></tr>';
+        return '<tr data-q="'+esc((l.name+" "+l.id).toLowerCase())+'"><td>'+esc(l.name)+'</td><td>'+l.id+'</td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+progLabel(l.program)+'</td><td class="num">'+fmtShort(l.next)+'</td></tr>';
       }).join("");
-      return '<details class="acc"><summary><span>'+esc(GROUP_LABEL[k])+'</span><b class="num">'+g[k].length+'</b></summary><div class="tw" style="border:0;border-top:1px solid var(--line-soft);border-radius:0"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage</th><th>Program</th><th>Next follow-up</th></tr></thead><tbody>'+rows+'</tbody></table></div></details>';
+      return '<details class="acc"><summary><span>'+esc(GROUP_LABEL[k])+'</span><b class="num">'+g[k].length+'</b></summary><div class="tw" style="border:0;border-top:1px solid var(--line-soft);border-radius:0"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage</th><th>UG / PG</th><th>Next follow-up</th></tr></thead><tbody>'+rows+'</tbody></table></div></details>';
     }).join("");
-    showModal2('<h3>'+esc(LV().name)+'\'s leads · <span class="num">'+S.leads.length+'</span></h3><p style="font-size:13px">Read only. Every lead moves at the transfer.</p>'+
+    showModal2('<h3>'+esc(LV().name)+'\'s leads · <span class="num">'+S.leads.length+'</span></h3><p style="font-size:13px">Read only. Leads move as the TL or SM approves each assignment.</p>'+
       '<input class="dsearch" id="llq" placeholder="Search by student name or Lead ID…"><div class="accs llist">'+body+'</div><div class="row" style="justify-content:flex-end"><button class="btn" data-m2="close">Close</button></div>',"wide");
     var q=document.getElementById("llq");
     q.oninput=function(){ var v=q.value.trim().toLowerCase();
@@ -790,148 +829,206 @@ var SAMPLE_ROWS=[
   {name:"Farhan Ali",tl:"Meera Iyer",lwd:new Date(2026,8,30),leads:288,status:"deactivated",tApp:"16 Sep 2026"},
   {name:"Dev Khanna",tl:"Meera Iyer",lwd:new Date(2026,9,20),leads:302,status:"cancelled",tApp:"18 Sep 2026"}
 ];
-var SORT_RANK={approved:0,transferred:1,deactivated:2,cancelled:3};
+var SORT_RANK={applied:0,pending:1,approved:2,transferred:3,deactivated:4,cancelled:5};
+/* One row per counsellor the SM has to deal with: those who have applied (no request yet), requests
+   waiting for approval, leads being reassigned, and handovers being tracked. Past holds finished and
+   deleted ones. */
 function smRows(){
   var rows=[], past=S.smTab==="past";
   Object.keys(S.lv).forEach(function(id){ var r=S.lv[id].req; if(!r) return; if(past !== (r.status==="deactivated"||r.status==="cancelled")) return;
-    rows.push({id:id,name:PEOPLE[id].name,tl:TLof(id).name,lwd:r.lwd,leads:S.lv[id].leads.length,status:r.status,tApp:r.tApp,joined:r.status==="transferred"?Object.keys(r.joined).length:null,move:withLeaver(id,function(){return isShort(r)?"Immediately":fmtShort(transferDate(r))+", 8 PM";})}); });
+    var lv=S.lv[id];
+    rows.push({id:id,name:PEOPLE[id].name,tl:TLof(id).name,lwd:r.lwd,leads:lv.leads.length,status:r.status,tApp:r.tApp,moved:Object.keys(lv.assign).length,joined:Object.keys(r.joined).filter(function(k){return lv.assign[k];}).length}); });
+  if(!past) Object.keys(PEOPLE).forEach(function(id){ var p=PEOPLE[id];
+    if(!p.applied || (S.lv[id]&&S.lv[id].req)) return;
+    ensureLeaver(id);
+    rows.push({id:id,name:p.name,tl:TLof(id).name,lwd:null,leads:S.lv[id].leads.length,status:"applied",moved:0,joined:0}); });
   SAMPLE_ROWS.forEach(function(x){ if(past) rows.push(x); });
-  rows.sort(function(a,b){ return (SORT_RANK[a.status]-SORT_RANK[b.status]) || (past ? b.lwd-a.lwd : a.lwd-b.lwd); });
+  rows.sort(function(a,b){ return (SORT_RANK[a.status]-SORT_RANK[b.status]) || (past ? b.lwd-a.lwd : (a.lwd||0)-(b.lwd||0)); });
   return rows;
 }
-/* The row itself opens the counsellor (schedule before the move, handover after). Only edit / delete
-   sit in the row, and only until leads move. */
+var IC_CAL='<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+var IC_DEL='<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+/* Row actions follow the request: raise it, approve it, or change the date (calendar). Delete is only
+   offered while no lead has moved, because a reassignment can't be undone. */
 function smAction(r){
-  var tools = r.id && r.status==="approved" && !movedAny(r.id) ? '<button class="icb" data-editlwd="'+r.id+'" title="Edit last working day" aria-label="Edit last working day">'+IC_EDIT+'</button><button class="icb del" data-cancelreq="'+r.id+'" title="Delete last working day" aria-label="Delete last working day">'+IC_DEL+'</button>' : '';
+  var tools="";
+  if(r.id && r.status==="applied") tools='<button class="btn sm p" data-raise="'+r.id+'">Raise request</button>';
+  else if(r.id){
+    if(r.status==="pending") tools+='<button class="btn sm p" data-review="'+r.id+'">Approve</button>';
+    if(["pending","approved","transferred"].indexOf(r.status)!==-1) tools+='<button class="icb" data-editlwd="'+r.id+'" title="Change last working day" aria-label="Change last working day">'+IC_CAL+'</button>';
+    if((r.status==="pending"||r.status==="approved") && !movedCount(r.id)) tools+='<button class="icb del" data-cancelreq="'+r.id+'" title="Delete last working day" aria-label="Delete last working day">'+IC_DEL+'</button>';
+  }
   return '<div class="row" style="gap:6px;flex-wrap:nowrap;justify-content:flex-end;margin:0">'+tools+'<span class="rowgo" aria-hidden="true">&rsaquo;</span></div>';
 }
 function smHome(){
   return '<div class="page">'+profileCard()+'</div>';
 }
-/* SM's Counsellor Last Working Day modal: add an LWD for anyone in the team, see everyone in progress. */
 /* One status badge and one supporting line per row, so the list scans quickly. */
 function smStatus(r){
-  if(r.status==="approved"){ var x=r.id?slaInfo(r.id):{};
-    return (x.overdue?'<span class="badge b-red" title="TL/PL missed the 24-hour deadline; '+esc(x.rm.name)+' and Debasish Sahoo were emailed">Overdue</span>':statusBadge(r.status))+'<small class="sub">Leads move '+(r.move==="Immediately"?"immediately":r.move)+'</small>'; }
+  if(r.status==="applied") return statusBadge("applied")+'<small class="sub">Request not raised yet</small>';
+  if(r.status==="pending") return statusBadge("pending")+'<small class="sub">Raised · waiting for your approval</small>';
+  if(r.status==="approved"){ var x=r.id?slaInfo(r.id):{}, blocked=r.id&&S.lv[r.id].req.blocked;
+    return (blocked?'<span class="badge b-red" title="Last working day passed with unassigned leads, so the login could not be deactivated">Deactivation blocked</span>'
+      :x.overdue?'<span class="badge b-red" title="TL/PL missed the 24-hour deadline; '+esc(x.rm.name)+' and Debasish Sahoo were emailed">Overdue</span>':statusBadge(r.status))+
+      '<small class="sub"><span class="num">'+r.moved+' / '+r.leads+'</span> reassigned</small>'; }
   if(r.status==="transferred") return statusBadge(r.status)+'<small class="sub"><span class="num">'+r.joined+' / '+r.leads+'</span> groups joined</small>';
   return statusBadge(r.status);
 }
-var IC_EDIT='<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.5 2.5l2 2L6 12H4v-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
-var IC_DEL='<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function smRequestsCard(){
   var rows=smRows();
   var table = '<div class="tw"><table class="smt"><thead><tr><th>Counsellor</th><th>TL/PL</th><th>Last working day</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>'+
     rows.map(function(r){
-      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+fmt(r.lwd)+'</td><td class="num">'+r.leads+'</td><td>'+smStatus(r)+'</td><td class="act">'+smAction(r)+'</td></tr>';
+      return '<tr class="cl" '+(r.id?'data-row="'+r.id+'"':'data-sample="1"')+' tabindex="0"><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.tl)+'</td><td class="num">'+(r.lwd?fmt(r.lwd):"—")+'</td><td class="num">'+r.leads+'</td><td>'+smStatus(r)+'</td><td class="act">'+smAction(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>';
   if(S.tmView) return handoverHtml(S.tmView);
-  var nAct=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="approved"||r.status==="transferred"); }).length;
+  var nAct=lwdActiveIds().length;
   var nPast=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="deactivated"||r.status==="cancelled"); }).length+SAMPLE_ROWS.length;
-  return '<div class="row" style="justify-content:space-between"><p class="tmsub">Add a counsellor\'s last working day. Their leads move to the team 7 days before it.</p><button class="btn p" id="addLwd">+ Add last working day</button></div>'+
+  return '<div class="row" style="justify-content:space-between"><p class="tmsub">Counsellors who have applied to resign. Raise a request with their last working day, then approve it. After that the TL or you reassign their leads, and every approved assignment moves the leads straight away.</p><button class="btn" id="addLwd">+ Raise for another counsellor</button></div>'+
     '<div class="dchips"><button class="chip'+(S.smTab==="past"?"":" on")+'" data-smtab="active">In progress <span class="num">'+nAct+'</span></button><button class="chip'+(S.smTab==="past"?" on":"")+'" data-smtab="past">Past <span class="num">'+nPast+'</span></button></div>'+
-    (rows.length?table:'<div class="note">'+(S.smTab==="past"?"Nothing here yet.":"No counsellors leaving right now.")+'</div>');
+    (rows.length?table:'<div class="note">'+(S.smTab==="past"?"Nothing here yet.":"No counsellors have applied right now.")+'</div>');
 }
 function bindSmHome(){
-  var a=document.getElementById("addLwd"); if(a) a.onclick=function(){ addLwdModal("",""); };
+  var a=document.getElementById("addLwd"); if(a) a.onclick=function(){ raiseModal("",""); };
+  document.querySelectorAll("#taskModal [data-raise]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); raiseModal(b.dataset.raise,""); }; });
+  document.querySelectorAll("#taskModal [data-review]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); reviewModal(b.dataset.review); }; });
   document.querySelectorAll("#taskModal [data-editlwd]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); editLwdModal(b.dataset.editlwd,iso(S.lv[b.dataset.editlwd].req.lwd)); }; });
   document.querySelectorAll("#taskModal [data-cancelreq]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); cancelReq(b.dataset.cancelreq); }; });
   document.querySelectorAll("[data-smtab]").forEach(function(b){ b.onclick=function(){ S.smTab=b.dataset.smtab; render(); }; });
   document.querySelectorAll("[data-sample]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); toast("Sample history row — not clickable in this mockup"); }; });
   document.querySelectorAll("tr[data-row]").forEach(function(tr){ tr.onclick=function(){ openRequest(tr.dataset.row); }; tr.onkeydown=function(e){ if(e.key==="Enter") openRequest(tr.dataset.row); }; });
 }
-function openRequest(id){ var r=S.lv[id].req; if(r.status==="approved") openSchedule(id); else openHandover(id); }
+/* A row opens whatever is next for that counsellor: raise the request, approve it, reassign, or track the handover. */
+function openRequest(id){ var r=S.lv[id].req;
+  if(!r) raiseModal(id,"");
+  else if(r.status==="pending") reviewModal(id);
+  else if(r.status==="approved") openSchedule(id);
+  else openHandover(id); }
 function openHandover(id){ S.route="home"; S.activeTab="tasks"; S.tm="lwd"; S.tmView=id; render(); var sc=document.querySelector(".tmscroll"); if(sc) sc.scrollTop=0; }
-/* Counsellors the SM can add: everyone under them who isn't already leaving. */
-function addableCounsellors(){ return Object.keys(PEOPLE).filter(function(k){ var p=PEOPLE[k]; return p.role==="Counselor" && p.sm==="vikram" && !activeReq(k); }); }
+/* Counsellors the SM can raise a request for: everyone under them without a live request. */
+function addableCounsellors(){ return Object.keys(PEOPLE).filter(function(k){ var p=PEOPLE[k], r=S.lv[k]&&S.lv[k].req; return p.role==="Counselor" && p.sm==="vikram" && !(r && r.status!=="cancelled"); }); }
 function ensureLeaver(id){ if(!S.lv[id]){ var n=0; for(var i=0;i<id.length;i++) n+=id.charCodeAt(i); S.lv[id]=leaver(id,{LS_COLLEGE_SHORTLISTED:30+n%20,LS_APPLICATION_SUBMITTED_TO_INSTITUTE:15+n%10,LS_DEPOSIT_PAID:4+n%5,LS_VISA_APPLIED:3+n%4,LS_DEAD_LEAD:6},{LS_DEAD_LEAD:{pre:4,post:2}},70000+n*10,null); } }
-function addLwdModal(id,dt){
-  var opts='<option value="">Pick a counsellor…</option>'+addableCounsellors().map(function(k){ var p=PEOPLE[k]; return '<option value="'+k+'"'+(k===id?" selected":"")+'>'+esc(p.name)+' · '+esc(teamName(p))+'</option>'; }).join("");
+
+/* Step 1 — raise: pick the counsellor and the exit date. Leads are counted but stay hidden until approval. */
+function raiseModal(id,dt){
+  var ids=addableCounsellors(); if(id && ids.indexOf(id)===-1) ids.unshift(id);
+  var opts='<option value="">Pick a counsellor…</option>'+ids.map(function(k){ var p=PEOPLE[k]; return '<option value="'+k+'"'+(k===id?" selected":"")+'>'+esc(p.name)+' · '+esc(teamName(p))+(p.applied?" · applied":"")+'</option>'; }).join("");
   var body="";
   if(id && dt){
     ensureLeaver(id);
-    var r0={lwd:parseIso(dt),appDay:TODAY};
-    body = withLeaver(id,function(){ return impactHtml(S.leads)+'<button type="button" class="lnkbtn" data-breakdown="'+id+'">View leads</button>'; })+
-      (isShort(r0)?'<div class="note warn"><b>Less than 7 days to the last working day.</b> Leads will move immediately as '+esc(TLof(id).name)+' schedules them.</div>'
-        :'<div class="note">Leads move on <b>'+fmtDay(transferDate(r0))+', 8 PM</b> (7 days before the last working day), so the old and new counsellor overlap for a week.</div>');
+    body = withLeaver(id,function(){ return impactHtml(S.leads); })+
+      '<div class="note">The lead list stays hidden until you approve the request. After approval '+esc(TLof(id).name)+' (or you) can reassign the leads; each approved assignment moves them immediately.</div>';
   }
-  showModal('<h3>Add last working day</h3><label class="f">Counsellor<select class="in" id="alC">'+opts+'</select></label><label class="f">Last working day<input type="date" id="alD" min="'+iso(addDays(TODAY,1))+'" value="'+esc(dt)+'"></label>'+body+
-    '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Cancel</button><button class="btn danger" id="alGo"'+(id&&dt?"":" disabled")+'>Add last working day</button></div>',"wide");
-  bindBreakdowns();
+  showModal('<h3>Raise last working day request</h3><label class="f">Counsellor<select class="in" id="alC">'+opts+'</select></label><label class="f">Last working day<input type="date" id="alD" min="'+iso(addDays(TODAY,1))+'" value="'+esc(dt)+'"></label>'+body+
+    '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Cancel</button><button class="btn p" id="alGo"'+(id&&dt?"":" disabled")+'>Raise request</button></div>',"wide");
   var c=document.getElementById("alC"), d=document.getElementById("alD");
-  c.onchange=d.onchange=function(){ addLwdModal(c.value,d.value); };
-  document.getElementById("alGo").onclick=function(){ confirmAddLwd(id,parseIso(dt)); };
+  c.onchange=d.onchange=function(){ raiseModal(c.value,d.value); };
+  document.getElementById("alGo").onclick=function(){ raise(id,parseIso(dt)); };
 }
-function confirmAddLwd(id,lwd){
+function raise(id,lwd){
   ensureLeaver(id);
-  var r0={lwd:lwd,appDay:TODAY}, tl=TLof(id), n=S.lv[id].leads.length;
-  showModal('<div class="dhdr"><b>Add '+esc(PEOPLE[id].name)+'\'s last working day?</b><span>Fresh lead assignment to them stops now.</span></div>'+
-    '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li><li><b>'+esc(tl.name)+'</b>'+(PEOPLE[id].tl?'':' (POD leader — '+esc(PEOPLE[id].name)+' has no TL)')+' gets a task to reassign the <b>'+n+'</b> leads (you can reassign them too).</li><li>Leads move <b>'+moveWhen(r0)+'</b>; anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team.</li><li>On '+fmtShort(lwd)+' at 8 PM, '+esc(PEOPLE[id].name)+' is removed from the students\' Leap group chats and their CRM login is deactivated.</li><li>You can edit or delete this until the leads move.</li></ul>'+
-    '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn danger" id="caGo">Yes, add</button></div>',"danger");
-  document.getElementById("caBack").onclick=function(){ addLwdModal(id,iso(lwd)); };
+  withLeaver(id,function(){ S.req=newReq("pending",lwd,now(),TODAY); S.assign={}; S.phase="before"; hist("Last working day "+fmt(lwd)+" raised; waiting for approval",me().name); });
+  closeModal(); render(); toast("Request raised. Approve it to open the lead list and start reassigning");
+}
+/* Step 2 — approve: review, optionally change the date, then a red confirm that lists what happens. */
+function reviewModal(id){
+  var r=S.lv[id].req, p=PEOPLE[id], tl=TLof(id);
+  var body=withLeaver(id,function(){ return impactHtml(S.leads); });
+  showModal('<h3>Approve '+esc(p.name)+'\'s last working day</h3>'+
+    '<div class="kv"><div><small>Counsellor</small><b>'+esc(p.name)+'</b></div><div><small>'+(p.tl?"TL":"POD leader")+'</small><b>'+esc(tl.name)+'</b></div><div><small>Last working day</small><b>'+fmtDay(r.lwd)+'</b></div><div><small>Raised</small><b>'+esc(String(r.tApp||"").split(",")[0])+'</b></div></div>'+body+
+    '<div class="note">Approving opens the lead list for '+esc(tl.name)+' and you. Nothing moves until someone approves an assignment.</div>'+
+    '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Close</button><button class="btn" id="rvEdit">Change last working day</button><button class="btn p" id="rvOk">Approve</button></div>',"wide");
+  document.getElementById("rvEdit").onclick=function(){ editLwdModal(id,iso(r.lwd)); };
+  document.getElementById("rvOk").onclick=function(){ confirmApprove(id); };
+}
+function confirmApprove(id){
+  var r=S.lv[id].req, p=PEOPLE[id], tl=TLof(id), n=S.lv[id].leads.length, lwd=r.lwd;
+  showModal('<div class="dhdr"><b>Approve '+esc(p.name)+'\'s last working day?</b><span>Fresh lead assignment to them stops now.</span></div>'+
+    '<ul class="ul"><li>Last working day: <b>'+fmtDay(lwd)+'</b></li>'+
+    '<li><b>'+esc(tl.name)+'</b>'+(p.tl?'':' (POD leader — '+esc(p.name)+' has no TL)')+' gets a task to reassign the <b>'+n+'</b> leads; you can reassign them too. The lead list opens now.</li>'+
+    '<li>Every approved assignment moves its leads <b>immediately</b> and can\'t be undone. Each new counsellor gets a WhatsApp-group task per lead, plus a call task for post-STI, pre-visa-approved leads. Their RM is tasked to join the group as well.</li>'+
+    '<li>At 8 PM on '+fmtShort(lwd)+', '+esc(p.name)+'\'s login is deactivated <b>only if every lead has been reassigned</b>. Otherwise it stays active and you and '+esc(tl.name)+' are alerted.</li>'+
+    '<li>If a new counsellor has joined none of their groups by 11 PM on '+fmtShort(addDays(lwd,-1))+', an alert email goes to you'+(lwd<=addDays(TODAY,1)?' (the last working day is tomorrow, so that is tonight)':'')+'.</li></ul>'+
+    '<div class="row" style="justify-content:flex-end"><button class="btn" id="caBack">Back</button><button class="btn danger" id="caGo">Yes, approve</button></div>',"danger");
+  document.getElementById("caBack").onclick=function(){ reviewModal(id); };
   document.getElementById("caGo").onclick=function(){
     withLeaver(id,function(){
-      S.req={status:"approved",lwd:lwd,tApp:now(),appDay:TODAY,history:[],changedFrom:null,msgs:null,movedNow:{},joined:{}};
-      S.assign={}; S.phase="before";
-      hist("Last working day "+fmt(lwd)+" added. Fresh lead assignment to "+LV().name+" stopped; task created for "+tl.name,me().name);
-      notify(tl.id,"Task: reassign "+LV().name+"'s "+S.leads.length+" leads. They move "+moveWhen(S.req)+".",{label:"Reassign leads",route:"home",tab:"tasks",tm:"sched",focus:id});
+      S.req.status="approved"; S.req.tApp=now(); S.req.appDay=TODAY; S.assign={}; S.phase="before";
+      hist("Last working day "+fmt(lwd)+" approved. Fresh lead assignment to "+LV().name+" stopped; task created for "+tl.name+"; lead list opened",me().name);
+      notify(tl.id,"Task: reassign "+LV().name+"'s "+S.leads.length+" leads before "+fmtShort(lwd)+", 8 PM. Each approved assignment moves the leads immediately.",{label:"Reassign leads",route:"home",tab:"tasks",tm:"sched",focus:id});
     });
-    closeModal(); render(); toast("Last working day added. "+tl.name+" has a task to reassign the leads");
+    closeModal(); render(); toast("Approved. "+tl.name+" has a task to reassign the leads");
   };
 }
-/* Retention: the SM can cancel before the leads move. */
-/* Edit / delete: the SM can change or remove the last working day until the reassignment is done.
-   Delete covers retention and mistakes alike. */
-function movedAny(id){ var r=S.lv[id].req; return r.movedNow && Object.keys(r.movedNow).length>0; }
+/* Change the date with a calendar, any time before the last working day (also after approval). Leads
+   already reassigned stay where they are; only the deactivation and the 11 PM alert move. */
 function editLwdModal(id,dt){
-  if(movedAny(id)){ toast("Some leads have already moved, so the last working day can't be changed"); return; }
-  var r0={lwd:parseIso(dt),appDay:TODAY};
-  showModal('<h3>Edit '+esc(PEOPLE[id].name)+'\'s last working day</h3><label class="f">Last working day<input type="date" id="elD" min="'+iso(addDays(TODAY,1))+'" value="'+esc(dt)+'"></label>'+
-    (isShort(r0)?'<div class="note warn"><b>Less than 7 days to the last working day.</b> Leads will move immediately as they are scheduled.</div>':'<div class="note">Leads move on <b>'+fmtDay(transferDate(r0))+', 8 PM</b>. Leads already scheduled stay with the same counsellors.</div>')+
+  var r=S.lv[id].req; if(!r || ["pending","approved","transferred"].indexOf(r.status)===-1) return;
+  var d=dt?parseIso(dt):r.lwd, soon=d<=addDays(TODAY,1), mv=movedCount(id);
+  showModal('<h3>Change '+esc(PEOPLE[id].name)+'\'s last working day</h3><label class="f">Last working day<input type="date" id="elD" min="'+iso(addDays(TODAY,1))+'" value="'+esc(dt||iso(r.lwd))+'"></label>'+
+    '<div class="note">'+(mv?'The '+mv+' leads already reassigned stay with their new counsellors. ':'')+'The 8 PM deactivation and the 11 PM alert move to the new date.'+(soon?' <b>That is tomorrow or earlier, so the alert fires today at 11 PM.</b>':'')+'</div>'+
     '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Cancel</button><button class="btn p" id="elGo">Save</button></div>');
-  var d=document.getElementById("elD"); d.onchange=function(){ editLwdModal(id,d.value); };
-  document.getElementById("elGo").onclick=function(){ withLeaver(id,function(){ var old=S.req.lwd; S.req.lwd=parseIso(d.value); hist("Last working day changed from "+fmt(old)+" to "+fmt(S.req.lwd)+". Leads move "+moveWhen(S.req),me().name); notify(TLof(id).id,LV().name+"'s last working day changed to "+fmt(S.req.lwd)+". Leads move "+moveWhen(S.req)+"."); }); closeModal(); render(); toast("Last working day updated"); };
+  var inp=document.getElementById("elD"); inp.onchange=function(){ editLwdModal(id,inp.value); };
+  document.getElementById("elGo").onclick=function(){
+    withLeaver(id,function(){ var old=S.req.lwd; S.req.lwd=parseIso(inp.value); S.req.changedFrom=old;
+      hist("Last working day changed from "+fmt(old)+" to "+fmt(S.req.lwd),me().name);
+      if(S.req.status!=="pending") notify(TLof(id).id,LV().name+"'s last working day changed to "+fmt(S.req.lwd)+".");
+    });
+    closeModal(); render(); toast("Last working day updated");
+  };
 }
+/* Delete: only while no lead has moved, since a reassignment can't be undone. Covers retention and mistakes. */
 function cancelReq(id){
-  if(movedAny(id)){ toast("Some leads have already moved, so this can't be deleted"); return; }
-  showModal('<h3>Delete '+esc(PEOPLE[id].name)+'\'s last working day?</h3><p>Use this if they\'re staying or it was added by mistake. Scheduled reassignments are cleared, the TL\'s task closes, and they start getting fresh leads again.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Keep it</button><button class="btn d" id="cc">Delete</button></div>');
-  document.getElementById("cc").onclick=function(){ withLeaver(id,function(){ S.req.status="cancelled"; S.req.tCan=now(); S.assign={}; hist("Last working day deleted. Scheduled reassignments cleared; fresh leads resume",me().name); notify(TLof(id).id,LV().name+"'s last working day was deleted. Your reassignment task is closed."); }); closeModal(); render(); toast("Last working day deleted"); };
+  if(movedCount(id)){ toast("Leads have already been reassigned and that can't be undone, so this can't be deleted. Change the date instead."); return; }
+  var pend=S.lv[id].req.status==="pending";
+  showModal('<h3>Delete '+esc(PEOPLE[id].name)+'\'s last working day?</h3><p>'+(pend?'Use this if the request was raised by mistake.':'Use this if they\'re staying or it was added by mistake. The TL\'s task closes and they start getting fresh leads again.')+'</p><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Keep it</button><button class="btn d" id="cc">Delete</button></div>');
+  document.getElementById("cc").onclick=function(){ withLeaver(id,function(){ S.req.status="cancelled"; S.req.tCan=now(); S.assign={}; hist("Last working day deleted"+(pend?"":"; fresh leads resume"),me().name); if(!pend) notify(TLof(id).id,LV().name+"'s last working day was deleted. Your reassignment task is closed."); }); closeModal(); render(); toast("Last working day deleted"); };
 }
 
-/* ---------- after the move: handover tracking (SM, TL, POD) ----------
-   Once leads move, the SM (Counsellor Last Working Day > Track handover) and the TL / POD leader
-   (Schedule Reassigned Leads, the leaver's card) see the same view: who got the leads, how many new
-   counsellors have joined each student's Leap group chat (Step 0; the LGC message and student email go
-   out on join), reminders for anyone who hasn't, and what happens at 8 PM on the last working day. */
+/* ---------- after leads move: handover tracking (SM, TL, POD) ----------
+   As soon as an assignment is approved its leads have moved, so the SM (Counsellor Last Working Day >
+   Track handover) and the TL / POD leader (Reassign Leads, the leaver's card) can see where the leads
+   went and how many new counsellors have joined each student's WhatsApp group. On each join the old
+   counsellor and old RM are removed from the group (the TL too, if the lead moved to another TL's team),
+   and the WhatsApp message and email go to the student. Students with no group aren't messaged; the new
+   counsellor introduces themselves directly. */
 /* WhatsApp group membership, shown like the production lead page: a checkbox per member. The student is
-   already in their group; the box that changes is the new counsellor's. */
-function wgChecks(clLabel,clIn){
+   already in their group; the boxes that change are the new counsellor's and the new RM's. */
+function wgChecks(clLabel,clIn,rmIn){
   function ck(on,label){ return '<span class="wgk"><span class="ck'+(on?" on":"")+'">'+(on?"&#10003;":"")+'</span>'+label+'</span>'; }
-  return '<span class="wg">'+ck(clIn,clLabel)+ck(true,"Student")+'</span>';
+  return '<span class="wg">'+ck(clIn,clLabel)+(rmIn===undefined?"":ck(rmIn,"RM"))+ck(true,"Student")+'</span>';
 }
 function lgcByOwner(){
   var by={};
-  S.leads.forEach(function(l){ var k=S.assign[l.id]; if(!k) return; var o=by[k]=by[k]||{n:0,j:0,leads:[]}; o.n++; o.leads.push(l); if(S.req.joined&&S.req.joined[l.id]) o.j++; });
+  S.leads.forEach(function(l){ var k=S.assign[l.id]; if(!k) return; var o=by[k]=by[k]||{n:0,j:0,rj:0,ng:0,leads:[]}; o.n++; o.leads.push(l);
+    if(S.req.joined&&S.req.joined[l.id]) o.j++; if(S.req.rmJoined&&S.req.rmJoined[l.id]) o.rj++; if(S.req.noGroup&&S.req.noGroup[l.id]) o.ng++; });
   return by;
 }
 function handoverHtml(id){
   return withLeaver(id,function(){
-    var r=S.req, p=LV(), tl=TLof(id), done=r.status==="deactivated", tot=S.leads.length;
+    var r=S.req, p=LV(), tl=TLof(id), done=r.status==="deactivated", n=S.leads.length, mv=Object.keys(S.assign).length, left=n-mv;
     var by=lgcByOwner(), keys=Object.keys(by).sort(function(a,b){return by[b].n-by[a].n;});
-    var j=keys.reduce(function(a,k){return a+by[k].j;},0), wait=tot-j, rem=r.reminded||{};
+    var j=keys.reduce(function(a,k){return a+by[k].j;},0), wait=mv-j, rem=r.reminded||{}, ng=Object.keys(r.noGroup||{}).length;
     var cross=!p.tl?0:S.leads.filter(function(l){ var o=S.assign[l.id]; return o && PEOPLE[o].tl!==p.tl; }).length;
     function step(state,title,sub){ return '<div class="hstep '+state+'"><span class="dot">'+(state==="done"?"&#10003;":"")+'</span><b>'+title+'</b><small>'+sub+'</small></div>'; }
     var steps='<div class="hsteps">'+
-      step("done","Last working day added",esc(String(r.tApp||"").split(",")[0]))+
-      step("done","Leads moved",(isShort(r)?fmtShort(r.appDay):fmtShort(transferDate(r)))+", 8 PM · "+tot+" leads")+
-      step(wait?"now":"done","New counsellors join LGC",'<span class="num">'+j+' / '+tot+'</span> joined')+
-      step(done?"done":"next","Last working day, 8 PM",fmtShort(r.lwd)+(done?" · done":" · removed from LGC, login off"))+'</div>';
-    var alert = done ? '<div class="note ok"><b>'+esc(p.name)+' left on '+fmtDay(r.lwd)+', 8 PM.</b> Removed from '+tot+' Leap group chats and their CRM login is deactivated.'+(p.tl?(cross?' '+esc(tl.name)+' was removed from the '+cross+' groups whose lead moved to another TL\'s team.':' '+esc(tl.name)+' stays in every group (all leads stayed in the team).'):'')+'</div>'+(wait?'<div class="note bad"><b>'+wait+' students</b> had no new counsellor in their Leap group chat when '+esc(p.name)+' left. Follow up with the new counsellors below.</div>':'')
-      : wait ? '<div class="note warn row" style="justify-content:space-between;margin:0"><span><b>'+wait+' students</b> don\'t have their new counsellor in the Leap group chat yet. '+esc(p.name)+' leaves the groups at 8 PM on '+fmtShort(r.lwd)+', so these need to be joined before then.</span><button class="btn sm" data-remindall="'+id+'">Remind all</button></div>'
-      : '<div class="note ok">Every new counsellor has joined. All '+tot+' students got the LGC message and email. '+esc(p.name)+' stays in the groups until 8 PM on '+fmtShort(r.lwd)+'.</div>';
+      step("done","Request approved",esc(String(r.tApp||"").split(",")[0]))+
+      step(left?"now":"done","Leads reassigned",'<span class="num">'+mv+' / '+n+'</span> · moved as each assignment was approved')+
+      step(mv?(wait?"now":"done"):"next","Groups joined",'<span class="num">'+j+' / '+mv+'</span> by the new counsellor')+
+      step(done?"done":(r.blocked?"now":"next"),"Last working day, 8 PM",fmtShort(r.lwd)+(done?" · login deactivated":r.blocked?" · blocked, "+left+" unassigned":" · login deactivated once all leads are reassigned"))+'</div>';
+    var alert;
+    if(done) alert='<div class="note ok"><b>'+esc(p.name)+' left on '+fmtDay(r.lwd)+', 8 PM.</b> Login deactivated. The old counsellor and old RM were removed from each group as the new counsellor joined'+(p.tl?(cross?'; '+esc(tl.name)+' was removed from the '+cross+' groups whose lead went to another TL\'s team':'; '+esc(tl.name)+' stays in every group (all leads stayed in the team)'):'')+'.</div>'+
+      (wait?'<div class="note bad"><b>'+wait+' students</b> never got their new counsellor in the group, so '+esc(p.name)+' stays in those groups as fallback. Follow up with the new counsellors below.</div>':'');
+    else if(r.blocked) alert='<div class="note bad"><b>The last working day has passed and '+left+' leads are still unassigned.</b> '+esc(p.name)+'\'s login can\'t be deactivated until they are reassigned. The SM and '+esc(tl.name)+' were alerted.</div>';
+    else if(!mv) alert='<div class="note">No leads have been reassigned yet.</div>';
+    else if(wait) alert='<div class="note warn row" style="justify-content:space-between;margin:0"><span><b>'+wait+' students</b> don\'t have their new counsellor in the group yet; '+esc(p.name)+' stays in them as fallback. If a new counsellor has joined none of their groups by 11 PM on '+fmtShort(addDays(r.lwd,-1))+', the SM gets an alert email.</span><button class="btn sm" data-remindall="'+id+'">Remind all</button></div>';
+    else alert='<div class="note ok">Every new counsellor has joined. The old counsellor and old RM were removed from each group on join, and each student got the WhatsApp message and email.</div>';
+    if(r.alerted) alert+='<div class="note warn"><b>Alert email sent to the SM</b> · '+esc(r.alerted)+'. '+esc(r.alertText||"")+'</div>';
     var rows=keys.map(function(k){ var o=by[k], q=PEOPLE[k], pend=o.n-o.j;
-      return '<tr><td><b>'+esc(q.name)+'</b></td><td>'+esc(teamName(q))+'</td><td class="num">'+o.n+'</td><td>'+(pend?'<span class="num">'+o.j+' / '+o.n+'</span> joined':'<span class="badge b-green">All joined</span>')+(rem[k]?'<small class="sub">Reminded '+esc(rem[k])+'</small>':'')+'</td>'+
+      return '<tr><td><b>'+esc(q.name)+'</b></td><td>'+esc(teamName(q))+'</td><td>'+esc(RM_NAMES[q.rm])+'</td><td class="num">'+o.n+'</td><td>'+(pend?'<span class="num">'+o.j+' / '+o.n+'</span> joined':'<span class="badge b-green">All joined</span>')+(rem[k]?'<small class="sub">Reminded '+esc(rem[k])+'</small>':'')+'</td><td class="num">'+o.rj+' / '+o.n+'</td>'+
         '<td><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-joinlist="'+id+'|'+k+'">View leads</button>'+(pend&&!done?'<button class="btn sm" data-remind="'+id+'|'+k+'">Remind</button>':'')+'</div></td></tr>'; }).join("");
-    var table='<div class="tw"><table><thead><tr><th>New counsellor</th><th>TL</th><th>Leads</th><th>Groups joined</th><th>Take action</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    var table = mv ? '<div class="tw"><table><thead><tr><th>New counsellor</th><th>TL</th><th>RM</th><th>Leads</th><th>Groups joined</th><th>RM joined</th><th>Take action</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      (ng?'<small class="sub">'+ng+' students have no WhatsApp group: nothing is sent and their new counsellor introduces themselves directly.</small>':'')
+      : '<div class="note">Nothing to show until leads are reassigned.</div>';
     var head = S.tm==="lwd" ? '<div class="ph" style="margin:0"><div><h1 style="font-size:18px;margin:0">'+esc(p.name)+' · handover</h1><p style="margin:2px 0 0">'+(p.tl?'TL '+esc(tl.name):'No TL · POD '+esc(tl.name))+' · last working day '+fmtDay(r.lwd)+'</p></div>'+statusBadge(r.status)+'</div>' : '';
     return head+(S.tm==="lwd"?steps:"")+alert+'<b style="font-size:14px">Where the leads went</b>'+table+
       '<details class="acc"><summary><span>History</span><b class="num">'+r.history.length+'</b></summary><div style="padding:10px 14px"><ul class="hist">'+r.history.map(function(h){return '<li>'+esc(h.text)+' · '+esc(h.by)+'<small>'+esc(h.at)+'</small></li>';}).join("")+'</ul></div></details>';
@@ -940,7 +1037,8 @@ function handoverHtml(id){
 function joinListModal(id,who){
   withLeaver(id,function(){
     var ls=S.leads.filter(function(l){return S.assign[l.id]===who;}).sort(function(a,b){ var ja=S.req.joined[a.id]?1:0, jb=S.req.joined[b.id]?1:0; return ja-jb || (a.name<b.name?-1:1); });
-    var rows=ls.map(function(l){ var jn=S.req.joined[l.id]; return '<tr><td><b>Leap Scholar | '+esc(l.name)+' | '+l.id.replace("LD-","")+'</b></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+wgChecks("CL",!!jn)+'</td></tr>'; }).join("");
+    var rows=ls.map(function(l){ var jn=S.req.joined[l.id], ng=S.req.noGroup&&S.req.noGroup[l.id], rj=S.req.rmJoined&&S.req.rmJoined[l.id];
+      return '<tr><td><b>Leap Scholar | '+esc(l.name)+' | '+l.id.replace("LD-","")+'</b></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+(ng?'<span class="badge b-grey">No WhatsApp group</span>':wgChecks("CL",!!jn,!!rj))+'</td></tr>'; }).join("");
     showModal2('<h3>'+esc(PEOPLE[who].name)+' · leads from '+esc(LV().name)+' · <span class="num">'+ls.length+'</span></h3><div class="tw"><table><thead><tr><th>WhatsApp group</th><th>Stage</th><th>Members</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="row" style="justify-content:flex-end"><button class="btn" data-m2="close">Close</button></div>',"wide");
   });
 }
@@ -948,8 +1046,8 @@ function remind(id,who){
   withLeaver(id,function(){
     var by=lgcByOwner(), targets=who?[who]:Object.keys(by).filter(function(k){return by[k].j<by[k].n;}), n=0;
     S.req.reminded=S.req.reminded||{};
-    targets.forEach(function(k){ var pend=by[k].n-by[k].j; n+=pend; S.req.reminded[k]=now(); notify(k,"Reminder: join "+pend+" Leap group chats for leads from "+LV().name+" before "+fmtShort(S.req.lwd)+", 8 PM."); });
-    hist("WhatsApp reminder sent to "+targets.map(function(k){return PEOPLE[k].name;}).join(", ")+" to join "+n+" Leap group chats",me().name);
+    targets.forEach(function(k){ var pend=by[k].n-by[k].j; n+=pend; S.req.reminded[k]=now(); notify(k,"Reminder: join "+pend+" WhatsApp groups for leads from "+LV().name+" before "+fmtShort(S.req.lwd)+", 8 PM."); });
+    hist("WhatsApp reminder sent to "+targets.map(function(k){return PEOPLE[k].name;}).join(", ")+" to join "+n+" WhatsApp groups",me().name);
     toast("Reminder sent on WhatsApp"+(who?" to "+PEOPLE[who].name:" to "+targets.length+" counsellors"));
   });
   render();
@@ -961,56 +1059,71 @@ function bindHandover(){
   document.querySelectorAll("[data-remindall]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); remind(b.dataset.remindall,null); }; });
 }
 
-/* ---------- TL assign ---------- */
-/* Who can receive leads: active counselors under the same SM, excluding the leaver and anyone who
-   has entered a last working day themselves. */
-function eligible(){ return Object.keys(PEOPLE).map(function(k){return PEOPLE[k];}).filter(function(p){return p.role==="Counselor" && p.sm==="vikram" && p.id!==LV().id && !activeReq(p.id);}); }
-function filtered(){
+/* ---------- Reassign leads (TL, POD leader or SM) ---------- */
+/* Who can receive leads: active counsellors under the same SM, excluding the leaver, anyone who has
+   applied to resign, and anyone with a live request of their own. */
+function eligible(){ return Object.keys(PEOPLE).map(function(k){return PEOPLE[k];}).filter(function(p){
+  var r=S.lv[p.id]&&S.lv[p.id].req;
+  return p.role==="Counselor" && p.sm==="vikram" && p.id!==LV().id && !p.applied && !(r && r.status!=="cancelled"); }); }
+function svcLabel(x){ return x==="PAID_SERVICE"?"Premium":"Free"; }
+function progLabel(x){ return x==="MASTERS"?"PG":"UG"; }
+/* Stage and Group run on the server, so they narrow the whole book. The list then loads 500 at a time and
+   Servicing type / Program / Show only filter the leads already loaded (they run locally on the page). */
+function serverLeads(){
   var t=S.tl;
-  var rows=S.leads.filter(function(l){
+  return S.leads.filter(function(l){
     if(t.stage.length&&t.stage.indexOf(l.stage)===-1) return false;
     if(t.grp.length&&t.grp.indexOf(leadGroup(l))===-1) return false;
+    return true; });
+}
+function loadedCount(){ return Math.min(S.tl.loaded,serverLeads().length,LEAD_CAP); }
+function sortVal(l,k){
+  if(k==="to") return S.assign[l.id]?PEOPLE[S.assign[l.id]].name:"~";
+  if(k==="intake"||k==="country") return leadMeta(l)[k];
+  if(k==="stage") return STAGES.indexOf(l.stage);
+  if(k==="name") return l.name;
+  return l[k];
+}
+function filtered(){
+  var t=S.tl;
+  var rows=serverLeads().slice(0,loadedCount()).filter(function(l){
     if(t.servicing!=="All"&&l.servicing!==t.servicing) return false;
     if(t.program!=="All"&&l.program!==t.program) return false;
-    if(t.show==="Unscheduled"&&S.assign[l.id]) return false;
-    if(t.show==="Scheduled"&&!S.assign[l.id]) return false;
-    return true;
-  });
+    if(t.show==="Unassigned"&&S.assign[l.id]) return false;
+    if(t.show==="Assigned"&&!S.assign[l.id]) return false;
+    return true; });
   var k=t.sort, d=t.dir;
-  rows.sort(function(a,b){
-    var x,y;
-    if(k==="to"){ x=S.assign[a.id]?PEOPLE[S.assign[a.id]].name:"~"; y=S.assign[b.id]?PEOPLE[S.assign[b.id]].name:"~"; }
-    else { x=a[k]; y=b[k]; }
-    return x<y?-d:x>y?d:0;
-  });
+  rows.sort(function(a,b){ var x=sortVal(a,k), y=sortVal(b,k); return x<y?-d:x>y?d:0; });
   return rows;
 }
+/* Already-reassigned leads are locked: a reassignment can't be undone. */
 function assignRowHtml(l,locked){
-  var a=S.assign[l.id], sel=!!S.tl.sel[l.id];
-  return '<tr class="'+(locked?"":"cl ")+(sel?"sel":"")+'"'+(locked?'':' data-rowsel="'+l.id+'"')+'><td><input type="checkbox" data-sel="'+l.id+'"'+(sel?" checked":"")+(locked?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td><b>'+esc(l.name)+'</b><small class="sub">'+l.id+'</small></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+esc(prettyEnum(l.servicing))+'</td><td>'+esc(prettyEnum(l.program))+'</td><td>'+(a?(S.req.movedNow&&S.req.movedNow[l.id]?'<span class="badge b-green">Moved to '+esc(PEOPLE[a].name)+'</span>':'<span class="badge b-blue">'+esc(PEOPLE[a].name)+'</span>'):'<span class="badge b-amber">Unscheduled</span>')+'</td></tr>';
+  var a=S.assign[l.id], sel=!!S.tl.sel[l.id], lm=leadMeta(l), off=locked||!!a;
+  return '<tr class="'+(off?"":"cl ")+(sel?"sel":"")+'"'+(off?'':' data-rowsel="'+l.id+'"')+'><td><input type="checkbox" data-sel="'+l.id+'"'+(sel?" checked":"")+(off?" disabled":"")+' aria-label="Select '+esc(l.name)+'"></td><td><b>'+esc(l.name)+'</b><small class="sub">'+l.id+'</small></td><td>'+esc(STAGE_LABEL[l.stage])+'</td><td>'+svcLabel(l.servicing)+'</td><td>'+esc(lm.intake)+'</td><td>'+esc(lm.country)+'</td><td>'+progLabel(l.program)+'</td><td>'+(a?'<span class="badge b-green">Moved to '+esc(PEOPLE[a].name)+'</span>':'<span class="badge b-amber">Unassigned</span>')+'</td></tr>';
 }
-/* Leavers this viewer schedules leads for: the TL sees their own team's, the SM sees everyone's. */
+/* Leavers this viewer reassigns leads for: the TL sees their own team's, the SM sees everyone's. */
 function assignLeavers(){
   return Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; if(!r||["approved","transferred","deactivated"].indexOf(r.status)===-1) return false; return S.view==="vikram" || TLof(id).id===S.view; })
-    .sort(function(a,b){ var ra=SORT_RANK[S.lv[a].req.status], rb=SORT_RANK[S.lv[b].req.status]; return ra-rb || transferDate(S.lv[a].req)-transferDate(S.lv[b].req); });
+    .sort(function(a,b){ var ra=SORT_RANK[S.lv[a].req.status], rb=SORT_RANK[S.lv[b].req.status]; return ra-rb || S.lv[a].req.lwd-S.lv[b].req.lwd; });
 }
 var CHEV='<svg class="chv" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function assignBody(){
-  var r=S.req, t=S.tl, locked=r.status!=="approved", tr=transferDate(r), tl=TLof(S.cur);
-  var rows=filtered(), per=50, pages=Math.max(1,Math.ceil(rows.length/per)); if(t.page>=pages) t.page=pages-1;
-  var slice=rows.slice(t.page*per,t.page*per+per);
+  var r=S.req, t=S.tl, locked=r.status!=="approved";
+  var srv=serverLeads(), rows=filtered(), loadedN=loadedCount(), cap=Math.min(srv.length,LEAD_CAP);
   var asg=assignedCount(), tot=S.leads.length, nsel=Object.keys(t.sel).length;
-  var allShownSel = rows.length && rows.every(function(l){return t.sel[l.id];});
-  function optPretty(list,v){ return '<option value="All"'+(v==="All"?" selected":"")+'>All</option>'+list.map(function(x){return '<option value="'+x+'"'+(x===v?" selected":"")+'>'+esc(prettyEnum(x))+'</option>';}).join(""); }
+  var open=rows.filter(function(l){return !S.assign[l.id];});
+  var allShownSel = open.length && open.every(function(l){return t.sel[l.id];});
+  function optList(list,v){ return '<option value="All"'+(v==="All"?" selected":"")+'>All</option>'+list.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===v?" selected":"")+'>'+x[1]+'</option>';}).join(""); }
   function th(key,label){ var ar = t.sort===key ? (t.dir===1?" &#9650;":" &#9660;") : ""; return '<th class="s" data-sort="'+key+'">'+label+ar+'</th>'; }
-  var banner = locked ? '<div class="note ok"><b>Transfer complete.</b> This list is read only.</div>' :
-    isShort(r) ? '<div class="note warn"><b>Short notice:</b> leads move immediately as you schedule them. Anything left unscheduled is split evenly across '+esc(tl.name)+'\'s team at 8 PM on '+fmtShort(r.lwd)+'.</div>' :
-    (tot>0&&asg===tot ? '<div class="note ok"><b>All '+tot+' leads are scheduled.</b> They move at '+fmtDay(tr)+', 8 PM — you can still change any of them until then.</div>'
-      : '<div class="note">Nothing moves until <b>'+fmtDay(tr)+', 8 PM</b>. Anything left unscheduled then is split evenly across '+esc(tl.name)+'\'s team.</div>');
-  var table = slice.length ? '<div class="tw"><table class="asgt"><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all shown"'+(allShownSel?" checked":"")+(locked?" disabled":"")+'></th>'+th("name","Student")+th("stage","Stage")+th("servicing","Servicing type")+th("program","Program")+th("to","Scheduled for")+'</tr></thead><tbody>'+
-    slice.map(function(l){ return assignRowHtml(l,locked); }).join("")+
-    '</tbody></table></div><div class="pag"><span class="num">'+(t.page*per+1)+'–'+(t.page*per+slice.length)+' of '+rows.length+'</span><button class="btn sm" id="pPrev"'+(t.page?"":" disabled")+'>Previous</button><button class="btn sm" id="pNext"'+(t.page<pages-1?"":" disabled")+'>Next</button></div>'
-    : '<div class="note">No leads match these filters.</div>';
+  var banner = locked ? '<div class="note ok"><b>All '+tot+' leads are reassigned.</b> This list is read only.</div>' :
+    tot>LEAD_CAP ? '<div class="note bad"><b>'+tot+' leads is more than the '+LEAD_CAP.toLocaleString("en-US")+' this list can load.</b> The lead cleanup has to bring this counsellor under the limit before their leads can be reassigned here.</div>' :
+    r.blocked ? '<div class="note bad"><b>The last working day has passed.</b> '+(tot-asg)+' leads are unassigned, so the login can\'t be deactivated. Reassign them now.</div>' :
+    '<div class="note">Each approved assignment moves its leads <b>immediately</b> and can\'t be undone. Anything still unassigned at 8 PM on <b>'+fmtShort(r.lwd)+'</b> stops the login from being deactivated and alerts the SM.</div>';
+  var foot='<div class="pag"><span>Loaded <b class="num">'+loadedN+'</b> of <b class="num">'+srv.length+'</b> leads'+(srv.length!==tot?' matching Stage / Group':'')+'. Servicing type, Program and Show filter the loaded leads only.</span>'+
+    (loadedN<cap?'<button class="btn sm" id="loadMore">Load next '+Math.min(LEAD_PAGE,cap-loadedN)+'</button>':'')+'</div>';
+  var table = rows.length ? '<div class="tw"><table class="asgt"><thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all unassigned shown"'+(allShownSel?" checked":"")+(locked||!open.length?" disabled":"")+'></th>'+th("name","Student")+th("stage","Stage")+th("servicing","Servicing type")+th("intake","Intake")+th("country","Country")+th("program","UG / PG")+th("to","Status")+'</tr></thead><tbody>'+
+    rows.map(function(l){ return assignRowHtml(l,locked); }).join("")+'</tbody></table></div>'
+    : '<div class="note">No loaded leads match these filters.'+(loadedN<cap?' Load more leads, or change the filters.':'')+'</div>';
   var stageLabel = (!t.stage.length || t.stage.length===STAGES.length) ? "All stages" : (t.stage.length===1 ? prettyEnum(t.stage[0]) : t.stage.length+" stages selected");
   var stagePicker = '<div class="f"><span>Stage</span><div class="stagepick"><button type="button" class="btn sm" id="stageBtn"><span>'+esc(stageLabel)+'</span>'+CHEV+'</button>'+
     (t.stageMenuOpen ? '<div class="panel"><div class="hdr"><span>Stage (select any number)</span><button type="button" class="btn sm" id="stageClear">Clear</button></div>'+
@@ -1025,59 +1138,72 @@ function assignBody(){
       GROUP_ORDER.map(function(k){return '<label><input type="checkbox" data-grpchk="'+k+'"'+(t.grp.indexOf(k)!==-1?" checked":"")+'> '+esc(GROUP_LABEL[k])+'</label>';}).join("")+
       '</div>' : '')+
     '</div></div>';
-  var selbar = !locked ? '<div class="selbar">'+(nsel?'<b class="num">'+nsel+' selected</b><button class="btn sm danger-o" id="selClear">Clear selection</button>':'<span style="color:var(--muted)">Click rows to select them, then pick who to schedule them for.</span>')+
+  var selbar = !locked ? '<div class="selbar">'+(nsel?'<b class="num">'+nsel+' selected</b><button class="btn sm danger-o" id="selClear">Clear selection</button>':'<span style="color:var(--muted)">Click rows to select them, then pick who gets them.</span>')+
     '</div>' : '';
   return banner+
-    '<div class="fbar">'+stagePicker+groupPicker+'<label class="f">Servicing type<select class="in" id="fServicing">'+optPretty(SERVICING_TYPES,t.servicing)+'</select></label><label class="f">Program<select class="in" id="fProg">'+optPretty(PROGRAM_TYPES,t.program)+'</select></label>'+
-    '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Show<div class="seg">'+["All","Unscheduled","Scheduled"].map(function(s){return '<button data-show="'+s+'" class="'+(t.show===s?"on":"")+'">'+s+'</button>';}).join("")+'</div></div></div>'+
-    selbar+table;
+    '<div class="fbar">'+stagePicker+groupPicker+'<label class="f">Servicing type<select class="in" id="fServicing">'+optList([["FREE_SERVICE","Free"],["PAID_SERVICE","Premium"]],t.servicing)+'</select></label><label class="f">UG / PG<select class="in" id="fProg">'+optList([["UNDER_GRADUATION","UG"],["MASTERS","PG"]],t.program)+'</select></label>'+
+    '<div class="f" style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#39445a">Show<div class="seg">'+["All","Unassigned","Assigned"].map(function(s){return '<button data-show="'+s+'" class="'+(t.show===s?"on":"")+'">'+s+'</button>';}).join("")+'</div></div></div>'+
+    selbar+table+foot;
 }
-/* Leads to schedule, inline on the View Profile page: one accordion per leaver, one open at a time.
-   Opening a leaver expands their leads right here instead of switching to a different screen. Pending
-   leavers (TL view) are listed but can't be opened until the SM approves. */
-function scheduleCard(){
+/* Leads to reassign, inline on the modal: one accordion per leaver, one open at a time. Opening a leaver
+   expands their leads right there. Once any leads have moved, a Track block under the table follows the
+   new counsellors joining each student's WhatsApp group. */
+function reassignCard(){
   var ids=assignLeavers();
   if(S.focus && ids.indexOf(S.focus)===-1) S.focus=null;
   function accHtml(id){
     return withLeaver(id,function(){
-      var r=S.req, open=id===S.focus, asg=assignedCount(), tot=S.leads.length, tr=transferDate(r), mv=moved(r), j=Object.keys(r.joined||{}).length;
-      var prog = mv ? '<span class="prog2"><span class="num">'+j+' / '+tot+' groups joined by CL</span><span class="bar"><span style="width:'+(tot?j/tot*100:0)+'%"></span></span></span>'
-        : '<span class="prog2"><span class="num">'+asg+' / '+tot+' scheduled</span><span class="bar"><span style="width:'+(tot?asg/tot*100:0)+'%"></span></span></span>';
-      var sub = mv ? 'Leads moved '+fmtShort(isShort(r)?r.appDay:tr)+' · LWD '+fmt(r.lwd)+(r.status==="transferred"?' (leaves LGC at 8 PM)':'') : 'LWD '+fmt(r.lwd)+' · leads move '+fmtDay(tr)+', 8 PM';
+      var r=S.req, open=id===S.focus, asg=assignedCount(), tot=S.leads.length, j=Object.keys(r.joined||{}).length, all=asg===tot;
+      var prog = all ? '<span class="prog2"><span class="num">'+j+' / '+tot+' groups joined</span><span class="bar"><span style="width:'+(tot?j/tot*100:0)+'%"></span></span></span>'
+        : '<span class="prog2"><span class="num">'+asg+' / '+tot+' reassigned</span><span class="bar"><span style="width:'+(tot?asg/tot*100:0)+'%"></span></span></span>';
+      var sub = r.status==="deactivated" ? 'Left '+fmt(r.lwd) : r.blocked ? 'LWD '+fmt(r.lwd)+' · passed, '+(tot-asg)+' unassigned' : 'LWD '+fmt(r.lwd)+(all?' · login deactivated at 8 PM':' · '+(tot-asg)+' still to reassign');
+      var track = asg ? '<details class="acc"><summary><span>Track the '+asg+' reassigned leads</span><b class="num">'+j+' / '+asg+' joined</b></summary><div style="padding:10px 14px;display:flex;flex-direction:column;gap:12px">'+handoverHtml(id)+'</div></details>' : '';
+      var badge = r.blocked ? '<span class="badge b-red">Deactivation blocked</span>' : (r.status==="approved" ? slaBadge(id) : statusBadge(r.status));
       return '<div class="card acc2'+(open?" open":"")+'" id="acc-'+id+'"><button class="chead" data-acc="'+id+'" aria-expanded="'+open+'"><span class="av2">'+PEOPLE[id].name.split(" ").map(function(x){return x[0];}).join("")+'</span><span class="t"><b>'+esc(PEOPLE[id].name)+'</b><small>'+sub+'</small></span>'+
-        prog+(r.status==="approved"?slaBadge(id):statusBadge(r.status))+'<span class="chev">&#8964;</span></button>'+
-        (open?'<div class="cbody">'+(mv?handoverHtml(id):assignBody())+'</div>':'')+'</div>';
+        prog+badge+'<span class="chev">&#8964;</span></button>'+
+        (open?'<div class="cbody">'+(r.status==="approved"?assignBody()+track:handoverHtml(id))+'</div>':'')+'</div>';
     });
   }
   function grp(title,list){ return list.length?'<div class="grph">'+title+' <span class="num">'+list.length+'</span></div>'+list.map(accHtml).join(""):""; }
   var st=function(id){return S.lv[id].req.status;};
-  var html=grp("To schedule",ids.filter(function(id){return st(id)==="approved";}))+
-    grp("Leads moved · tracking handover",ids.filter(function(id){return st(id)==="transferred";}))+
+  var html=grp("To reassign",ids.filter(function(id){return st(id)==="approved";}))+
+    grp("Reassigned · tracking handover",ids.filter(function(id){return st(id)==="transferred";}))+
     grp("Completed",ids.filter(function(id){return st(id)==="deactivated";}));
-  return '<p class="tmsub">Open a counsellor to schedule who gets each lead. Leads only move at 8 PM on their transfer date; after that, track the new counsellors joining each student\'s Leap group chat here.</p>'+
-    (html||'<div class="note">No leads to schedule right now.</div>');
+  return '<p class="tmsub">Open a counsellor to pick who gets each lead. Every approved assignment moves its leads straight away and can\'t be undone; track the new counsellors joining each student\'s WhatsApp group here.</p>'+
+    (html||'<div class="note">No leads to reassign right now.</div>');
 }
-function openSchedule(id){ S.focus=id; S.tl.sel={}; S.tl.page=0; S.route="home"; S.activeTab="tasks"; S.tm="sched"; render(); var el=document.getElementById("acc-"+id), sc=document.querySelector(".tmscroll"); if(el&&sc) sc.scrollTop+=el.getBoundingClientRect().top-sc.getBoundingClientRect().top-12; }
+function openSchedule(id){ S.focus=id; S.tl.sel={}; S.tl.loaded=LEAD_PAGE; S.route="home"; S.activeTab="tasks"; S.tm="sched"; render(); var el=document.getElementById("acc-"+id), sc=document.querySelector(".tmscroll"); if(el&&sc) sc.scrollTop+=el.getBoundingClientRect().top-sc.getBoundingClientRect().top-12; }
 function bottomBar(){
   var el=document.getElementById("tmFoot");
   var n=Object.keys(S.tl.sel).length;
   if(!el) return;
   if(S.tm!=="sched"||!S.focus||S.cur!==S.focus||!n||!S.req||S.req.status!=="approved"){ el.innerHTML=""; return; }
-  el.innerHTML='<div class="tmfoot"><b class="num">'+n+' selected</b><select class="in" id="asgTo"><option value="">Schedule for…</option>'+eligible().map(function(p){ var tl=teamName(p); var cur=p.open+Object.keys(S.assign).filter(function(k){return S.assign[k]===p.id;}).length; return '<option value="'+p.id+'">'+esc(p.name)+' · '+esc(tl)+' · '+cur+' existing open leads</option>'; }).join("")+'</select><button class="btn p" id="asgGo" disabled>Schedule assignment</button></div>';
+  el.innerHTML='<div class="tmfoot"><b class="num">'+n+' selected</b><select class="in" id="asgTo"><option value="">Reassign to…</option>'+eligible().map(function(p){ var cur=p.open+Object.keys(S.assign).filter(function(k){return S.assign[k]===p.id;}).length; return '<option value="'+p.id+'">'+esc(p.name)+' · '+esc(teamName(p))+' · '+cur+' existing open leads</option>'; }).join("")+'</select><button class="btn p" id="asgGo" disabled>Approve Assignment</button></div>';
   var s=document.getElementById("asgTo"), g=document.getElementById("asgGo");
   s.onchange=function(){ g.disabled=!s.value; };
   g.onclick=function(){
-    var who=s.value, ids=Object.keys(S.tl.sel), id=S.cur, r=S.req, tr=transferDate(r);
-    showModal('<h3>Schedule assignment?</h3><div class="kv"><div><small>Schedule for</small><b>'+esc(PEOPLE[who].name)+'</b></div><div><small>Leads</small><b class="num">'+ids.length+' of '+esc(LV().name)+'\'s</b></div><div><small>Last working day</small><b>'+fmtDay(r.lwd)+'</b></div><div><small>Leads move</small><b>'+(isShort(r)?"Now":fmtDay(tr)+", 8 PM")+'</b></div></div>'+
-      (isShort(r)?'<div class="note warn">Short notice: these leads move to '+esc(PEOPLE[who].name)+' <b>now</b>.</div>':'<div class="note">Nothing moves now. '+esc(PEOPLE[who].name)+' becomes the owner at '+fmtDay(tr)+', 8 PM. You can change this any time before then.</div>')+
-      '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Back</button><button class="btn p" id="schGo">Schedule</button></div>');
-    document.getElementById("schGo").onclick=function(){
-      withLeaver(id,function(){ ids.forEach(function(x){ S.assign[x]=who; if(isShort(S.req)) S.req.movedNow[x]=1; });
-        if(isShort(S.req)){ hist("Moved "+ids.length+" leads to "+PEOPLE[who].name+" immediately (short notice); tasks and follow-ups moved",me().name); notify(who,"You received "+ids.length+" leads from "+LV().name+". Join each student's Leap group chat to accept them."); }
-        else hist("Scheduled "+ids.length+" leads for "+PEOPLE[who].name+" (move "+fmt(tr)+", 8 PM)",me().name); });
-      S.tl.sel={}; closeModal(); render(); toast(ids.length+" leads scheduled for "+PEOPLE[who].name);
-    };
+    var who=s.value, ids=Object.keys(S.tl.sel), id=S.cur, q=PEOPLE[who];
+    var picked=S.leads.filter(function(l){return ids.indexOf(l.id)!==-1;});
+    showModal('<h3>Are you sure?</h3><p style="color:var(--red);font-weight:700;margin:0">This action is irreversible.</p>'+
+      '<div class="kv"><div><small>Reassign to</small><b>'+esc(q.name)+'</b></div><div><small>Leads</small><b class="num">'+ids.length+' of '+esc(LV().name)+'\'s</b></div><div><small>Mix</small><b>'+esc(bandText(picked))+'</b></div><div><small>New RM</small><b>'+esc(RM_NAMES[q.rm])+'</b></div></div>'+
+      '<div class="note warn">These leads move to '+esc(q.name)+' <b>now</b>, with their open tasks and follow-ups. '+esc(q.name)+' gets a task per student to join the WhatsApp group (and to call post-STI, pre-visa-approved leads), and '+esc(RM_NAMES[q.rm])+' is tasked to join too.</div>'+
+      '<div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Back</button><button class="btn danger" id="schGo">Yes, approve assignment</button></div>',"danger");
+    document.getElementById("schGo").onclick=function(){ assignNow(id,ids,who); };
   };
+}
+/* Approve Assignment: the leads move now. One history line, one notification to the new counsellor with
+   the pre-STI / post-STI / visa split, and the RM is tasked to join the groups. */
+function assignNow(id,ids,who){
+  var n=ids.length, q=PEOPLE[who], sum="";
+  withLeaver(id,function(){
+    var day=fmtShort(parseStamp(S.clock)||TODAY), picked=S.leads.filter(function(l){return ids.indexOf(l.id)!==-1;});
+    picked.forEach(function(l){ placeLead(id,l,who,day); });
+    sum=bandText(picked);
+    hist("Reassigned "+n+" leads to "+q.name+" ("+sum+"). Tasks and follow-ups moved; assignment logged; RM "+RM_NAMES[q.rm]+" tasked to join the groups",me().name);
+    notify(who,"You received "+n+" leads from "+LV().name+": "+sum+". Join each student's WhatsApp group; call post-STI leads until their visa is approved.",{label:"Open tasks",route:"home",tab:"tasks",drawer:"re"});
+    syncStatus(id);
+  });
+  S.tl.sel={}; closeModal(); render(); toast(n+" leads moved to "+q.name);
 }
 function bindAssign(){
   var t=S.tl;
@@ -1086,25 +1212,26 @@ function bindAssign(){
   function closeMenus(){ t.stageMenuOpen=false; t.grpMenuOpen=false; }
   /* Close without a re-render, so the click that triggered it still reaches its target. */
   function dropMenus(){ if(!t.stageMenuOpen&&!t.grpMenuOpen) return; closeMenus(); document.querySelectorAll(".stagepick .panel").forEach(function(p){p.remove();}); }
+  /* Stage and Group are server-side: changing them reloads the first 500. */
   on("stageBtn","onclick",function(){ var o=!t.stageMenuOpen; closeMenus(); t.stageMenuOpen=o; render(); });
-  on("stageClear","onclick",function(){ t.stage=[]; t.page=0; render(); });
-  on("stageAll","onchange",function(e){ t.stage=e.target.checked?STAGES.slice():[]; t.page=0; render(); });
+  on("stageClear","onclick",function(){ t.stage=[]; t.loaded=LEAD_PAGE; render(); });
+  on("stageAll","onchange",function(e){ t.stage=e.target.checked?STAGES.slice():[]; t.loaded=LEAD_PAGE; render(); });
   document.querySelectorAll("[data-stagechk]").forEach(function(c){ c.onchange=function(){
     var v=c.dataset.stagechk, i=t.stage.indexOf(v);
     if(c.checked){ if(i===-1) t.stage.push(v); } else if(i!==-1) t.stage.splice(i,1);
-    t.page=0; render();
+    t.loaded=LEAD_PAGE; render();
   }; });
   on("grpBtn","onclick",function(){ var o=!t.grpMenuOpen; closeMenus(); t.grpMenuOpen=o; render(); });
-  on("grpClear","onclick",function(){ t.grp=[]; t.page=0; render(); });
-  on("grpAll","onchange",function(e){ t.grp=e.target.checked?GROUP_ORDER.slice():[]; t.page=0; render(); });
+  on("grpClear","onclick",function(){ t.grp=[]; t.loaded=LEAD_PAGE; render(); });
+  on("grpAll","onchange",function(e){ t.grp=e.target.checked?GROUP_ORDER.slice():[]; t.loaded=LEAD_PAGE; render(); });
   document.querySelectorAll("[data-grpchk]").forEach(function(c){ c.onchange=function(){
     var v=c.dataset.grpchk, i=t.grp.indexOf(v);
     if(c.checked){ if(i===-1) t.grp.push(v); } else if(i!==-1) t.grp.splice(i,1);
-    t.page=0; render();
+    t.loaded=LEAD_PAGE; render();
   }; });
-  on("fServicing","onchange",function(e){ closeMenus(); t.servicing=e.target.value; t.page=0; render(); });
-  on("fProg","onchange",function(e){ closeMenus(); t.program=e.target.value; t.page=0; render(); });
-  document.querySelectorAll("[data-show]").forEach(function(b){ b.onclick=function(){ closeMenus(); t.show=b.dataset.show; t.page=0; render(); }; });
+  on("fServicing","onchange",function(e){ closeMenus(); t.servicing=e.target.value; render(); });
+  on("fProg","onchange",function(e){ closeMenus(); t.program=e.target.value; render(); });
+  document.querySelectorAll("[data-show]").forEach(function(b){ b.onclick=function(){ closeMenus(); t.show=b.dataset.show; render(); }; });
   /* Clicking anywhere outside an open panel closes it. */
   document.onmousedown=function(e){ if(!e.target.closest(".stagepick")) dropMenus(); };
   document.querySelectorAll("[data-sort]").forEach(function(h){ h.onclick=function(){ var k=h.dataset.sort; if(t.sort===k) t.dir=-t.dir; else { t.sort=k; t.dir=1; } render(); }; });
@@ -1113,10 +1240,10 @@ function bindAssign(){
   document.querySelectorAll("[data-rowsel]").forEach(function(tr){ tr.onclick=function(){ var k=tr.dataset.rowsel; if(t.sel[k]) delete t.sel[k]; else t.sel[k]=1; render(); }; });
   on("selClear","onclick",function(){ t.sel={}; render(); });
   document.querySelectorAll("[data-acc]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.acc; closeMenus(); if(S.focus===id){ S.focus=null; t.sel={}; render(); } else { t.stage=[]; t.grp=[]; t.servicing="All"; t.program="All"; t.show="All"; openSchedule(id); } }; });
-  function toggleAll(){ var rows=filtered(); var all=rows.every(function(l){return t.sel[l.id];}); if(all) t.sel={}; else rows.forEach(function(l){t.sel[l.id]=1;}); render(); }
+  /* Select all picks the unassigned leads that are loaded and match the filters. */
+  function toggleAll(){ var rows=filtered().filter(function(l){return !S.assign[l.id];}); var all=rows.length&&rows.every(function(l){return t.sel[l.id];}); if(all) t.sel={}; else rows.forEach(function(l){t.sel[l.id]=1;}); render(); }
   on("selAll","onchange",toggleAll);
-  on("pPrev","onclick",function(){ t.page--; render(); window.scrollTo(0,0); });
-  on("pNext","onclick",function(){ t.page++; render(); window.scrollTo(0,0); });
+  on("loadMore","onclick",function(){ t.loaded=Math.min(LEAD_CAP,t.loaded+LEAD_PAGE); render(); });
 }
 
 /* ---------- TL home ---------- */
@@ -1135,9 +1262,14 @@ var IBT_STATIC={
   ankit:[["&#128196;","Review Docs For Conditional Admit",26],["&#9989;","Verify the Probable Conditions marked in the Expected Outcome",22],["&#128179;","Deposit Payment Verification",30],["&#128172;","Applicant Feedback",87],["&#128706;","Visa Drop Request",10],["&#128228;","Drop Off Approval / Revival",193],["&#128221;","Ops Tasks",81],["&#128221;","ISL Reviews Pending",0]],
   vikram:[["&#128196;","Review Docs For Conditional Admit",220],["&#9989;","Verify the Probable Conditions marked in the Expected Outcome",48],["&#128179;","Deposit Payment Verification",37],["&#128172;","Applicant Feedback",113],["&#128706;","Visa Drop Request",0],["&#128228;","Drop Off Approval / Revival",241],["&#128221;","Ops Tasks",96],["&#128221;","ISL Reviews Pending",2]]
 };
-/* Tile counts: leavers still needing something — scheduling, or new counsellors yet to join LGC. */
-function pendingJoins(id){ var r=S.lv[id].req; return r.status==="transferred" && Object.keys(r.joined).length<S.lv[id].leads.length; }
-function lwdActiveIds(){ return Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="approved"||r.status==="transferred"); }); }
+/* Tile counts: leavers still needing something — reassigning, or new counsellors yet to join their groups. */
+function pendingJoins(id){ var lv=S.lv[id], r=lv.req; return ["approved","transferred"].indexOf(r.status)!==-1 && Object.keys(lv.assign).some(function(k){ return !r.joined[k]; }); }
+/* The SM's tile: everyone in progress — applied (no request yet), pending approval, reassigning, or tracking. */
+function lwdActiveIds(){
+  var a=Object.keys(S.lv).filter(function(id){ var r=S.lv[id].req; return r&&(r.status==="pending"||r.status==="approved"||r.status==="transferred"); });
+  Object.keys(PEOPLE).forEach(function(id){ if(PEOPLE[id].applied && !(S.lv[id]&&S.lv[id].req)) a.push(id); });
+  return a;
+}
 function scheduleTaskIds(){ return assignLeavers().filter(function(id){ var r=S.lv[id].req; return (r.status==="approved" && !slaInfo(id).done) || pendingJoins(id); }); }
 /* Production tile: icon top-left, count top-right, bold label below; a tile with 0 pending turns green. */
 function ibtTile(key,icon,label,n){
@@ -1147,7 +1279,7 @@ function ibtSection(){
   var v=S.view; if(v!=="ankit"&&v!=="vikram"&&v!=="rohit") return "";
   var items=[];
   if(v==="vikram") items.push(["lwd","&#128197;","Counsellor Last Working Day",lwdActiveIds().length]);
-  items.push(["sched","&#128101;","Schedule Reassigned Leads",scheduleTaskIds().length]);
+  items.push(["sched","&#128101;","Reassign Leads",scheduleTaskIds().length]);
   IBT_STATIC[v].forEach(function(x){ items.push(["static",x[0],x[1],x[2]]); });
   var pending=items.reduce(function(a,x){return a+x[3];},0), busy=items.filter(function(x){return x[3]>0;}).length;
   return '<div class="boosthead"><span class="bar"></span>&#128203; Important Business Tasks'+(v==="vikram"?" — TL &amp; POD rollup":v==="rohit"?" — POD":"")+'</div>'+
@@ -1155,7 +1287,7 @@ function ibtSection(){
     '<div class="ibtgrid">'+items.map(function(x){ return ibtTile(x[0],x[1],x[2],x[3]); }).join("")+'</div></div>';
 }
 /* Tiles open the flow in a large task modal (S.tm): "lwd" = Last Working Day requests, "sched" =
-   Schedule Reassigned Leads. Review / approval / schedule confirms open on top of it. */
+   Reassign Leads. Raise / approve / assignment confirms open on top of it. */
 function bindIbt(){
   document.querySelectorAll("[data-ibt]").forEach(function(b){ b.onclick=function(){
     var k=b.dataset.ibt;
@@ -1166,8 +1298,8 @@ function renderTaskModal(){
   var el=document.getElementById("taskModal"), k=S.tm;
   if(!k || S.route!=="home" || S.activeTab!=="tasks"){ el.innerHTML=""; return; }
   var prev=el.querySelector(".tmscroll"), keep=prev?prev.scrollTop:0;
-  var title = k==="lwd" ? (S.tmView?"Track handover":"Counsellor Last Working Day") : "Schedule Reassigned Leads";
-  var body = k==="lwd" ? smRequestsCard() : scheduleCard();
+  var title = k==="lwd" ? (S.tmView?"Track handover":"Counsellor Last Working Day") : "Reassign Leads";
+  var body = k==="lwd" ? smRequestsCard() : reassignCard();
   el.innerHTML='<div class="tmodal" id="tmBg"><div class="tmbox" role="dialog" aria-modal="true"><div class="tmhead"><button class="ib" id="tmBack" aria-label="Back to Tasks &amp; Performance" title="Back to Tasks &amp; Performance"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M15 9H3.5M8 4 3 9l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>'+title+'</b><button class="ib" id="tmClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div><div class="tmscroll"><div class="tmbody">'+body+'</div></div><div id="tmFoot"></div></div></div>';
   el.querySelector(".tmscroll").scrollTop=keep;
   document.getElementById("tmClose").onclick=closeTaskModal;
@@ -1186,41 +1318,51 @@ function lockScroll(){ document.body.style.overflow = S.tm ? "hidden" : ""; }
 /* Reassigned leads in one Boost bucket ("sti" or "deposit") for the person currently viewing (Rahul
    sees his own; Ankit sees his whole team's, for oversight). These carry the Connect with Reassigned
    Leads task and show inside the existing Boost STI / Boost Deposit drawers with a Reassigned badge. */
-/* Connect with Reassigned Leads: one touchbase task per reassigned lead, for the viewer (Rahul: his
-   own; TL / POD / SM: their teams'). Two steps in order: join the student's WhatsApp group (the old
-   counsellor and TL stay until 8 PM on the last working day), then call the student. Call order is the
-   bucket order below; visa approved and drop-offs get no call.
-   Closes when: joined AND a connected call > 10s, OR joined AND 3 true attempts (ringing >= 30s). */
-var RE_CHIPS=[["dep","Deposit done","g"],["prem","Premium / Lock-in","p"],["sti","STI done","b"],["nosti","STI not done","a"],["visa","Visa in process","r"]];
+/* Connect with Reassigned Leads: ONE handover task per reassigned lead, for the viewer (Rahul: his own;
+   TL / POD / SM: their teams'). Two sub-tasks:
+   1. Join the student's WhatsApp group — every lead. If the student has no group, nothing is sent and the
+      counsellor introduces themselves directly (nothing to join).
+   2. Call the student — only post-STI, pre-visa-approved leads (STI, Deposit Done, Visa until approved).
+      Closes on a connected call (over 10 seconds) or after 3 unanswered attempts (each ringing 30s or
+      more). There is no way to close it without a call attempt. After the unanswered attempts the student
+      also gets an email and an LGC notification as fallback.
+   The task is done when sub-task 1 is done and, where it applies, sub-task 2 is closed. Call order is the
+   bucket order below: deposit done, STI done, visa in process. */
+var RE_CHIPS=[["dep","Deposit done","g"],["sti","STI done","b"],["visa","Visa in process","r"],["pre","Pre-STI","a"],["vdone","Visa approved","p"],["drop","Dropped off","n"]];
 var VISA_WIP=["LS_VISA_FILING_STARTED","LS_VISA_WIP","LS_VISA_APPLIED","LS_VISA_PROCESS_ON_HOLD"];
 function reChipOf(l){ var g=leadGroup(l);
   if(g==="deposit_done") return "dep";
-  if(g==="visa") return VISA_WIP.indexOf(l.stage)!==-1 ? "visa" : null;
-  if(g!=="pre_sti"&&g!=="sti") return null;
-  if(l.servicing==="PAID_SERVICE") return "prem";
-  return g==="sti" ? "sti" : "nosti"; }
+  if(g==="sti") return "sti";
+  if(g==="visa") return VISA_WIP.indexOf(l.stage)!==-1 ? "visa" : "vdone";
+  if(g==="pre_sti") return "pre";
+  return "drop"; }
 function reRank(l){ for(var i=0;i<RE_CHIPS.length;i++) if(RE_CHIPS[i][0]===reChipOf(l)) return i; return 9; }
+function callEligible(l){ var c=reChipOf(l); return c==="dep"||c==="sti"||c==="visa"; }
 function isJoined(l){ var r=S.lv[l._lv].req; return !!(r.joined&&r.joined[l.id]); }
+function hasNoGroup(l){ var r=S.lv[l._lv].req; return !!(r.noGroup&&r.noGroup[l.id]); }
 /* Mock call log, seeded from the lead ID for leads already in the group. */
 function callRec(l){
   if(!S.calls[l.id]){ var n=parseInt(l.id.replace(/\D/g,""),10), j=isJoined(l);
     S.calls[l.id]={tries: j&&n%5===1?2:0, connected: j&&n%5===0}; }
   return S.calls[l.id];
 }
-function taskClosed(l){ var c=callRec(l); return isJoined(l) && (c.connected || c.tries>=3); }
-function drawerLeads(scope){
-  if(scope!=="re") return [];
+function taskClosed(l){ var c=callRec(l); return isJoined(l) && (!callEligible(l) || c.connected || c.tries>=3); }
+/* Every lead reassigned to the viewer (or to their team, for TL / POD / SM), with its leaver in _lv. */
+function reassignedFor(){
   var v=S.view, oversight = v==="ankit"||v==="vikram"||v==="rohit", out=[];
   Object.keys(S.lv).forEach(function(id){ var lv=S.lv[id], r=lv.req; if(!r||r.status==="cancelled") return;
     lv.leads.forEach(function(l){
       var owner=lv.assign[l.id];
-      if(!owner || !reChipOf(l)) return;
-      if(!moved(r) && !(r.movedNow&&r.movedNow[l.id])) return;
+      if(!owner || !(r.movedNow&&r.movedNow[l.id])) return;
       if(oversight ? !(v==="vikram" || (v==="rohit" ? podOf(owner)==="rohit" : PEOPLE[owner].tl===v)) : owner!==v) return;
-      l._lv=id; if(!taskClosed(l)) out.push(l);
+      l._lv=id; out.push(l);
     });
   });
-  return out.sort(function(a,b){ return reRank(a)-reRank(b) || (a.name<b.name?-1:1); });
+  return out;
+}
+function drawerLeads(scope){
+  if(scope!=="re") return [];
+  return reassignedFor().filter(function(l){ return !taskClosed(l); }).sort(function(a,b){ return reRank(a)-reRank(b) || (a.name<b.name?-1:1); });
 }
 function reChipHit(l,chip){ return chip==="all" || reChipOf(l)===chip; }
 /* A few of the counselor's own (not reassigned) Boost students, so the drawer reads like the real
@@ -1254,28 +1396,53 @@ function tcCard(name,sub,typeKey,howText,extra,id){
 function ownCardHtml(r){
   return tcCard(r[0], r[1].replace("LD-","")+' · '+esc(r[3])+(isOversight()?' · Assigned to '+esc(PEOPLE[r[2]].name):''), r[4], null, '', r[1]);
 }
-/* One compact row per student: name, ID and bucket, the group's CL / Student ticks, then two CTAs.
-   Call Student stays off until the counsellor has joined the group. TL / POD / SM see status only. */
+/* One compact row per student: name, ID, bucket and country · intake, the group's CL / RM / Student ticks,
+   the two sub-tasks with their state, then the CTAs. Call Student stays off until sub-task 1 is done.
+   TL / POD / SM see status only. */
 function reRowHtml(l){ return withLeaver(l._lv,function(){
-  var j=isJoined(l), c=callRec(l), own=S.view===S.assign[l.id], key=l._lv+'|'+l.id;
-  var lm=leadMeta(l);
-  var meta=l.id.replace("LD-","")+' · '+RE_CHIPS[reRank(l)][1]+' · '+lm.country+' · '+lm.intake+'</small><small>'+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name))+'</small>';
-  var status=wgChecks(own?"You":"CL",j)+(c.tries?'<span class="att">'+c.tries+'/3 attempts</span>':'');
-  var ctas = own ? (j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>')+
-      '<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>'
-    : ((S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-observe="'+l.id+'">Join WA Group</button>')+'<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>');
+  var j=isJoined(l), c=callRec(l), own=S.view===S.assign[l.id], key=l._lv+'|'+l.id, ng=hasNoGroup(l), ce=callEligible(l);
+  var rj=!!(S.req.rmJoined&&S.req.rmJoined[l.id]), lm=leadMeta(l), bucket=RE_CHIPS[reRank(l)][1];
+  var meta=l.id.replace("LD-","")+' · '+bucket+' · '+lm.country+' · '+lm.intake+'</small><small>'+(isOversight()?esc(LV().name)+' &rarr; '+esc(PEOPLE[S.assign[l.id]].name):'From '+esc(LV().name));
+  var s1 = ng ? '<span class="st skip">&#9312; No WhatsApp group · introduce yourself directly</span>'
+    : '<span class="st'+(j?" done":"")+'">&#9312; WhatsApp group · '+(j?"joined":"to join")+'</span>';
+  var s2 = ce ? '<span class="st'+(c.connected?" done":"")+'">&#9313; Call · '+(c.connected?"connected":c.tries+"/3 attempts")+'</span>'
+    : '<span class="st skip">&#9313; Call · not needed ('+({pre:"pre-STI",vdone:"visa approved",drop:"dropped off"}[reChipOf(l)])+')</span>';
+  var status=(ng?"":wgChecks(own?"You":"CL",j,rj))+'<span class="subt">'+s1+s2+'</span>';
+  var ctas;
+  if(own){
+    ctas=(ng?'':(j?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-joinlgc="'+key+'">Join WA Group</button>'))+
+      (ce?'<button class="callbtn" data-callstu="'+key+'"'+(j?'':' disabled title="Join the WA group first"')+'>Call Student</button>':'');
+    if(!ctas) ctas='<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
+  } else {
+    ctas=(ng?'':(S.observe[S.view+"|"+l.id]?'<button class="wabtn" data-viewtask="'+l.id+'">Open WA Group</button>':'<button class="wabtn" data-observe="'+l.id+'">Join WA Group</button>'))+'<button class="callbtn" data-viewtask="'+l.id+'">View Student</button>';
+  }
   return '<div class="rrow"><div class="rl"><b>'+esc(l.name)+'</b><small>'+meta+'</small><div class="rst">'+status+'</div></div><div class="rc">'+ctas+'</div></div>';
 }); }
-/* Mock outcomes, so the closing rule can be tried in the mockup. */
-function joinLgc(lv,id){ withLeaver(lv,function(){ S.req.joined[id]=1; hist(me().name+" joined "+id+"'s Leap group chat; LGC message and email sent to the student",me().name); }); render(); toast("Joined the group. LGC message and email sent to the student"); }
+/* Mock outcomes, so the joining and closing rules can be tried in the mockup. On join the old counsellor
+   and old RM leave the group (the TL too when the lead moved to another TL's team), and the student gets
+   the WhatsApp message (pre- or post-application copy) and an email (CC old + new counsellor; BCC TL, SM). */
+function preAppCopy(l){ return PRE_APP.indexOf(l.stage)!==-1; }
+function joinLgc(lv,id){
+  var msg="";
+  withLeaver(lv,function(){
+    var l=S.leads.filter(function(x){return x.id===id;})[0], old=LV(), nw=PEOPLE[S.assign[id]], tlOut=!!old.tl && nw.tl!==old.tl, copy=preAppCopy(l)?"Pre-application":"Post-application";
+    S.req.joined[id]=1;
+    hist(nw.name+" joined "+id+"'s WhatsApp group. "+old.name+" and old RM "+RM_NAMES[old.rm]+" removed"+(tlOut?"; "+TLof(lv).name+" removed (lead moved to another TL's team)":"")+". "+copy+" WhatsApp message posted; email sent (CC "+old.name+", "+nw.name+"; BCC TL, SM)",me().name);
+    msg=copy+" WhatsApp message and email sent to the student. "+old.name+" and the old RM were removed from the group";
+  });
+  render(); toast("Joined the group. "+msg);
+}
 function callStudent(lv,id){
   var l=S.lv[lv].leads.filter(function(x){return x.id===id;})[0]; l._lv=lv;
   showModal('<h3>Calling '+esc(l.name)+' on Jerry</h3><p style="font-size:13px;color:var(--muted);margin:0">Mockup: pick how the call went.</p><div class="row" style="flex-direction:column;align-items:stretch;gap:8px">'+
     '<button class="btn" data-co="ok">Connected, talked for over 10 seconds</button><button class="btn" data-co="ring">Rang 30s or more, not picked up (counts as an attempt)</button><button class="btn" data-co="short">Rang under 30s (doesn\'t count)</button></div><div class="row" style="justify-content:flex-end"><button class="btn" data-m="close">Cancel</button></div>');
   document.querySelectorAll("[data-co]").forEach(function(b){ b.onclick=function(){ var c=callRec(l), k=b.dataset.co;
     if(k==="ok") c.connected=true; else if(k==="ring") c.tries++;
+    var fallback = k==="ring" && !c.connected && c.tries>=3;
+    if(k==="ok") withLeaver(lv,function(){ hist("Call connected to "+id+"; handover task closed",me().name); });
+    if(fallback) withLeaver(lv,function(){ hist("3 unanswered call attempts to "+id+"; handover task closed. Email and LGC notification sent to the student as fallback",me().name); });
     closeModal(); render();
-    toast(taskClosed(l) ? (c.connected?"Call connected. Task closed":"3 attempts made. Task closed") : k==="ring" ? "Attempt "+c.tries+" of 3 logged" : "Under 30s, not counted as an attempt"); }; });
+    toast(taskClosed(l) ? (c.connected?"Call connected. Task closed":"3 attempts made. Task closed; email and LGC notification sent to the student") : k==="ring" ? "Attempt "+c.tries+" of 3 logged" : "Under 30s, not counted as an attempt"); }; });
 }
 /* View Task: the production lead page (Back, name, Templates / WhatsApp, details card). The WhatsApp
    groups row carries the membership checkboxes; for a reassigned lead the counsellor's box stays empty
@@ -1320,15 +1487,19 @@ function renderTaskDrawer(){
   var d=S.drawerOpen; if(!d) return "";
   var q=(d.search||"").trim().toLowerCase();
   function hit(name,id){ return !q || name.toLowerCase().indexOf(q)!==-1 || id.toLowerCase().indexOf(q)!==-1; }
-  var chips, list, total, due;
+  var chips, list, total, due, strip="";
   if(d.scope==="re"){
     var re=drawerLeads("re"), shown=re.filter(function(l){ return reChipHit(l,d.chip) && hit(l.name,l.id); });
+    var all=reassignedFor(), b=bands(all);
     total=shown.length; due=re.filter(function(l){return !callRec(l).tries;}).length;
+    /* What arrived: total plus the pre-STI / post-STI / visa-stage split. */
+    strip='<div class="sumstrip"><span class="n num">'+all.length+'</span><span class="lbl">reassigned to '+(isOversight()?"your team":"you")+'</span>'+
+      b.filter(function(x){return x[1]>0;}).map(function(x){ return '<span class="sb"><b class="num">'+x[1]+'</b> '+x[0]+'</span>'; }).join("")+'</div>';
     chips='<button class="fchip dark'+(d.chip==="all"?" on":"")+'" data-chip="all">All <span class="cn">'+re.length+'</span></button>'+
       RE_CHIPS.map(function(c){ return '<button class="fchip '+c[2]+(d.chip===c[0]?" on":"")+'" data-chip="'+c[0]+'">'+c[1]+' <span class="cn">'+re.filter(function(l){return reChipHit(l,c[0]);}).length+'</span></button>'; }).join("");
-    list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students reassigned to your team's counsellors from a counsellor who is leaving. Joining a group lets you follow along; it doesn't change the CL's task. CLs call them in this order:":"Students reassigned to you from a counsellor who is leaving. Call them in this order:")+' deposit done, premium / lock-in, STI done, STI not done, visa in process.</p></div>'+
-      '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>Join the student\'s WhatsApp group first, then call them. Closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more).</p></div></div>'+
-      (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">No students match.</div>');
+    list = '<div class="defbox"><div class="def"><b>&#8505;&#65039; DEFINITION</b><p>'+(isOversight()?"Students reassigned to your team's counsellors from a counsellor who is leaving. One task per student. Joining a group lets you follow along; it doesn't change the counsellor's task.":"Students reassigned to you from a counsellor who is leaving. One task per student, two sub-tasks: &#9312; join the student's WhatsApp group (every lead), &#9313; call the student (post-STI, pre-visa-approved only). Call in this order: deposit done, STI done, visa in process.")+'</p></div>'+
+      '<div class="clo"><b>&#9989; TASK CLOSURE</b><p>&#9312; is done when you join the group; if the student has no group, introduce yourself directly (nothing to join). &#9313; closes once a call connects for over 10 seconds, or after 3 unanswered attempts (each ringing 30s or more); it can\'t be closed without a call attempt, and the student gets an email and an LGC notification if they don\'t pick up. Pre-STI, visa-approved and dropped-off leads only need &#9312;.</p></div></div>'+
+      (total ? '<div class="rrows">'+shown.map(reRowHtml).join("")+'</div>' : '<div class="note">'+(re.length?"No students match.":"No open handover tasks.")+'</div>');
   } else {
     var own=ownBoostRows(d.scope), ownShown=own.filter(function(r){return hit(r[0],r[1]);});
     total=ownShown.length; due=d.scope==="sti"?10:4;
@@ -1338,7 +1509,7 @@ function renderTaskDrawer(){
   }
   return '<div class="drawerbg" id="drawerBg"></div>'+
     '<div class="drawer" role="dialog" aria-modal="true"><div class="dhead"><button id="drawerBack" aria-label="Back">&larr;</button><b>'+esc(drawerTitle(d.scope))+'</b><button id="drawerRefresh" aria-label="Refresh">&#8635;</button><button id="drawerClose" aria-label="Close">&times;</button></div>'+
-    '<div class="dtop">'+(isOversight()?'<span class="clsel">&#128101; CL: All &#8964;</span>':'')+
+    '<div class="dtop">'+strip+(isOversight()?'<span class="clsel">&#128101; CL: All &#8964;</span>':'')+
       '<div class="row" style="gap:10px"><button class="todaybtn'+(d.today?" on":"")+'" id="todayBtn">&#128197; Today\'s Tasks Only</button><span class="dsub">'+due+' students due today</span></div>'+
       '<div class="fchips">'+chips+'</div>'+
       '<input class="dsearch" id="drawerSearch" placeholder="Search by name or ID..." value="'+esc(d.search||"")+'"></div>'+
@@ -1440,56 +1611,68 @@ function rahulProfile(){
   return '<div class="page">'+profileCard()+'</div>';
 }
 
-/* ---------- 8 PM transfer (T-7) ---------- */
-function runTransfer(){
-  S.cur="priya";
-  var r=S.req; if(!r||r.status!=="approved") return;
-  S.clock=fmt(transferDate(r))+", 8:00 PM";
-  var me_=LV(), pool=eligible().filter(function(p){ return me_.tl ? p.tl===me_.tl : podOf(p.id)===me_.pod; });
-  if(!pool.length) pool=eligible();
-  var load=function(p){ return p.open+Object.keys(S.assign).filter(function(k){return S.assign[k]===p.id;}).length; };
-  pool.sort(function(a,b){return load(a)-load(b);});
-  var left=S.leads.filter(function(l){return !S.assign[l.id];}).sort(function(a,b){return a.id<b.id?-1:1;});
-  left.forEach(function(l,i){ S.assign[l.id]=pool[i%pool.length].id; });
-  if(left.length) hist("Auto split "+left.length+" unscheduled leads across "+TLof(S.cur).name+"'s team","System");
-  hist("Moved "+S.leads.length+" leads with open tasks, follow-ups and history","System");
-  var per={}; S.leads.forEach(function(l){ per[S.assign[l.id]]=(per[S.assign[l.id]]||0)+1; });
-  Object.keys(per).forEach(function(k){ notify(k,"You received "+per[k]+" leads from "+LV().name+". Join each student's Leap group chat to accept them."); });
-  var conn=S.leads.filter(function(l){ var g=leadGroup(l); return g==="sti"||g==="deposit_done"; }).length;
-  hist("Created "+conn+" Connect with Reassigned Leads tasks (Boost STI / Boost Deposit)","System");
-  hist("New counsellors invited on WhatsApp to join "+S.leads.length+" student Leap group chats (Step 0). LGC message and email go to each student when their new counsellor joins","System");
-  /* Mock: about two thirds of new counsellors join on day one. */
-  S.leads.forEach(function(l){ if(parseInt(l.id.slice(3),10)%3) r.joined[l.id]=1; });
+/* ---------- Status changes and the last working day ---------- */
+/* Called after every assignment. Once every lead has an owner the request becomes "Leads reassigned" and
+   the SM and TL are told. If the last working day already passed and the login was blocked on unassigned
+   leads, it deactivates the moment the last lead is reassigned. */
+function syncStatus(id){
+  var lv=S.lv[id], r=lv.req;
+  if(r.status!=="approved" || Object.keys(lv.assign).length<lv.leads.length) return;
   r.status="transferred"; r.tTr=now();
-  hist(LV().name+" stays in the Leap group chats until 8 PM on "+fmt(r.lwd),"System");
-  S.phase="joining"; S.tl.sel={};
-  var tlId=TLof(S.cur).id, nw=Object.keys(per).length;
-  notify(tlId,LV().name+"'s "+S.leads.length+" leads moved to "+nw+" counsellors. Track who has joined the students' Leap group chats.",{label:"Track handover",route:"home",tab:"tasks",tm:"sched",focus:S.cur});
-  notify("vikram",LV().name+"'s "+S.leads.length+" leads moved to "+nw+" counsellors. Track the handover until their last working day.",{label:"Track handover",route:"home",tab:"tasks",tm:"lwd",tmView:S.cur});
-  render(); toast("Leads moved");
+  withLeaver(id,function(){ hist("All "+lv.leads.length+" leads reassigned","System"); });
+  [TLof(id).id,"vikram"].forEach(function(w){
+    notify(w,PEOPLE[id].name+"'s "+lv.leads.length+" leads are all reassigned. Track the new counsellors joining the students' WhatsApp groups.",
+      w==="vikram"?{label:"Track handover",route:"home",tab:"tasks",tm:"lwd",tmView:id}:{label:"Track handover",route:"home",tab:"tasks",tm:"sched",focus:id}); });
+  if(r.blocked) deactivate(id);
 }
-function finishRetries(){
-  S.cur="priya";
-  if(S.phase!=="joining") return;
-  S.clock=fmt(addDays(transferDate(S.req),1))+", 8:00 PM";
-  S.leads.forEach(function(l){ S.req.joined[l.id]=1; });
-  hist("All new counsellors joined their students' Leap group chats; LGC message and email sent to every student","System");
-  S.phase="done"; render(); toast("Everyone joined their Leap group chats");
+/* Login deactivated. The old counsellor already left each group when its new counsellor joined; they stay
+   only in groups where nobody joined, as the fallback. */
+function deactivate(id){
+  var lv=S.lv[id], r=lv.req, p=PEOPLE[id], n=lv.leads.length, j=Object.keys(r.joined).length, never=n-j;
+  r.status="deactivated"; r.blocked=false;
+  withLeaver(id,function(){ hist(p.name+"'s CRM login deactivated"+(never?". "+never+" students never got their new counsellor in the group, so "+p.name+" stays in those groups as fallback":""),"System"); });
+  [TLof(id).id,"vikram"].forEach(function(w){ notify(w,p.name+"'s last working day is done: login deactivated"+(never?"; "+never+" groups still have no new counsellor.":"."),
+    w==="vikram"?{label:"View",route:"home",tab:"tasks",tm:"lwd",tmView:id}:{label:"View",route:"home",tab:"tasks",tm:"sched",focus:id}); });
 }
-/* Last working day, 8 PM: the old counsellor is removed from every student's Leap group chat and their
-   CRM login is deactivated. Their TL is removed only from groups whose lead went to a counsellor under a
-   different TL (e.g. the SM or POD reassigned it across teams); if the TL is unchanged they stay. The
-   record drops off the SM's list. */
+/* Mock: every new counsellor of Priya's leads joins their students' groups. The old counsellor and old RM
+   are removed on each join; the student gets the WhatsApp message and email. */
+function joinAll(){
+  var lv=S.lv.priya, r=lv.req; if(!r) return;
+  S.clock=fmt(addDays(parseStamp(S.clock)||TODAY,1))+", 8:00 PM";
+  var n=0;
+  lv.leads.forEach(function(l){ if(lv.assign[l.id] && !r.joined[l.id]){ r.joined[l.id]=1; n++; } if(lv.assign[l.id]) r.rmJoined[l.id]=1; });
+  withLeaver("priya",function(){ hist(n+" new counsellors joined their students' WhatsApp groups; "+PEOPLE.priya.name+" and the old RM removed on each join; WhatsApp message and email sent to each student","System"); });
+  render(); toast("Everyone joined their WhatsApp groups");
+}
+/* 11 PM on the day before the last working day: any new counsellor who has joined none of their groups
+   triggers an alert email to the SM. If the last working day is tomorrow it fires the same day. */
+function lwdAlert(){
+  var lv=S.lv.priya, r=lv.req; if(!r) return;
+  S.clock=fmt(addDays(r.lwd,-1))+", 11:00 PM";
+  var by={};
+  lv.leads.forEach(function(l){ var o=lv.assign[l.id]; if(!o||r.noGroup[l.id]) return; var x=by[o]=by[o]||{n:0,j:0}; x.n++; if(r.joined[l.id]) x.j++; });
+  var idle=Object.keys(by).filter(function(k){ return by[k].j===0; });
+  if(!idle.length){ render(); toast("No alert: every new counsellor has joined at least one group"); return; }
+  var text=idle.map(function(k){ return PEOPLE[k].name+" ("+by[k].n+" groups)"; }).join(", ")+" "+(idle.length>1?"have":"has")+" joined none of their groups from "+PEOPLE.priya.name+".";
+  r.alerted=fmtStamp(parseStamp(S.clock)); r.alertText=text;
+  withLeaver("priya",function(){ hist("11 PM, one day before the last working day: alert email sent to the SM. "+text,"System"); });
+  notify("vikram","Alert email: "+text+" "+PEOPLE.priya.name+" leaves tomorrow at 8 PM.",{label:"Track handover",route:"home",tab:"tasks",tm:"lwd",tmView:"priya"});
+  render(); toast("Alert email sent to the SM");
+}
+/* 8 PM on the last working day. If every lead has been reassigned the login is deactivated; if not it
+   stays active (the long-standing system rule) and the SM and TL are alerted until the leads are placed. */
 function jumpToLwd(){
-  S.cur="priya";
-  var r=S.req; if(!r||r.status!=="transferred") return;
-  S.clock=fmt(r.lwd)+", 8:00 PM"; S.phase="done";
-  r.status="deactivated";
-  var oldTl=LV().tl, cross=!oldTl?0:S.leads.filter(function(l){ var o=S.assign[l.id]; return o && PEOPLE[o].tl!==oldTl; }).length;
-  hist(LV().name+" removed from "+S.leads.length+" Leap group chats; CRM login deactivated","System");
-  if(oldTl) hist(cross ? TLof(S.cur).name+" removed from "+cross+" Leap group chats whose lead moved to another TL's team; stays in the other "+(S.leads.length-cross) : TLof(S.cur).name+" stays in all "+S.leads.length+" Leap group chats (every lead stayed in the same team)","System");
-  [TLof(S.cur).id,"vikram"].forEach(function(w){ notify(w,LV().name+"'s last working day is done: removed from the Leap group chats and CRM login deactivated.",w==="vikram"?{label:"View",route:"home",tab:"tasks",tm:"lwd",tmView:S.cur}:{label:"View",route:"home",tab:"tasks",tm:"sched",focus:S.cur}); });
-  render(); toast("Last working day: removed from Leap group chats, login deactivated");
+  var lv=S.lv.priya, r=lv.req; if(!r||(r.status!=="approved"&&r.status!=="transferred")) return;
+  S.clock=fmt(r.lwd)+", 8:00 PM";
+  var left=lv.leads.length-Object.keys(lv.assign).length;
+  if(left>0){
+    r.blocked=true;
+    withLeaver("priya",function(){ hist("Last working day, 8 PM: "+left+" leads are still unassigned, so the login can't be deactivated. Alert sent to the SM and "+TLof("priya").name,"System"); });
+    [TLof("priya").id,"vikram"].forEach(function(w){ notify(w,PEOPLE.priya.name+"'s last working day has passed with "+left+" leads still unassigned. The login stays active until they are reassigned.",
+      w==="vikram"?{label:"Reassign leads",route:"home",tab:"tasks",tm:"sched",focus:"priya"}:{label:"Reassign leads",route:"home",tab:"tasks",tm:"sched",focus:"priya"}); });
+    render(); toast("Deactivation blocked: "+left+" leads still unassigned"); return;
+  }
+  deactivate("priya"); render(); toast("Last working day: login deactivated");
 }
 
 /* ---------- View assigned leads (new counsellor) ----------
@@ -1499,11 +1682,12 @@ var OWN_LEADS=[["Aarav Mehta","LD-31842","LS_APPLICATION_SUBMITTED_TO_INSTITUTE"
 function assignedPage(){
   var reLeads=[], v=S.view;
   Object.keys(S.lv).forEach(function(id){ withLeaver(id,function(){ var r=S.req; if(!r) return;
-    S.leads.forEach(function(l){ if(S.assign[l.id]===v && (moved(r)||(r.movedNow&&r.movedNow[l.id]))) reLeads.push({l:l,from:PEOPLE[id].name,on:r.movedNow&&r.movedNow[l.id]&&!moved(r)?fmtShort(r.appDay):fmtShort(transferDate(r)),joined:!!(r.joined&&r.joined[l.id])}); }); }); });
-  var a=S.assigned, rows=[];
-  reLeads.forEach(function(x){ rows.push('<tr><td><b>'+esc(x.l.name)+'</b></td><td>'+x.l.id+'</td><td>'+esc(STAGE_LABEL[x.l.stage])+'</td><td>'+esc(GROUP_LABEL[leadGroup(x.l)])+'</td><td><span class="badge b-blue">Reassigned</span> <small class="sub">from '+esc(x.from)+' · '+x.on+'</small></td><td>'+wgChecks("You",x.joined)+(x.joined?'':'<small class="sub">Join to accept this lead (Step 0)</small>')+'</td></tr>'); });
+    S.leads.forEach(function(l){ if(S.assign[l.id]===v && r.movedNow && r.movedNow[l.id]) reLeads.push({l:l,from:PEOPLE[id].name,on:r.movedNow[l.id],joined:!!(r.joined&&r.joined[l.id]),ng:!!(r.noGroup&&r.noGroup[l.id]),rj:!!(r.rmJoined&&r.rmJoined[l.id])}); }); }); });
+  var a=S.assigned, rows=[], b=bands(reLeads.map(function(x){return x.l;}));
+  reLeads.forEach(function(x){ rows.push('<tr><td><b>'+esc(x.l.name)+'</b></td><td>'+x.l.id+'</td><td>'+esc(STAGE_LABEL[x.l.stage])+'</td><td>'+esc(GROUP_LABEL[leadGroup(x.l)])+'</td><td><span class="badge b-blue">Reassigned</span> <small class="sub">from '+esc(x.from)+' · '+esc(x.on)+'</small></td><td>'+(x.ng?'<span class="badge b-grey">No WhatsApp group</span><small class="sub">Introduce yourself directly</small>':wgChecks("You",x.joined,x.rj)+(x.joined?'':'<small class="sub">Join to accept this lead</small>'))+'</td></tr>'); });
   if(!a.onlyRe) OWN_LEADS.forEach(function(o){ rows.push('<tr><td><b>'+esc(o[0])+'</b></td><td>'+o[1]+'</td><td>'+esc(STAGE_LABEL[o[2]])+'</td><td>'+esc(GROUP_LABEL[STAGE_GROUP[o[2]]])+'</td><td style="color:var(--faint)">—</td><td style="color:var(--faint)">—</td></tr>'); });
-  return '<div class="page"><button class="back" data-tasks>&larr; Back</button><div class="ph"><div><h1>My assigned leads</h1><p>Reassigned leads are marked so you can tell them apart. Join each student\'s Leap group chat to accept a reassigned lead.</p></div></div>'+
+  var strip = reLeads.length ? '<div class="sumstrip"><span class="n num">'+reLeads.length+'</span><span class="lbl">reassigned to you</span>'+b.filter(function(x){return x[1]>0;}).map(function(x){ return '<span class="sb"><b class="num">'+x[1]+'</b> '+x[0]+'</span>'; }).join("")+'</div>' : '';
+  return '<div class="page"><button class="back" data-tasks>&larr; Back</button><div class="ph"><div><h1>My assigned leads</h1><p>Reassigned leads are marked so you can tell them apart. Join each student\'s WhatsApp group to accept a reassigned lead.</p></div></div>'+strip+
     '<div class="dchips"><button class="chip'+(a.onlyRe?"":" on")+'" data-asg="0">All</button><button class="chip'+(a.onlyRe?" on":"")+'" data-asg="1">Reassigned <span class="num">'+reLeads.length+'</span></button></div>'+
     '<div class="tw"><table><thead><tr><th>Student</th><th>Lead ID</th><th>Stage</th><th>Group</th><th>Reassigned</th><th>WhatsApp group</th></tr></thead><tbody>'+(rows.join("")||'<tr><td colspan="6">No leads.</td></tr>')+'</tbody></table></div>'+
     '<div style="font-size:12px;color:var(--muted)">Mock: '+OWN_LEADS.length+' sample own leads plus every lead reassigned to you.</div></div>';
@@ -1532,7 +1716,7 @@ function render(){
   else if(S.route==="profile"){ S.cur="priya"; html = v==="priya"?counselorHome(): v==="vikram"?smHome(): (v==="ankit"||v==="rohit")?tlHome(): rahulProfile(); }
   else { S.route="home"; S.cur="priya"; html = S.activeTab==="tasks" ? tasksPerfPage() : ldPage(); }
   m.innerHTML=html;
-  /* After building, bindings for the open scheduling accordion (TL/SM on Tasks & Performance) act on S.focus. */
+  /* After building, bindings for the open reassign accordion (TL/SM on Tasks & Performance) act on S.focus. */
   if(!(S.route==="home"&&S.activeTab==="tasks")) S.tm=null;
   withLeaver("priya",renderTaskModal); lockScroll();
   var schedOpen = S.tm==="sched" && lead && S.focus && S.lv[S.focus];
